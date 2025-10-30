@@ -8,6 +8,9 @@ DATA_CONFIG = {
     "n_train": 40000,
     "n_test": 10000,
     "batch_size": 32,
+    "num_workers": 4,  # number of data loading workers
+    "root": "./datasets",
+    "img_size": 224,  # target image size for imageNet
 }
 
 # Model configuration

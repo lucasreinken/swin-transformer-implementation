@@ -5,8 +5,10 @@ import numpy as np
 from torchvision.datasets import CIFAR10
 import os
 from torchvision.transforms import ToTensor
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Callable
 from pathlib import Path
+from PIL import Image
+from torchvision import transforms, datasets
 
 
 class CIFAR10Dataset(Dataset):
@@ -32,9 +34,53 @@ class CIFAR10Dataset(Dataset):
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, int]:
         # Reshape to (3, 32, 32) then transpose to (32, 32, 3) for (H, W, C)
         sample = self.data[idx].reshape(3, 32, 32).transpose(1, 2, 0)
+
+        # Convert numpy array to PIL Image
+        sample = (sample * 255).astype(np.uint8)  # Scale to [0, 255] for PIL
+        sample = Image.fromarray(sample)
+
         if self.transform:
             sample = self.transform(sample)
         return sample, self.labels[idx]
+
+
+def get_default_transforms(dataset: str, img_size: int = 224) -> Callable:
+    """
+    Get default transformations for different datasets.
+    CIFAR: 32x32, ImageNet: 224x224
+
+    Args:
+        dataset: Dataset name like 'CIFAR10' or 'ImageNet'
+        img_size: Target image size for resizing
+
+    Returns:
+        A torchvision.transforms.Compose object with the appropriate transformations.
+    """
+    if dataset in ["CIFAR10", "CIFAR100"]:
+        cifar_mean = [0.4914, 0.4822, 0.4465]
+        cifar_std = [0.2470, 0.2435, 0.2616]
+
+        return transforms.Compose(
+            [
+                transforms.ToTensor(),
+                transforms.Normalize(mean=cifar_mean, std=cifar_std),
+            ]
+        )
+
+    elif dataset == "ImageNet":
+        imagenet_mean = [0.485, 0.456, 0.406]
+        imagenet_std = [0.229, 0.224, 0.225]
+
+        return transforms.Compose(
+            [
+                transforms.Resize((img_size, img_size)),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=imagenet_mean, std=imagenet_std),
+            ]
+        )
+
+    else:
+        raise ValueError(f"No default transforms defined for dataset: {dataset}")
 
 
 def load_data(
@@ -43,6 +89,9 @@ def load_data(
     n_train: Optional[int] = None,
     n_test: Optional[int] = None,
     batch_size: int = 32,
+    num_workers: int = 4,
+    root: str = "./datasets",
+    img_size: int = 224,
 ) -> Tuple[DataLoader, DataLoader]:
     """
     Load CIFAR-10 data and return train/test DataLoaders.
@@ -53,57 +102,98 @@ def load_data(
         n_train: Number of training samples to use.
         n_test: Number of test samples to use.
         batch_size: Batch size for DataLoader.
+        num_workers: Number of workers for DataLoader.
+        root: Root directory for dataset.
+        img_size: Target image size.
 
     Returns:
         Tuple of (train_generator, test_generator)
     """
-    data_dir = Path("./datasets/cifar-10-batches-py")
-    if not data_dir.exists():
-        print(f"Data {data_dir} not found. Downloading {dataset} ...")
-        CIFAR10(root="./datasets", train=True, download=True)
-        CIFAR10(root="./datasets", train=False, download=True)
-        print(f"Downloaded {dataset} to {data_dir}")
+    if transformation is None:
+        transformation = get_default_transforms(dataset, img_size)
 
-    if not data_dir.exists():
-        raise FileNotFoundError(
-            f"Failed to download or locate {dataset} data at {data_dir}"
+    if dataset == "CIFAR10":
+        data_dir = Path("./datasets/cifar-10-batches-py")
+        if not data_dir.exists():
+            print(f"Data {data_dir} not found. Downloading {dataset} ...")
+            datasets.CIFAR10(root="./datasets", train=True, download=True)
+            datasets.CIFAR10(root="./datasets", train=False, download=True)
+            print(f"Downloaded {dataset} to {data_dir}")
+
+        if not data_dir.exists():
+            raise FileNotFoundError(
+                f"Failed to download or locate {dataset} data at {data_dir}"
+            )
+
+        # Load training data (data_batch 1 to data_batch 5)
+        train_data = []
+        train_labels = []
+        for i in range(1, 6):
+            with open(os.path.join(data_dir, f"data_batch_{i}"), "rb") as f:
+                batch = pickle.load(f, encoding="bytes")
+                train_data.append(batch[b"data"])
+                train_labels.extend(batch[b"labels"])
+
+        train_data = np.vstack(train_data)
+        train_labels = np.array(train_labels)
+
+        # Load test data
+        with open(os.path.join(data_dir, "test_batch"), "rb") as f:
+            test_batch = pickle.load(f, encoding="bytes")
+            test_data = test_batch[b"data"]
+            test_labels = np.array(test_batch[b"labels"])
+
+        # Create datasets (transform applied in __getitem__)
+        train_dataset = CIFAR10Dataset(
+            train_data, train_labels, transform=transformation
+        )
+        test_dataset = CIFAR10Dataset(test_data, test_labels, transform=transformation)
+
+    elif dataset == "CIFAR100":
+        train_dataset = datasets.CIFAR100(
+            root=root, train=True, transform=transformation, download=True
+        )
+        test_dataset = datasets.CIFAR100(
+            root=root, train=False, transform=transformation, download=True
         )
 
-    # Load training data (data_batch 1 to data_batch 5)
-    train_data = []
-    train_labels = []
-    for i in range(1, 6):
-        with open(os.path.join(data_dir, f"data_batch_{i}"), "rb") as f:
-            batch = pickle.load(f, encoding="bytes")
-            train_data.append(batch[b"data"])
-            train_labels.extend(batch[b"labels"])
+    elif dataset == "ImageNet":
+        train_dir = Path(f"{root}/imagenet/train")
+        test_dir = Path(f"{root}/imagenet/val")
 
-    train_data = np.vstack(train_data)
-    train_labels = np.array(train_labels)
+        if not Path(train_dir).exists() or not Path(test_dir).exists():
+            raise FileNotFoundError(
+                f"ImageNet data not found in {root}. Please download and extract it."
+            )
 
-    # Load test data
-    with open(os.path.join(data_dir, "test_batch"), "rb") as f:
-        test_batch = pickle.load(f, encoding="bytes")
-        test_data = test_batch[b"data"]
-        test_labels = np.array(test_batch[b"labels"])
+        train_dataset = datasets.ImageFolder(train_dir, transform=transformation)
+        test_dataset = datasets.ImageFolder(test_dir, transform=transformation)
 
-    # Create datasets (transform applied in __getitem__)
-    transform = transformation if transformation else ToTensor()
-    train_dataset = CIFAR10Dataset(train_data, train_labels, transform=transform)
-    test_dataset = CIFAR10Dataset(test_data, test_labels, transform=transform)
+    else:
+        raise ValueError(f"Dataset {dataset} not supported.")
 
-    # Split train set if specified
-    total_size = len(train_dataset)
-    train_size = n_train if n_train else int(0.8 * total_size)
-    test_size = n_test if n_test else len(test_dataset)
+    if n_train is not None and n_train < len(train_dataset):
+        train_dataset = torch.utils.data.Subset(train_dataset, range(n_train))
 
-    train_dataset = torch.utils.data.Subset(train_dataset, range(train_size))
-    test_dataset = torch.utils.data.Subset(
-        test_dataset, range(min(test_size, len(test_dataset)))
+    if n_test is not None and n_test < len(test_dataset):
+        test_dataset = torch.utils.data.Subset(test_dataset, range(n_test))
+
+    train_loader = DataLoader(
+        train_dataset,
+        batch_size=batch_size,
+        shuffle=True,
+        num_workers=num_workers,
+        pin_memory=True,
+        persistent_workers=True if num_workers > 0 else False,
     )
 
-    # Generators with lazy loading
-    train_generator = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    test_generator = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+    test_loader = DataLoader(
+        test_dataset,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=num_workers,
+        pin_memory=True,
+        persistent_workers=True if num_workers > 0 else False,
+    )
 
-    return train_generator, test_generator
+    return train_loader, test_loader

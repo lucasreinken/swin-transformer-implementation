@@ -22,20 +22,14 @@ def main():
 
     # Load data with proper normalization
     print("Loading data...")
-    # CIFAR-10 mean and std for normalization
-    normalize_transform = transforms.Compose(
-        [
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ]
-    )
-
     train_generator, test_generator = load_data(
         dataset=DATA_CONFIG["dataset"],
-        transformation=normalize_transform,
         n_train=DATA_CONFIG["n_train"],
         n_test=DATA_CONFIG["n_test"],
         batch_size=DATA_CONFIG["batch_size"],
+        num_workers=DATA_CONFIG["num_workers"],
+        root=DATA_CONFIG["root"],
+        img_size=DATA_CONFIG["img_size"],
     )
 
     # Visualize first batch

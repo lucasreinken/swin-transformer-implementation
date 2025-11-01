@@ -10,6 +10,7 @@ from src.data import load_data
 from src.models import SimpleModel
 from src.training import train_one_epoch, evaluate_model
 from config import DATA_CONFIG, MODEL_CONFIG, TRAINING_CONFIG, VIZ_CONFIG
+from src.training.checkpoints import save_checkpoint, save_model_weights
 from src.utils.visualization import show
 
 
@@ -80,8 +81,22 @@ def main():
             f"Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}, "
             f"Accuracy: {accuracy:.2f}%"
         )
+        if (epoch + 1) % 10 == 0:
+            print(f"Saving checkpoint for epoch {epoch+1}...")
+            save_checkpoint(
+                model,
+                optimizer,
+                epoch + 1,
+                train_loss,
+                f"checkpoint_epoch_{epoch+1}.pth",
+            )
 
     print("Training completed!")
+
+    # Save final model weights
+    save_model_weights(
+        model, f"models/{DATA_CONFIG['dataset']}_final_model_weights.pth"
+    )
 
 
 if __name__ == "__main__":

@@ -1,3 +1,3 @@
-from .visualization import show
+from .visualization import show, show_batch, show_raw_batch
 
-__all__ = ["show"]
+__all__ = ["show", "show_batch", "show_raw_batch"]

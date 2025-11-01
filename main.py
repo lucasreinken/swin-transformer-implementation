@@ -12,6 +12,8 @@ from src.models import SimpleModel
 from src.training import train_one_epoch, evaluate_model
 from src.utils import show
 from config import DATA_CONFIG, MODEL_CONFIG, TRAINING_CONFIG, VIZ_CONFIG
+from src.utils.visualization import show_raw_batch
+from src.utils.visualization import CIFAR_CLASSES
 
 
 def main():
@@ -34,13 +36,12 @@ def main():
 
     # Visualize first batch
     print("Visualizing first batch...")
-    for x, y in train_generator:
-        print(
-            f"Sample shape: {x.shape}, Type: {x.dtype}, "
-            f"Label: {y[0]}, Min/Max: {x.min().item()}/{x.max().item()}"
-        )
-        show(x, y=y, outfile=VIZ_CONFIG["output_file"], figsize=VIZ_CONFIG["figsize"])
-        break
+    show_raw_batch(
+        dataset=DATA_CONFIG["dataset"],
+        n_images=16,
+        outfile=VIZ_CONFIG["output_file"],
+        figsize=VIZ_CONFIG["figsize"],
+    )
 
     # Initialize model
     print("Initializing model...")

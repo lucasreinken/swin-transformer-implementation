@@ -5,13 +5,12 @@ Main orchestration file for the machine learning pipeline.
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torchvision import transforms
 
 from src.data import load_data
 from src.models import SimpleModel
 from src.training import train_one_epoch, evaluate_model
 from config import DATA_CONFIG, MODEL_CONFIG, TRAINING_CONFIG, VIZ_CONFIG
-from src.utils.visualization import show_raw_batch
+from src.utils.visualization import show
 
 
 def main():
@@ -34,7 +33,7 @@ def main():
 
     # Visualize first batch
     print("Visualizing first batch...")
-    show_raw_batch(
+    show(
         dataset=DATA_CONFIG["dataset"],
         n_images=16,
         outfile=VIZ_CONFIG["output_file"],

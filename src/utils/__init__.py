@@ -1,3 +1,3 @@
-from .visualization import show_raw_batch
+from .visualization import show
 
-__all__ = ["show_raw_batch"]
+__all__ = ["show"]

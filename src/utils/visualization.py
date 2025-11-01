@@ -20,7 +20,7 @@ CIFAR_CLASSES = [
 ]
 
 
-def show_raw_batch(
+def show(
     dataset: str = "CIFAR10",
     n_images: int = 16,
     outfile: Optional[str] = None,

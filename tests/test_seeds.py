@@ -7,7 +7,7 @@ import numpy as np
 import torch
 import pytest
 
-from utils.seeds import set_random_seeds, get_worker_init_fn
+from src.utils.seeds import set_random_seeds, get_worker_init_fn
 
 
 class TestSeedManagement:

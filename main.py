@@ -29,14 +29,17 @@ def main():
 
     # Load data with proper normalization
     print("Loading data...")
-    train_generator, test_generator = load_data(
+    train_generator, val_generator, test_generator = load_data(
         dataset=DATA_CONFIG["dataset"],
-        n_train=DATA_CONFIG["n_train"],
-        n_test=DATA_CONFIG["n_test"],
+        n_train=DATA_CONFIG.get("n_train"),
+        n_test=DATA_CONFIG.get("n_test"),
+        use_batch_for_val=DATA_CONFIG.get("use_batch_for_val", False),
+        val_batch=DATA_CONFIG.get("val_batch", 5),
         batch_size=DATA_CONFIG["batch_size"],
         num_workers=DATA_CONFIG["num_workers"],
         root=DATA_CONFIG["root"],
         img_size=DATA_CONFIG["img_size"],
+        worker_init_fn=get_worker_init_fn(SEED_CONFIG["seed"]),
     )
 
     # Visualize first batch
@@ -81,13 +84,26 @@ def main():
         train_loss = train_one_epoch(
             model, train_generator, criterion, optimizer, device
         )
-        test_loss, accuracy = evaluate_model(model, test_generator, criterion, device)
 
-        print(
-            f"Epoch {epoch+1}/{TRAINING_CONFIG['num_epochs']}: "
-            f"Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}, "
-            f"Accuracy: {accuracy:.2f}%"
-        )
+        # Validate every epoch
+        val_loss, val_accuracy = evaluate_model(model, val_generator, criterion, device)
+
+        # Test periodically (every 5 epochs)
+        if (epoch + 1) % 5 == 0:
+            test_loss, test_accuracy = evaluate_model(
+                model, test_generator, criterion, device
+            )
+            print(
+                f"Epoch {epoch+1}/{TRAINING_CONFIG['num_epochs']}: "
+                f"Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Val Acc: {val_accuracy:.2f}%, "
+                f"Test Loss: {test_loss:.4f}, Test Acc: {test_accuracy:.2f}%"
+            )
+        else:
+            print(
+                f"Epoch {epoch+1}/{TRAINING_CONFIG['num_epochs']}: "
+                f"Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Val Acc: {val_accuracy:.2f}%"
+            )
+
         if (epoch + 1) % 10 == 0:
             print(f"Saving checkpoint for epoch {epoch+1}...")
             save_checkpoint(
@@ -99,6 +115,15 @@ def main():
             )
 
     print("Training completed!")
+
+    # Final evaluation on test set
+    print("Performing final evaluation on test set...")
+    final_test_loss, final_test_accuracy = evaluate_model(
+        model, test_generator, criterion, device
+    )
+    print(
+        f"Final Test Results: Loss: {final_test_loss:.4f}, Accuracy: {final_test_accuracy:.2f}%"
+    )
 
     # Save final model weights
     save_model_weights(

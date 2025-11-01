@@ -5,8 +5,8 @@ Configuration file for the machine learning project.
 # Data configuration
 DATA_CONFIG = {
     "dataset": "CIFAR10",
-    "n_train": 40000,
-    "n_test": 10000,
+    "use_batch_for_val": True,
+    "val_batch": 5,
     "batch_size": 32,
     "num_workers": 4,
     "root": "./datasets",

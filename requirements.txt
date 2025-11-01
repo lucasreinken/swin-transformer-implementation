@@ -8,3 +8,6 @@ Pillow>=9.0.0
 
 # Visualization and utilities
 matplotlib>=3.5.0
+
+# Testing
+pytest>=7.0.0

@@ -90,6 +90,7 @@ def load_data(
     num_workers: int = 4,
     root: str = "./datasets",
     img_size: int = 224,
+    worker_init_fn=None,
 ) -> Tuple[DataLoader, DataLoader]:
     """
     Load CIFAR-10 data and return train/test DataLoaders.
@@ -183,6 +184,7 @@ def load_data(
         num_workers=num_workers,
         pin_memory=True,
         persistent_workers=True if num_workers > 0 else False,
+        worker_init_fn=worker_init_fn,
     )
 
     test_loader = DataLoader(
@@ -192,6 +194,7 @@ def load_data(
         num_workers=num_workers,
         pin_memory=True,
         persistent_workers=True if num_workers > 0 else False,
+        worker_init_fn=worker_init_fn,
     )
 
     return train_loader, test_loader

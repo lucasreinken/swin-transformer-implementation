@@ -34,3 +34,9 @@ VIZ_CONFIG = {
     "figsize": (10, 10),
     "output_file": "visualization.png",
 }
+
+# Seed configuration for reproducibility
+SEED_CONFIG = {
+    "seed": 42,
+    "deterministic": False,
+}

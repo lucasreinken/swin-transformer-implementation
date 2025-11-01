@@ -9,13 +9,20 @@ import torch.optim as optim
 from src.data import load_data
 from src.models import SimpleModel
 from src.training import train_one_epoch, evaluate_model
-from config import DATA_CONFIG, MODEL_CONFIG, TRAINING_CONFIG, VIZ_CONFIG
 from src.training.checkpoints import save_checkpoint, save_model_weights
 from src.utils.visualization import show
+from src.utils.seeds import set_random_seeds, get_worker_init_fn
+
+from config import DATA_CONFIG, MODEL_CONFIG, TRAINING_CONFIG, VIZ_CONFIG, SEED_CONFIG
 
 
 def main():
     """Main training pipeline."""
+    # Set random seeds first to ensure reproducibility
+    set_random_seeds(
+        seed=SEED_CONFIG["seed"], deterministic=SEED_CONFIG["deterministic"]
+    )
+
     # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")

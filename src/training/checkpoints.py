@@ -14,10 +14,14 @@ def save_checkpoint(
     optimizer: Optimizer,
     epoch: int,
     loss: float,
-    filepath: str = "checkpoints/checkpoint.pth",
+    filepath: str = "checkpoints/checkpoint_epoch_{epoch}.pth",
 ) -> None:
-    """ "Save full training checkpoint."""
-    os.makedirs(os.path.dirname(f"checkpoints/{filepath}"), exist_ok=True)
+    """Save full training checkpoint."""
+    # Format filename with epoch if placeholder used
+    if "{epoch}" in filepath:
+        filepath = filepath.format(epoch=epoch)
+
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
     checkpoint = {
         "epoch": epoch,
@@ -27,13 +31,13 @@ def save_checkpoint(
     }
 
     torch.save(checkpoint, filepath)
-    print(f"Checkpoint saved: {filepath}")
+    print(f"✅ Checkpoint saved: {filepath}")
 
 
 def load_checkpoint(
     model: nn.Module,
     optimizer: Optional[Optimizer] = None,
-    filepath: str = "checkpoints/model_checkpoint.pth",
+    filepath: str = "checkpoints/checkpoint_epoch_10.pth",
     device: Optional[torch.device] = None,
 ) -> Tuple[nn.Module, Optional[Optimizer], int, float]:
     """Load full training checkpoint."""
@@ -49,19 +53,22 @@ def load_checkpoint(
     epoch = checkpoint.get("epoch", 0)
     loss = checkpoint.get("loss", 0.0)
 
-    print(f"Checkpoint loaded: {filepath} (epoch {epoch}, loss {loss:.4f})")
+    print(f"✅ Checkpoint loaded: {filepath} (epoch {epoch}, loss {loss:.4f})")
+    return model, optimizer, epoch, loss
 
 
-def save_model_weights(model: nn.Module, filepath: str = "model_weights.pth") -> None:
+def save_model_weights(
+    model: nn.Module, filepath: str = "trained_models/model_weights.pth"
+) -> None:
     """Save model weights for inference."""
-    os.makedirs(os.path.dirname(f"checkpoints/{filepath}"), exist_ok=True)
-    torch.save(model.state_dict(), f"checkpoints/{filepath}")
-    print(f"Model weights saved: {filepath}")
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    torch.save(model.state_dict(), filepath)
+    print(f"✅ Model weights saved: {filepath}")
 
 
 def load_model_weights(
     model: nn.Module,
-    filepath: str = "model_weights.pth",
+    filepath: str = "trained_models/model_weights.pth",
     device: Optional[torch.device] = None,
 ) -> nn.Module:
     """Load model weights for inference."""
@@ -72,5 +79,5 @@ def load_model_weights(
     model.load_state_dict(state_dict)
     model.eval()
 
-    print(f"Model weights loaded: {filepath}")
+    print(f"✅ Model weights loaded: {filepath}")
     return model

@@ -37,7 +37,7 @@ def main():
     show(
         dataset=DATA_CONFIG["dataset"],
         n_images=16,
-        outfile=VIZ_CONFIG["output_file"],
+        outfile=f"{VIZ_CONFIG['output_file']}",
         figsize=VIZ_CONFIG["figsize"],
     )
 
@@ -88,14 +88,14 @@ def main():
                 optimizer,
                 epoch + 1,
                 train_loss,
-                f"checkpoint_epoch_{epoch+1}.pth",
+                f"checkpoints/checkpoint_epoch_{epoch+1}.pth",
             )
 
     print("Training completed!")
 
     # Save final model weights
     save_model_weights(
-        model, f"models/{DATA_CONFIG['dataset']}_final_model_weights.pth"
+        model, f"trained_models/{DATA_CONFIG['dataset']}_final_model_weights.pth"
     )
 
 

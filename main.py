@@ -16,6 +16,16 @@ from src.training.metrics import plot_confusion_matrix, plot_training_curves
 
 from config import DATA_CONFIG, MODEL_CONFIG, TRAINING_CONFIG, VIZ_CONFIG, SEED_CONFIG
 
+# Setup logging
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(), logging.FileHandler("training.log")],
+)
+logger = logging.getLogger(__name__)
+
 
 def main():
     """Main training pipeline."""
@@ -26,10 +36,10 @@ def main():
 
     # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
+    logger.info(f"Using device: {device}")
 
     # Load data with proper normalization
-    print("Loading data...")
+    logger.info("Loading data...")
     train_generator, val_generator, test_generator = load_data(
         dataset=DATA_CONFIG["dataset"],
         n_train=DATA_CONFIG.get("n_train"),
@@ -44,7 +54,7 @@ def main():
     )
 
     # Visualize first batch
-    print("Visualizing first batch...")
+    logger.info("Visualizing first batch...")
     show(
         dataset=DATA_CONFIG["dataset"],
         n_images=16,
@@ -53,7 +63,7 @@ def main():
     )
 
     # Initialize model
-    print("Initializing model...")
+    logger.info("Initializing model...")
     model = SimpleModel(
         input_dim=MODEL_CONFIG["input_dim"],
         hidden_dims=MODEL_CONFIG["hidden_dims"],
@@ -63,11 +73,11 @@ def main():
     ).to(device)
 
     # Print model architecture
-    print(
+    logger.info(
         f"Model architecture: Input({MODEL_CONFIG['input_dim']}) -> "
         f"Hidden{MODEL_CONFIG['hidden_dims']} -> Output({MODEL_CONFIG['num_classes']})"
     )
-    print(
+    logger.info(
         f"Total parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad):,}"
     )
 
@@ -93,7 +103,7 @@ def main():
     }
 
     # Training loop
-    print("Starting training...")
+    logger.info("Starting training...")
     for epoch in range(TRAINING_CONFIG["num_epochs"]):
         train_loss = train_one_epoch(
             model, train_generator, criterion, optimizer, device
@@ -127,19 +137,19 @@ def main():
             metrics_history["test_loss"].append(test_loss)
             metrics_history["test_accuracy"].append(test_accuracy)
 
-            print(
+            logger.info(
                 f"Epoch {epoch+1}/{TRAINING_CONFIG['num_epochs']}: "
                 f"Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Val Acc: {val_accuracy:.2f}%, "
                 f"Test Loss: {test_loss:.4f}, Test Acc: {test_accuracy:.2f}%"
             )
         else:
-            print(
+            logger.info(
                 f"Epoch {epoch+1}/{TRAINING_CONFIG['num_epochs']}: "
                 f"Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Val Acc: {val_accuracy:.2f}%"
             )
 
         if (epoch + 1) % 10 == 0:
-            print(f"Saving checkpoint for epoch {epoch+1}...")
+            logger.info(f"Saving checkpoint for epoch {epoch+1}...")
             save_checkpoint(
                 model,
                 optimizer,
@@ -148,12 +158,12 @@ def main():
                 f"checkpoints/checkpoint_epoch_{epoch+1}.pth",
             )
 
-    print("Training completed!")
+    logger.info("Training completed!")
 
-    print("Generating training curves...")
+    logger.info("Generating training curves...")
     plot_training_curves(metrics_history, save_path="training_curves")
 
-    print("Generating confusion matrix on test set...")
+    logger.info("Generating confusion matrix on test set...")
     _, _, final_test_metrics = evaluate_model(
         model,
         test_generator,
@@ -169,20 +179,20 @@ def main():
     )
 
     # Final evaluation on test set
-    print("Performing final evaluation on test set...")
+    logger.info("Performing final evaluation on test set...")
     final_test_loss, final_test_accuracy, final_test_metrics = evaluate_model(
         model, test_generator, criterion, device, detailed_metrics=True
     )
-    print(
+    logger.info(
         f"Final Test Results: Loss: {final_test_loss:.4f}, Accuracy: {final_test_accuracy:.2f}%"
     )
 
-    print(f"\nFinal Test Results:")
-    print(f"Loss: {final_test_loss:.4f}")
-    print(f"Accuracy: {final_test_accuracy:.2f}%")
-    print(f"Precision: {final_test_metrics['precision']:.2f}%")
-    print(f"Recall: {final_test_metrics['recall']:.2f}%")
-    print(f"F1 Score: {final_test_metrics['f1_score']:.2f}%")
+    logger.info(f"\nFinal Test Results:")
+    logger.info(f"Loss: {final_test_loss:.4f}")
+    logger.info(f"Accuracy: {final_test_accuracy:.2f}%")
+    logger.info(f"Precision: {final_test_metrics['precision']:.2f}%")
+    logger.info(f"Recall: {final_test_metrics['recall']:.2f}%")
+    logger.info(f"F1 Score: {final_test_metrics['f1_score']:.2f}%")
 
     # Save final model weights
     save_model_weights(

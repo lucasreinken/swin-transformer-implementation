@@ -2,9 +2,12 @@
 Random seed management for reproducible experiments.
 """
 
+import logging
 import random
 import numpy as np
 import torch
+
+logger = logging.getLogger(__name__)
 
 
 def set_random_seeds(seed: int = 42, deterministic: bool = False) -> None:
@@ -27,7 +30,7 @@ def set_random_seeds(seed: int = 42, deterministic: bool = False) -> None:
             torch.backends.cudnn.deterministic = True
             torch.backends.cudnn.benchmark = False
 
-    print(f"Random seeds set to {seed} (deterministic={deterministic})")
+    logger.info(f"Random seeds set to {seed} (deterministic={deterministic})")
 
 
 def get_worker_init_fn(seed: int):

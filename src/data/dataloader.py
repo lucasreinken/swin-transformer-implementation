@@ -8,6 +8,10 @@ from pathlib import Path
 from PIL import Image
 from torchvision import transforms, datasets
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class CIFAR10Dataset(Dataset):
     """
@@ -43,7 +47,7 @@ class CIFAR10Dataset(Dataset):
 
 
 def get_default_transforms(dataset: str, img_size: int = 224) -> Callable:
-    """
+    """+
     Get default transformations for different datasets.
     CIFAR: 32x32, ImageNet: 224x224
 
@@ -121,10 +125,10 @@ def load_data(
     if dataset == "CIFAR10":
         data_dir = Path("./datasets/cifar-10-batches-py")
         if not data_dir.exists():
-            print(f"Data {data_dir} not found. Downloading {dataset} ...")
+            logger.info(f"Data {data_dir} not found. Downloading {dataset} ...")
             datasets.CIFAR10(root="./datasets", train=True, download=True)
             datasets.CIFAR10(root="./datasets", train=False, download=True)
-            print(f"Downloaded {dataset} to {data_dir}")
+            logger.info(f"Downloaded {dataset} to {data_dir}")
 
         if not data_dir.exists():
             raise FileNotFoundError(

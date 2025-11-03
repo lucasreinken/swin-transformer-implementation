@@ -5,6 +5,10 @@ from typing import Optional, Tuple
 import math
 from pathlib import Path
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 CIFAR_CLASSES = [
     "airplane",
@@ -77,6 +81,6 @@ def show(
     plt.tight_layout()
     if outfile:
         plt.savefig(outfile, dpi=300, bbox_inches="tight")
-        print(f"Saved raw dataset visualization to {outfile}")
+        logger.info(f"Saved raw dataset visualization to {outfile}")
     else:
         plt.show()

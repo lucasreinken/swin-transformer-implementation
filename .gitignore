@@ -6,3 +6,4 @@ trained_models/
 *.pth
 *.png
 .pytest_cache/
+training.log

@@ -7,6 +7,9 @@ import torch.nn as nn
 from torch.optim import Optimizer
 from typing import Tuple, Optional
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def save_checkpoint(
@@ -31,7 +34,7 @@ def save_checkpoint(
     }
 
     torch.save(checkpoint, filepath)
-    print(f"✅ Checkpoint saved: {filepath}")
+    logger.info(f"✅ Checkpoint saved: {filepath}")
 
 
 def load_checkpoint(
@@ -53,7 +56,7 @@ def load_checkpoint(
     epoch = checkpoint.get("epoch", 0)
     loss = checkpoint.get("loss", 0.0)
 
-    print(f"✅ Checkpoint loaded: {filepath} (epoch {epoch}, loss {loss:.4f})")
+    logger.info(f"✅ Checkpoint loaded: {filepath} (epoch {epoch}, loss {loss:.4f})")
     return model, optimizer, epoch, loss
 
 
@@ -63,7 +66,7 @@ def save_model_weights(
     """Save model weights for inference."""
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
     torch.save(model.state_dict(), filepath)
-    print(f"✅ Model weights saved: {filepath}")
+    logger.info(f"✅ Model weights saved: {filepath}")
 
 
 def load_model_weights(
@@ -79,5 +82,5 @@ def load_model_weights(
     model.load_state_dict(state_dict)
     model.eval()
 
-    print(f"✅ Model weights loaded: {filepath}")
+    logger.info(f"✅ Model weights loaded: {filepath}")
     return model

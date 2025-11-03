@@ -8,6 +8,9 @@ from sklearn.metrics import precision_recall_fscore_support, confusion_matrix
 from typing import Dict, Tuple, List
 import matplotlib.pyplot as plt
 import seaborn as sns
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def calculate_classification_metrics(
@@ -202,4 +205,6 @@ def plot_training_curves(
         plt.savefig(f"{base_path}_per_class_f1.png", dpi=300, bbox_inches="tight")
         plt.close()
 
-    print(f"Training curves saved as separate images with base name '{base_path}'")
+    logger.info(
+        f"Training curves saved as separate images with base name '{base_path}'"
+    )

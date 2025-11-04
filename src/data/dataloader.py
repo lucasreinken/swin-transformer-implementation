@@ -58,10 +58,10 @@ class RandAugment:
             transforms.ColorJitter(brightness=self._mag(m)),
             transforms.ColorJitter(contrast=self._mag(m)),
             transforms.ColorJitter(saturation=self._mag(m)),
-            transforms.ColorJitter(hue=self._mag(m) / 0.5),
+            transforms.ColorJitter(hue=self._mag(m, 0.5)),
             transforms.RandomAffine(degrees=self._mag(m, 30)),
             transforms.GaussianBlur(3),
-            transforms.RandomPosterize(bits=max(1, 8 - self._mag(m) // 4)),
+            transforms.RandomPosterize(bits=int(max(1, 8 - self._mag(m) // 4))),
             transforms.RandomSolarize(threshold=self._mag(m, 256)),
             transforms.RandomEqualize(),
         ]
@@ -92,34 +92,54 @@ def get_default_transforms(
     """
     if not AUGMENTATION_CONFIG["use_augmentation"]:
         return transforms.Compose(
-            transforms.Resize((img_size, img_size)),
-            transforms.ToTensor(),
-            transforms.Normalize(
-                mean=AUGMENTATION_CONFIG["mean"],
-                std=AUGMENTATION_CONFIG["std"],
-            ),
+            [
+                transforms.Resize((img_size, img_size)),
+                transforms.ToTensor(),
+                transforms.Normalize(
+                    mean=AUGMENTATION_CONFIG["mean"],
+                    std=AUGMENTATION_CONFIG["std"],
+                ),
+            ]
         )
 
     if is_training:
-        return transforms.Compose(
-            transforms.Resize(256),  # Upsample for cropping
-            transforms.RandomResizedCrop(img_size, scale=(0.08, 1.0)),
-            RandAugment(
-                n=AUGMENTATION_CONFIG["rand_augment_n"],
-                m=AUGMENTATION_CONFIG["rand_augment_m"],
-            ),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            transforms.Normalize(
-                mean=AUGMENTATION_CONFIG["mean"], std=AUGMENTATION_CONFIG["std"]
-            ),
-            transforms.RandomErasing(p=AUGMENTATION_CONFIG["random_erase_prob"]),
-        )
+        if dataset == "CIFAR10":
+            return transforms.Compose(
+                [
+                    transforms.RandomResizedCrop(img_size, scale=(0.8, 1.0)),
+                    transforms.RandomHorizontalFlip(),
+                    transforms.ToTensor(),
+                    transforms.Normalize(
+                        mean=AUGMENTATION_CONFIG["mean"], std=AUGMENTATION_CONFIG["std"]
+                    ),
+                    transforms.RandomErasing(
+                        p=AUGMENTATION_CONFIG["random_erase_prob"]
+                    ),
+                ]
+            )
+        else:
+            return transforms.Compose(
+                [
+                    transforms.Resize(256),  # Upsample for cropping
+                    transforms.RandomResizedCrop(img_size, scale=(0.08, 1.0)),
+                    RandAugment(
+                        n=AUGMENTATION_CONFIG["rand_augment_n"],
+                        m=AUGMENTATION_CONFIG["rand_augment_m"],
+                    ),
+                    transforms.RandomHorizontalFlip(),
+                    transforms.ToTensor(),
+                    transforms.Normalize(
+                        mean=AUGMENTATION_CONFIG["mean"], std=AUGMENTATION_CONFIG["std"]
+                    ),
+                    transforms.RandomErasing(
+                        p=AUGMENTATION_CONFIG["random_erase_prob"]
+                    ),
+                ]
+            )
     else:
         return transforms.Compose(
             [
-                transforms.Resize(256),
-                transforms.CenterCrop(img_size),
+                transforms.Resize(img_size),
                 transforms.ToTensor(),
                 transforms.Normalize(
                     mean=AUGMENTATION_CONFIG["mean"], std=AUGMENTATION_CONFIG["std"]

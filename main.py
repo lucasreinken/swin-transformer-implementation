@@ -72,8 +72,9 @@ def main():
 
     # Initialize model
     logger.info("Initializing model...")
+    input_dim = 3 * DATA_CONFIG["img_size"] * DATA_CONFIG["img_size"]
     model = SimpleModel(
-        input_dim=MODEL_CONFIG["input_dim"],
+        input_dim=input_dim,
         hidden_dims=MODEL_CONFIG["hidden_dims"],
         num_classes=MODEL_CONFIG["num_classes"],
         dropout_rate=MODEL_CONFIG["dropout_rate"],
@@ -131,7 +132,6 @@ def main():
             device,
         )
 
-        # Store metrics
         # Store metrics
         metrics_history["train_loss"].append(train_loss)
         metrics_history["val_loss"].append(val_loss)

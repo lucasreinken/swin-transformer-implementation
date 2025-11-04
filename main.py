@@ -5,6 +5,7 @@ Main orchestration file for the machine learning pipeline.
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.optim.lr_scheduler import SequentialLR, LinearLR, CosineAnnealingLR
 
 from src.data import load_data
 from src.models import SimpleModel
@@ -22,6 +23,7 @@ from config import (
     TRAINING_CONFIG,
     VIZ_CONFIG,
     SEED_CONFIG,
+    SCHEDULER_CONFIG,
 )
 
 # Setup logging
@@ -92,11 +94,36 @@ def main():
 
     # Setup training components
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(
-        model.parameters(),
-        lr=TRAINING_CONFIG["learning_rate"],
-        weight_decay=TRAINING_CONFIG["weight_decay"],
-    )
+
+    if SCHEDULER_CONFIG["use_scheduler"]:
+        optimizer = torch.optim.AdamW(
+            model.parameters(),
+            lr=SCHEDULER_CONFIG["lr"],
+            weight_decay=SCHEDULER_CONFIG["weight_decay"],
+        )
+        scheduler = SequentialLR(
+            optimizer,
+            schedulers=[
+                LinearLR(
+                    optimizer,
+                    start_factor=0.1,
+                    total_iters=SCHEDULER_CONFIG["warmup_epochs"],
+                ),
+                CosineAnnealingLR(
+                    optimizer,
+                    T_max=SCHEDULER_CONFIG["total_epochs"]
+                    - SCHEDULER_CONFIG["warmup_epochs"],
+                ),
+            ],
+            milestones=[SCHEDULER_CONFIG["warmup_epochs"]],
+        )
+    else:
+        optimizer = optim.Adam(
+            model.parameters(),
+            lr=TRAINING_CONFIG["learning_rate"],
+            weight_decay=TRAINING_CONFIG["weight_decay"],
+        )
+        scheduler = None
 
     # Initialize metrics storage
     metrics_history = {
@@ -144,6 +171,12 @@ def main():
             metrics_history["val_recall"].append(val_metrics["recall"])
         if "f1_per_class" in val_metrics:
             metrics_history["val_f1_per_class"].append(val_metrics["f1_per_class"])
+
+        if scheduler:
+            scheduler.step()
+            logger.info(
+                f"Epoch {epoch+1}/{TRAINING_CONFIG['num_epochs']}: LR: {optimizer.param_groups[0]['lr']:.6f}"
+            )
 
         # Test periodically (every 5 epochs)
         if (epoch + 1) % 5 == 0:

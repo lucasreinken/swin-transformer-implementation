@@ -59,3 +59,17 @@ AUGMENTATION_CONFIG = {
     "mean": [0.485, 0.456, 0.406],  # ImageNet mean (works for both)
     "std": [0.229, 0.224, 0.225],  # ImageNet std
 }
+
+# Scheduler configuration
+SCHEDULER_CONFIG = {
+    "use_scheduler": True,  # Enable for ImageNet training on cluster
+    "optimizer": "AdamW",
+    "lr": 0.001,
+    # "lr": 1e-4, # Uncomment for ImageNet
+    "weight_decay": 1e-4,
+    # "weight_decay": 0.05, # Uncomment for ImageNet
+    "warmup_epochs": 2,
+    # "warmup_epochs": 20, # Uncomment for ImageNet
+    "total_epochs": 20,
+    # "total_epochs": 90, # Uncomment for ImageNet
+}

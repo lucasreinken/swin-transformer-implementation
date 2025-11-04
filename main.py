@@ -5,6 +5,7 @@ Main orchestration file for the machine learning pipeline.
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.optim.lr_scheduler import SequentialLR, LinearLR, CosineAnnealingLR
 
 from src.data import load_data
 from src.models import SimpleModel
@@ -12,7 +13,11 @@ from src.training import train_one_epoch, evaluate_model
 from src.training.checkpoints import save_checkpoint, save_model_weights
 from src.utils.visualization import CIFAR_CLASSES, show
 from src.utils.seeds import set_random_seeds, get_worker_init_fn
-from src.training.metrics import plot_confusion_matrix, plot_training_curves
+from src.training.metrics import (
+    plot_confusion_matrix,
+    plot_lr_schedule,
+    plot_training_curves,
+)
 from src.training.trainer import Mixup
 
 from config import (
@@ -22,6 +27,7 @@ from config import (
     TRAINING_CONFIG,
     VIZ_CONFIG,
     SEED_CONFIG,
+    SCHEDULER_CONFIG,
 )
 
 # Setup logging
@@ -92,11 +98,36 @@ def main():
 
     # Setup training components
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(
-        model.parameters(),
-        lr=TRAINING_CONFIG["learning_rate"],
-        weight_decay=TRAINING_CONFIG["weight_decay"],
-    )
+
+    if SCHEDULER_CONFIG["use_scheduler"]:
+        optimizer = torch.optim.AdamW(
+            model.parameters(),
+            lr=SCHEDULER_CONFIG["lr"],
+            weight_decay=SCHEDULER_CONFIG["weight_decay"],
+        )
+        scheduler = SequentialLR(
+            optimizer,
+            schedulers=[
+                LinearLR(
+                    optimizer,
+                    start_factor=0.1,
+                    total_iters=SCHEDULER_CONFIG["warmup_epochs"],
+                ),
+                CosineAnnealingLR(
+                    optimizer,
+                    T_max=SCHEDULER_CONFIG["total_epochs"]
+                    - SCHEDULER_CONFIG["warmup_epochs"],
+                ),
+            ],
+            milestones=[SCHEDULER_CONFIG["warmup_epochs"]],
+        )
+    else:
+        optimizer = optim.Adam(
+            model.parameters(),
+            lr=TRAINING_CONFIG["learning_rate"],
+            weight_decay=TRAINING_CONFIG["weight_decay"],
+        )
+        scheduler = None
 
     # Initialize metrics storage
     metrics_history = {
@@ -110,6 +141,9 @@ def main():
         "val_recall": [],
         "val_f1_per_class": [],
     }
+
+    # Learning rate history
+    lr_history = []
 
     mixup = (
         Mixup(alpha=AUGMENTATION_CONFIG["mixup_alpha"])
@@ -144,6 +178,16 @@ def main():
             metrics_history["val_recall"].append(val_metrics["recall"])
         if "f1_per_class" in val_metrics:
             metrics_history["val_f1_per_class"].append(val_metrics["f1_per_class"])
+
+        if scheduler:
+            scheduler.step()
+            current_lr = optimizer.param_groups[0]["lr"]
+            lr_history.append(current_lr)
+            logger.info(
+                f"Epoch {epoch+1}/{TRAINING_CONFIG['num_epochs']}: LR: {current_lr:.6f}"
+            )
+        else:
+            lr_history.append(TRAINING_CONFIG["learning_rate"])
 
         # Test periodically (every 5 epochs)
         if (epoch + 1) % 5 == 0:
@@ -203,6 +247,10 @@ def main():
     logger.info(
         f"Final Test Results: Loss: {final_test_loss:.4f}, Accuracy: {final_test_accuracy:.2f}%"
     )
+
+    if lr_history:
+        logger.info("Generating LR schedule plot...")
+        plot_lr_schedule(lr_history, save_path="lr_schedule.png")
 
     logger.info(f"\nFinal Test Results:")
     logger.info(f"Loss: {final_test_loss:.4f}")

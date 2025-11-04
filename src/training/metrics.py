@@ -208,3 +208,28 @@ def plot_training_curves(
     logger.info(
         f"Training curves saved as separate images with base name '{base_path}'"
     )
+
+
+def plot_lr_schedule(
+    lr_history: List[float],
+    save_path: str = None,
+    figsize: Tuple[int, int] = (10, 6),
+):
+    """Plot the learning rate schedule over epochs."""
+    epochs = range(1, len(lr_history) + 1)
+
+    plt.figure(figsize=figsize)
+    plt.plot(epochs, lr_history, "b-", label="Learning Rate", linewidth=2)
+    plt.title("Learning Rate Schedule")
+    plt.xlabel("Epochs")
+    plt.ylabel("Learning Rate")
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+        logger.info(f"LR schedule plot saved to '{save_path}'")
+    else:
+        plt.show()
+    plt.close()

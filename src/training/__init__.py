@@ -6,6 +6,7 @@ from .checkpoints import (
     load_model_weights,
 )
 from .metrics import plot_confusion_matrix, plot_training_curves
+from .early_stopping import EarlyStopping
 
 __all__ = [
     "train_one_epoch",
@@ -16,4 +17,5 @@ __all__ = [
     "load_model_weights",
     "plot_confusion_matrix",
     "plot_training_curves",
+    "EarlyStopping",
 ]

@@ -14,6 +14,7 @@ from src.training.early_stopping import EarlyStopping
 from src.training.checkpoints import save_checkpoint, save_model_weights
 from src.utils.visualization import CIFAR_CLASSES, show
 from src.utils.seeds import set_random_seeds, get_worker_init_fn
+from src.utils.experiment import setup_run_directory, setup_logging
 from src.training.metrics import (
     plot_confusion_matrix,
     plot_lr_schedule,
@@ -34,26 +35,18 @@ from config import (
 # Setup logging
 import logging
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(), logging.FileHandler("training.log")],
-)
 logger = logging.getLogger(__name__)
 
 
-def main():
-    """Main training pipeline."""
-    # Set random seeds first to ensure reproducibility
-    set_random_seeds(
-        seed=SEED_CONFIG["seed"], deterministic=SEED_CONFIG["deterministic"]
-    )
-
-    # Setup device
+def setup_device():
+    """Setup and return the appropriate device for training."""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info(f"Using device: {device}")
+    return device
 
-    # Load data with proper normalization
+
+def setup_data(device, run_dir):
+    """Load and setup data loaders and visualization."""
     logger.info("Loading data...")
     train_generator, val_generator, test_generator = load_data(
         dataset=DATA_CONFIG["dataset"],
@@ -73,11 +66,15 @@ def main():
     show(
         dataset=DATA_CONFIG["dataset"],
         n_images=16,
-        outfile=f"{VIZ_CONFIG['output_file']}",
+        outfile=str(run_dir / VIZ_CONFIG["output_file"]),
         figsize=VIZ_CONFIG["figsize"],
     )
 
-    # Initialize model
+    return train_generator, val_generator, test_generator
+
+
+def setup_model(device):
+    """Initialize and setup the model."""
     logger.info("Initializing model...")
     input_dim = 3 * DATA_CONFIG["img_size"] * DATA_CONFIG["img_size"]
     model = SimpleModel(
@@ -97,7 +94,11 @@ def main():
         f"Total parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad):,}"
     )
 
-    # Setup training components
+    return model
+
+
+def setup_training_components(model):
+    """Setup optimizer, scheduler, and loss criterion."""
     criterion = nn.CrossEntropyLoss()
 
     if SCHEDULER_CONFIG["use_scheduler"]:
@@ -130,7 +131,11 @@ def main():
         )
         scheduler = None
 
-    # Initialize metrics storage
+    return criterion, optimizer, scheduler
+
+
+def initialize_metrics_tracking():
+    """Initialize metrics history dictionaries."""
     metrics_history = {
         "train_loss": [],
         "val_loss": [],
@@ -143,7 +148,6 @@ def main():
         "val_f1_per_class": [],
     }
 
-    # Learning rate history
     lr_history = []
 
     mixup = (
@@ -152,8 +156,25 @@ def main():
         else None
     )
 
+    return metrics_history, lr_history, mixup
+
+
+def run_training_loop(
+    model,
+    train_generator,
+    val_generator,
+    test_generator,
+    criterion,
+    optimizer,
+    scheduler,
+    metrics_history,
+    lr_history,
+    mixup,
+    device,
+):
+    """Run the main training loop."""
     # Early stopping setup
-    early_stopper = EarlyStopping(patience=5, min_delta=0.01, mode='min')
+    early_stopper = EarlyStopping(patience=5, min_delta=0.01, mode="min")
 
     # Training loop
     logger.info("Starting training...")
@@ -230,8 +251,13 @@ def main():
 
     logger.info("Training completed!")
 
+
+def generate_reports(
+    model, test_generator, criterion, lr_history, metrics_history, device, run_dir
+):
+    """Generate training reports and visualizations."""
     logger.info("Generating training curves...")
-    plot_training_curves(metrics_history, save_path="training_curves")
+    plot_training_curves(metrics_history, save_path=str(run_dir / "training_curves"))
 
     logger.info("Generating confusion matrix on test set...")
     _, _, final_test_metrics = evaluate_model(
@@ -245,7 +271,7 @@ def main():
     plot_confusion_matrix(
         final_test_metrics["confusion_matrix"],
         CIFAR_CLASSES,
-        save_path="confusion_matrix.png",
+        save_path=str(run_dir / "confusion_matrix.png"),
     )
 
     # Final evaluation on test set
@@ -259,7 +285,7 @@ def main():
 
     if lr_history:
         logger.info("Generating LR schedule plot...")
-        plot_lr_schedule(lr_history, save_path="lr_schedule.png")
+        plot_lr_schedule(lr_history, save_path=str(run_dir / "lr_schedule.png"))
 
     logger.info(f"\nFinal Test Results:")
     logger.info(f"Loss: {final_test_loss:.4f}")
@@ -268,10 +294,54 @@ def main():
     logger.info(f"Recall: {final_test_metrics['recall']:.2f}%")
     logger.info(f"F1 Score: {final_test_metrics['f1_score']:.2f}%")
 
-    # Save final model weights
+    return final_test_metrics
+
+
+def save_final_model(model):
+    """Save the final trained model weights."""
     save_model_weights(
         model, f"trained_models/{DATA_CONFIG['dataset']}_final_model_weights.pth"
     )
+
+
+def main():
+    """Main training pipeline."""
+    # Setup run directory and logging first
+    run_dir = setup_run_directory()
+    setup_logging(run_dir)
+
+    # Set random seeds first to ensure reproducibility
+    set_random_seeds(
+        seed=SEED_CONFIG["seed"], deterministic=SEED_CONFIG["deterministic"]
+    )
+
+    # Setup components
+    device = setup_device()
+    train_generator, val_generator, test_generator = setup_data(device, run_dir)
+    model = setup_model(device)
+    criterion, optimizer, scheduler = setup_training_components(model)
+    metrics_history, lr_history, mixup = initialize_metrics_tracking()
+
+    # Run training
+    run_training_loop(
+        model,
+        train_generator,
+        val_generator,
+        test_generator,
+        criterion,
+        optimizer,
+        scheduler,
+        metrics_history,
+        lr_history,
+        mixup,
+        device,
+    )
+
+    # Generate reports and save model
+    final_test_metrics = generate_reports(
+        model, test_generator, criterion, lr_history, metrics_history, device, run_dir
+    )
+    save_final_model(model)
 
 
 if __name__ == "__main__":

@@ -95,23 +95,13 @@ def plot_confusion_matrix(
         plt.show()
 
 
-def plot_training_curves(
+def plot_loss_curves(
+    epochs: range,
     metrics_history: Dict[str, List[float]],
-    save_path: str = None,
-    figsize: Tuple[int, int] = (10, 6),
+    base_path: str,
+    figsize: Tuple[int, int],
 ):
-    """
-    Plot training curves, saving each as a separate image.
-
-    Args:
-        metrics_history: Dict with keys like 'train_loss', 'val_accuracy', etc.
-        save_path: Base path for saving (will append metric names)
-        figsize: Figure size for each plot
-    """
-    epochs = range(1, len(metrics_history["train_loss"]) + 1)
-    base_path = save_path or "training_curves"
-
-    # Loss curves
+    """Plot training and validation loss curves."""
     plt.figure(figsize=figsize)
     plt.plot(
         epochs, metrics_history["train_loss"], "b-", label="Train Loss", linewidth=2
@@ -126,7 +116,14 @@ def plot_training_curves(
     plt.savefig(f"{base_path}_loss.png", dpi=300, bbox_inches="tight")
     plt.close()
 
-    # Accuracy curves
+
+def plot_accuracy_curves(
+    epochs: range,
+    metrics_history: Dict[str, List[float]],
+    base_path: str,
+    figsize: Tuple[int, int],
+):
+    """Plot validation accuracy curves."""
     plt.figure(figsize=figsize)
     plt.plot(
         epochs, metrics_history["val_accuracy"], "r-", label="Val Accuracy", linewidth=2
@@ -140,7 +137,14 @@ def plot_training_curves(
     plt.savefig(f"{base_path}_accuracy.png", dpi=300, bbox_inches="tight")
     plt.close()
 
-    # F1 Score curves
+
+def plot_f1_curves(
+    epochs: range,
+    metrics_history: Dict[str, List[float]],
+    base_path: str,
+    figsize: Tuple[int, int],
+):
+    """Plot validation F1 score curves."""
     if "val_f1" in metrics_history:
         plt.figure(figsize=figsize)
         plt.plot(epochs, metrics_history["val_f1"], "r-", label="Val F1", linewidth=2)
@@ -153,7 +157,14 @@ def plot_training_curves(
         plt.savefig(f"{base_path}_f1.png", dpi=300, bbox_inches="tight")
         plt.close()
 
-    # Precision vs Recall
+
+def plot_precision_recall_curves(
+    epochs: range,
+    metrics_history: Dict[str, List[float]],
+    base_path: str,
+    figsize: Tuple[int, int],
+):
+    """Plot validation precision vs recall curves."""
     if "val_precision" in metrics_history and "val_recall" in metrics_history:
         plt.figure(figsize=figsize)
         plt.plot(
@@ -175,7 +186,14 @@ def plot_training_curves(
         plt.savefig(f"{base_path}_precision_recall.png", dpi=300, bbox_inches="tight")
         plt.close()
 
-    # Per-class F1 scores
+
+def plot_per_class_f1_curves(
+    epochs: range,
+    metrics_history: Dict[str, List[float]],
+    base_path: str,
+    figsize: Tuple[int, int],
+):
+    """Plot per-class F1 score curves."""
     if (
         "val_f1_per_class" in metrics_history
         and len(metrics_history["val_f1_per_class"]) > 0
@@ -204,6 +222,30 @@ def plot_training_curves(
         plt.tight_layout()
         plt.savefig(f"{base_path}_per_class_f1.png", dpi=300, bbox_inches="tight")
         plt.close()
+
+
+def plot_training_curves(
+    metrics_history: Dict[str, List[float]],
+    save_path: str = None,
+    figsize: Tuple[int, int] = (10, 6),
+):
+    """
+    Plot training curves, saving each as a separate image.
+
+    Args:
+        metrics_history: Dict with keys like 'train_loss', 'val_accuracy', etc.
+        save_path: Base path for saving (will append metric names)
+        figsize: Figure size for each plot
+    """
+    epochs = range(1, len(metrics_history["train_loss"]) + 1)
+    base_path = save_path or "training_curves"
+
+    # Plot each metric type
+    plot_loss_curves(epochs, metrics_history, base_path, figsize)
+    plot_accuracy_curves(epochs, metrics_history, base_path, figsize)
+    plot_f1_curves(epochs, metrics_history, base_path, figsize)
+    plot_precision_recall_curves(epochs, metrics_history, base_path, figsize)
+    plot_per_class_f1_curves(epochs, metrics_history, base_path, figsize)
 
     logger.info(
         f"Training curves saved as separate images with base name '{base_path}'"

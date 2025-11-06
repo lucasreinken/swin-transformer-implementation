@@ -275,3 +275,72 @@ def plot_lr_schedule(
     else:
         plt.show()
     plt.close()
+
+
+def plot_model_validation_comparison(
+    validation_results: Dict,
+    save_path: str = None,
+    figsize: Tuple[int, int] = (12, 6),
+):
+    """
+    Plot comparison between custom model and pretrained model performance.
+    """
+    if not validation_results:
+        logger.warning("No validation results to plot")
+        return
+
+    custom_results = validation_results.get("custom_model", {})
+    pretrained_results = validation_results.get("pretrained_model", {})
+    differences = validation_results.get("differences", {})
+
+    # Prepare data
+    models = ["Custom Model", "Pretrained Model"]
+    top1_scores = [
+        custom_results.get("top1_accuracy", 0),
+        pretrained_results.get("top1_accuracy", 0),
+    ]
+    top5_scores = [
+        custom_results.get("top5_accuracy", 0),
+        pretrained_results.get("top5_accuracy", 0),
+    ]
+
+    # Create figure with subplots
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=figsize)
+
+    # Top-1 Accuracy
+    bars1 = ax1.bar(models, top1_scores, color=["skyblue", "lightcoral"], alpha=0.8)
+    ax1.set_title("Top-1 Accuracy Comparison", fonsize=14, fontweight="bold")
+    ax1.set_ylabel("Accuracy (%)", fontsize=12)
+    ax1.set_ylim(0, 100)
+    ax1.grid(True, alpha=0.3)
+
+    # Add value labels on bars
+    for bar, score in zip(bars1, top1_scores):
+        ax1.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height() + 1,
+            f"{score:.1f}%",
+            ha="center",
+            fontweight="bold",
+        )
+
+    # Add difference annonation
+    top1_diff = differences.get("top1_diff", 0)
+    top5_diff = differences.get("top5_diff", 0)
+
+    fig.suptitle(
+        f"Model Validation Results:\n"
+        f"Top-1 delta: {top1_diff:+.2f}% | Top-5 delta: {top5_diff:+.2f}%,",
+        fontsize=16,
+        fontweight="bold",
+        y=0.98,
+    )
+
+    plt.tight_layout()
+
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+        logger.info(f"Model validation comparison plot saved to '{save_path}")
+    else:
+        plt.show()
+    plt.close()

@@ -10,6 +10,7 @@ from .config import (
     VIZ_CONFIG,
     SEED_CONFIG,
     SCHEDULER_CONFIG,
+    VALIDATION_CONFIG,
 )
 
 __all__ = [
@@ -20,4 +21,5 @@ __all__ = [
     "VIZ_CONFIG",
     "SEED_CONFIG",
     "SCHEDULER_CONFIG",
+    "VALIDATION_CONFIG",
 ]

@@ -8,19 +8,24 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import SequentialLR, LinearLR, CosineAnnealingLR
 
 from src.data import load_data
+
 from src.models import SimpleModel
+
 from src.training import train_one_epoch, evaluate_model
 from src.training.early_stopping import EarlyStopping
 from src.training.checkpoints import save_checkpoint, save_model_weights
-from src.utils.visualization import CIFAR_CLASSES, show
-from src.utils.seeds import set_random_seeds, get_worker_init_fn
-from src.utils.experiment import setup_run_directory, setup_logging
 from src.training.metrics import (
     plot_confusion_matrix,
     plot_lr_schedule,
     plot_training_curves,
+    plot_model_validation_comparison,
 )
 from src.training.trainer import Mixup
+
+from src.utils.visualization import CIFAR_CLASSES, show
+from src.utils.seeds import set_random_seeds, get_worker_init_fn
+from src.utils.experiment import setup_run_directory, setup_logging
+from src.utils.model_validation import ModelValidator
 
 from config import (
     AUGMENTATION_CONFIG,
@@ -30,6 +35,7 @@ from config import (
     VIZ_CONFIG,
     SEED_CONFIG,
     SCHEDULER_CONFIG,
+    VALIDATION_CONFIG,
 )
 
 # Setup logging
@@ -253,7 +259,14 @@ def run_training_loop(
 
 
 def generate_reports(
-    model, test_generator, criterion, lr_history, metrics_history, device, run_dir
+    model,
+    test_generator,
+    criterion,
+    lr_history,
+    metrics_history,
+    device,
+    run_dir,
+    validation_results,
 ):
     """Generate training reports and visualizations."""
     logger.info("Generating training curves...")
@@ -287,6 +300,13 @@ def generate_reports(
         logger.info("Generating LR schedule plot...")
         plot_lr_schedule(lr_history, save_path=str(run_dir / "lr_schedule.png"))
 
+    if validation_results:
+        logger.info("Generating model validation comparison plot...")
+        plot_model_validation_comparison(
+            validation_results,
+            save_path=str(run_dir / "model_validation_comparison.png"),
+        )
+
     logger.info(f"\nFinal Test Results:")
     logger.info(f"Loss: {final_test_loss:.4f}")
     logger.info(f"Accuracy: {final_test_accuracy:.2f}%")
@@ -301,6 +321,20 @@ def save_final_model(model):
     """Save the final trained model weights."""
     save_model_weights(
         model, f"trained_models/{DATA_CONFIG['dataset']}_final_model_weights.pth"
+    )
+
+
+def validate_model_if_enabled(model, val_generator, run_dir):
+    """Validate model implementation"""
+    if not VALIDATION_CONFIG.get("enable_validation", False):
+        return None
+
+    validator = ModelValidator(device=next(model.parameters()).device.type)
+    return validator.validate_model_implementation(
+        custom_model=model,
+        val_dataloader=val_generator,
+        run_dir=run_dir,
+        validation_config=VALIDATION_CONFIG,
     )
 
 
@@ -319,6 +353,10 @@ def main():
     device = setup_device()
     train_generator, val_generator, test_generator = setup_data(device, run_dir)
     model = setup_model(device)
+
+    # Validate model implementation
+    validation_results = validate_model_if_enabled(model, val_generator, run_dir)
+
     criterion, optimizer, scheduler = setup_training_components(model)
     metrics_history, lr_history, mixup = initialize_metrics_tracking()
 
@@ -339,7 +377,14 @@ def main():
 
     # Generate reports and save model
     final_test_metrics = generate_reports(
-        model, test_generator, criterion, lr_history, metrics_history, device, run_dir
+        model,
+        test_generator,
+        criterion,
+        lr_history,
+        metrics_history,
+        device,
+        run_dir,
+        validation_results,
     )
     save_final_model(model)
 

@@ -8,7 +8,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.getcwd(), "..")))
 
 import torch
-from src.models.swin import PatchEmbed
+from src.models.swin.patch_embedding import PatchEmbed
 
 
 def test_swin_patch_embedding():

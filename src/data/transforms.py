@@ -2,10 +2,29 @@
 Data transformation and augmentation utilities.
 """
 
+
 from torchvision import transforms
 from typing import Callable
 from config import AUGMENTATION_CONFIG
 import random
+from src.utils.preprocess import PatchEmbed, normalize_patches
+import torch
+def get_cifar100_patch_transform(img_size: int, patch_size: int = 4, embed_dim: int = 48) -> Callable:
+    """
+    Transform for CIFAR-100: ToTensor, Normalize, PatchEmbed, Normalize patches.
+    Output: [batch, num_patches, embed_dim]
+    """
+    patch_embed = PatchEmbed(img_size=img_size, patch_size=patch_size, in_chans=3, embed_dim=embed_dim)
+    def transform_fn(img):
+        x = transforms.ToTensor()(img)
+        x = transforms.Normalize(
+            mean=AUGMENTATION_CONFIG["mean"], std=AUGMENTATION_CONFIG["std"]
+        )(x)
+        x = x.unsqueeze(0) if x.dim() == 3 else x  # [C, H, W] -> [1, C, H, W]
+        x = patch_embed(x)  # [1, num_patches, embed_dim]
+        x = normalize_patches(x)
+        return x.squeeze(0)  # [num_patches, embed_dim]
+    return transform_fn
 
 
 class RandAugment:
@@ -112,6 +131,11 @@ def get_default_transforms(
     Returns:
         A torchvision.transforms.Compose object with the appropriate transformations.
     """
+
+    if dataset == "CIFAR100":
+        # Always use patch embedding for CIFAR-100 for Swin prep
+        return get_cifar100_patch_transform(img_size)
+
     if not AUGMENTATION_CONFIG["use_augmentation"]:
         return get_basic_transforms(img_size)
 

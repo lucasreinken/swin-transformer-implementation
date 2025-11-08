@@ -22,7 +22,7 @@ from src.training.metrics import (
 )
 from src.training.trainer import Mixup
 
-from src.utils.visualization import CIFAR_CLASSES, show
+from src.utils.visualization import CIFAR_CLASSES, show_batch
 from src.utils.seeds import set_random_seeds, get_worker_init_fn
 from src.utils.experiment import setup_run_directory, setup_logging, ExperimentTracker
 from src.utils.model_validation import ModelValidator
@@ -69,11 +69,14 @@ def setup_data(device, run_dir):
 
     # Visualize first batch
     logger.info("Visualizing first batch...")
-    show(
+    show_batch(
+        dataloader=train_generator,
         dataset=DATA_CONFIG["dataset"],
         n_images=16,
         outfile=str(run_dir / VIZ_CONFIG["output_file"]),
         figsize=VIZ_CONFIG["figsize"],
+        # show_patch_overlay = True, # Enable patch overlays
+        # patch_size = 4 # Enable patch overlays for Swin Transformer debugging
     )
 
     return train_generator, val_generator, test_generator

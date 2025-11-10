@@ -62,7 +62,7 @@ class WindowAttention(nn.Module):
                  ) # 2*Wh-1 * 2*Ww-1, nH
             
             # random initialization to break symmetry
-            nn.init.trunc_normal_(self.relative_position_biases)
+            nn.init.trunc_normal_(self.relative_position_biases, std=.02)
 
             # get pair-wise relative position index for each token inside the window
             coords_h = torch.arange(self.window_size[0])
@@ -102,7 +102,7 @@ class WindowAttention(nn.Module):
         q, k, v = qkv.unbind(0)  # each: [wB, nH, N, head_dim]
 
         # Scale dot product
-        scores = torch.matmul(q, k.transpose(-2, -1)) / (self.head_dim ** 0.5)
+        scores = torch.matmul(q, k.transpose(-2, -1)) * (self.head_dim ** -0.5)
 
         # relative position bias: [nH, N, N] -> broadcast to [wB, nH, N, N]
         relative_position_bias = self.relative_position_biases[self.relative_position_index.view(-1)].view(

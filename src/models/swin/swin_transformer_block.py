@@ -3,6 +3,7 @@ import torch.nn as nn
 import logging
 
 from .mlp import MLP
+from .window_attention import WindowAttention
 from .drop_path import DropPath
 from .window_utils import window_partition, window_reverse
 
@@ -78,6 +79,7 @@ class SwinTransformerBlock(nn.Module):
         mlp_ratio: float = 4.0,
         dropout: float = 0.0,
         attention_dropout: float = 0.0,
+        projection_dropout: float = 0.0,
         drop_path: float = 0.0,
     ):
         """
@@ -92,6 +94,7 @@ class SwinTransformerBlock(nn.Module):
             mlp_ratio: Ratio of MLP hidden dim to embedding dim
             dropout: Dropout rate
             attention_dropout: Attention dropout rate
+            projection_dropout: Projection dropout rate
             drop_path: Stochastic depth rate (probability of dropping the layer)
 
         Notes:
@@ -125,17 +128,13 @@ class SwinTransformerBlock(nn.Module):
         # Layer 1: LayerNorm → Window Attention → Residual
         self.norm1 = nn.LayerNorm(dim)
 
-        # TODO: This will be replaced with actual WindowAttention
-        # Placeholder for now - replace with: from .window_attention import WindowAttention
-        # self.attn = WindowAttention(
-        #     dim=dim,
-        #     window_size=(self.window_size, self.window_size),
-        #     num_heads=num_heads,
-        #     dropout=attention_dropout,
-        # )
-
-        # Temporary placeholder (will be replaced with actual WindowAttention)
-        self.attn = nn.Identity()  # Replace this when WindowAttention is ready
+        self.attn = WindowAttention(
+            dim=dim,
+            window_size=(self.window_size, self.window_size),
+            num_heads=num_heads,
+            attn_dropout=attention_dropout,
+            proj_dropout=projection_dropout
+        )
 
         # Stochastic depth (DropPath) for regularization
         self.drop_path1 = DropPath(drop_path) if drop_path > 0.0 else nn.Identity()
@@ -199,9 +198,8 @@ class SwinTransformerBlock(nn.Module):
         x_windows = x_windows.view(-1, self.window_size * self.window_size, C)
 
         # Apply window attention
-        # TODO: Replace with actual attention computation when WindowAttention is implemented
-        # attn_windows = self.attn(x_windows, mask=attn_mask)
-        attn_windows = self.attn(x_windows)  # Placeholder
+        # TODO: Replace with attention mask parameter for SW-MSA
+        attn_windows = self.attn(x_windows)
 
         # Merge windows back: [B*num_windows, window_size*window_size, C] → [B, H, W, C]
         attn_windows = attn_windows.view(-1, self.window_size, self.window_size, C)

@@ -7,3 +7,4 @@ trained_models/
 *.png
 .pytest_cache/
 training.log
+.vscode

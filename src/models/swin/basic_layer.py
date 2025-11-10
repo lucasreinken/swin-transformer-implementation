@@ -72,6 +72,7 @@ class BasicLayer(nn.Module):
         mlp_ratio: float = 4.0,
         dropout: float = 0.0,
         attention_dropout: float = 0.0,
+        projection_dropout: float = 0.0,
         drop_path: float = 0.0,
         downsample: nn.Module = None,
     ):
@@ -87,6 +88,7 @@ class BasicLayer(nn.Module):
             mlp_ratio: Ratio of MLP hidden dim to embedding dim (default: 4.0)
             dropout: Dropout rate
             attention_dropout: Attention dropout rate
+            projection_dropout: Projection dropout rate
             drop_path: Stochastic depth rate (can be a list for varying rates)
             downsample: Downsample layer at the end (typically PatchMerging or None)
 
@@ -131,6 +133,7 @@ class BasicLayer(nn.Module):
                     mlp_ratio=mlp_ratio,
                     dropout=dropout,
                     attention_dropout=attention_dropout,
+                    projection_dropout=projection_dropout,
                     drop_path=(
                         drop_path[i] if isinstance(drop_path, list) else drop_path
                     ),

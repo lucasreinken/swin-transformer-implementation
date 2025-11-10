@@ -29,7 +29,8 @@ class WindowAttention(nn.Module):
             dim: int,
             window_size: tuple[int],
             num_heads: int,
-            dropout: float = 0.0,
+            attn_dropout: float = 0.0,
+            proj_dropout: float = 0.0,
         ):
             
             """
@@ -39,12 +40,12 @@ class WindowAttention(nn.Module):
                 dim: Input feature dimension
                 window_size: The height and width of the window.
                 num_heads: Number of attention heads.
-                dropout: Dropout rate. Default: 0.0
+                attn_dropout: Attention dropout rate. Default: 0.0
+                proj_dropout: Projection dropout rate. Default: 0.0
             """
 
             super().__init__()
 
-            # TODO: USE LOGGER HERE (ALSO SEEDS NEEDED?)
             assert dim % num_heads == 0, "Embedding dimension must be divisible by number of heads"
 
             self.embed_dim = dim
@@ -52,7 +53,8 @@ class WindowAttention(nn.Module):
             self.window_size = window_size
             self.num_heads = num_heads
 
-            self.dropout = nn.Dropout(dropout)
+            self.attn_dropout = nn.Dropout(attn_dropout)
+            self.proj_dropout = nn.Dropout(proj_dropout)
 
             # relative postion bias as learnable parameter
             self.relative_position_biases = nn.Parameter(
@@ -117,13 +119,12 @@ class WindowAttention(nn.Module):
             scores = scores.view(-1, self.num_heads, N, N)
         
         attn = F.softmax(scores, dim=-1)
-        attn = self.dropout(attn)
+        attn = self.attn_dropout(attn)
         attn_out = torch.matmul(attn, v)  # [wB, nH, N, head_dim]
 
         attn_out = attn_out.transpose(1, 2).contiguous().view(wB, N, C)   # [wB, N, C]
 
         out = self.proj(attn_out)
-        # TODO: split into attention and projection dropout & add to config
-        out = self.dropout(out)
+        out = self.proj_dropout(out)
 
         return out

@@ -11,6 +11,7 @@ from .config import (
     SEED_CONFIG,
     SCHEDULER_CONFIG,
     VALIDATION_CONFIG,
+    SWIN_CONFIG,
 )
 
 __all__ = [
@@ -22,4 +23,5 @@ __all__ = [
     "SEED_CONFIG",
     "SCHEDULER_CONFIG",
     "VALIDATION_CONFIG",
+    "SWIN_CONFIG",
 ]

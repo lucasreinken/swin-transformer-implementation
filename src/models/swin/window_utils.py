@@ -1,6 +1,47 @@
 import torch
 
 
+def create_image_mask(input_resolution: tuple, window_size: int, shift_size: int) -> torch.Tensor:
+    """
+    Create an image region index map used to generate the shifted-window attention mask.
+
+    Args:
+        input_resolution: (H, W) spatial resolution
+        window_size: Size of one local attention window
+        shift_size: Number of patches to cyclically shift the feature map
+
+    Returns:
+        Image mask tensor of shape [1, H, W, 1],
+        where each region is assigned a unique integer ID (0–8).
+
+    Example:
+        Input:  H=W=8, window_size=4, shift_size=2
+        Output: [1, 8, 8, 1]  (3×3 = 9 distinct regions)
+                [0., 0., 1., 1., 1., 2., 2., 2.],
+                [0., 0., 1., 1., 1., 2., 2., 2.],
+                [3., 3., 4., 4., 4., 5., 5., 5.],
+                [3., 3., 4., 4., 4., 5., 5., 5.],
+                [3., 3., 4., 4., 4., 5., 5., 5.],
+                [6., 6., 7., 7., 7., 8., 8., 8.],
+                [6., 6., 7., 7., 7., 8., 8., 8.],
+                [6., 6., 7., 7., 7., 8., 8., 8.]
+    """
+    H, W = input_resolution
+    img_mask = torch.empty((H, W))
+
+    # Boundaries of the 3x3 areas
+    h_regions = [(0, -window_size), (-window_size, -shift_size), (-shift_size, None)]
+    w_regions = [(0, -window_size), (-window_size, -shift_size), (-shift_size, None)]
+
+    # Assign unique region IDs to each of the 3×3 areas
+    for idx, (hs, ws) in enumerate([(h, w) for h in h_regions for w in w_regions]):
+        img_mask[hs[0]:hs[1], ws[0]:ws[1]] = idx
+
+    img_mask = img_mask.unsqueeze(2).unsqueeze(0)
+
+    return img_mask
+
+
 def window_partition(x: torch.Tensor, window_size: int) -> torch.Tensor:
     """
     Partition feature map into non-overlapping windows.

@@ -11,6 +11,7 @@ from src.models.swin import (
     BasicLayer,
     MLP,
     DropPath,
+    create_image_mask,
     window_partition,
     window_reverse,
     generate_drop_path_rates,
@@ -19,6 +20,24 @@ from src.models.swin import (
 
 class TestWindowOperations:
     """Test window partition and reverse operations."""
+
+    def test_create_image_mask(self):
+        """Test create image mask operation."""
+        input_resolution = (8, 8)
+        window_size = 4
+        shift_size = 2
+
+        mask = create_image_mask(input_resolution, window_size, shift_size)
+
+        # Shape should be [1, H, W, 1]
+        assert mask.shape == (1, 8, 8, 1), f"Unexpected shape: {mask.shape}"
+
+        # Number of unique region IDs should be 9 (3x3)
+        unique_ids = torch.unique(mask)
+        assert len(unique_ids) == 9, f"Expected 9 unique regions, got {len(unique_ids)}"
+
+        # Values should range from 0 to 8
+        assert torch.all(unique_ids == torch.arange(9, dtype=unique_ids.dtype)), f"Unexpected region IDs: {unique_ids.tolist()}"
 
     def test_window_partition_basic(self):
         """Test basic window partitioning."""

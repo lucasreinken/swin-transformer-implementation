@@ -56,34 +56,41 @@ class WindowAttention(nn.Module):
             self.attn_dropout = nn.Dropout(attn_dropout)
             self.proj_dropout = nn.Dropout(proj_dropout)
 
-            # relative postion bias as learnable parameter
+            # Relative postion bias as learnable parameter
             self.relative_position_biases = nn.Parameter(
-                 torch.empty((2 * window_size[0] - 1) * (2 * window_size[1] - 1), num_heads)
+                 torch.empty((2 * self.window_size[0] - 1) * (2 * self.window_size[1] - 1), self.num_heads)
                  ) # 2*Wh-1 * 2*Ww-1, nH
             
-            # random initialization to break symmetry
+            # Random initialization to break symmetry
             nn.init.trunc_normal_(self.relative_position_biases, std=.02)
 
-            # get pair-wise relative position index for each token inside the window
-            coords_h = torch.arange(self.window_size[0])
-            coords_w = torch.arange(self.window_size[1])
-            coords = torch.stack(torch.meshgrid([coords_h, coords_w], indexing='ij'))  # 2, Wh, Ww
-            coords_flatten = torch.flatten(coords, 1)  # 2, Wh*Ww
-            relative_coords = coords_flatten[:, :, None] - coords_flatten[:, None, :]  # 2, Wh*Ww, Wh*Ww
-            relative_coords = relative_coords.permute(1, 2, 0).contiguous()  # Wh*Ww, Wh*Ww, 2
-            relative_coords[:, :, 0] += self.window_size[0] - 1  # shift to start from 0
-            relative_coords[:, :, 1] += self.window_size[1] - 1
-            relative_coords[:, :, 0] *= 2 * self.window_size[1] - 1
-
-            relative_position_index = relative_coords.sum(-1).to(torch.long)  # [N, N]
-
+            relative_position_index = self._get_relative_position_index(self.window_size)
             self.register_buffer("relative_position_index", relative_position_index, persistent=False)
 
-            # optimized (normally multiple linear layers)
+            # Optimized qkv layer (normally multiple linear layers)
             self.linear_qkv = nn.Linear(dim, dim * 3)
 
+            # Final projection layer
             self.proj = nn.Linear(dim, dim)
 
+    def _get_relative_position_index(self, window_size: tuple[int, int]) -> torch.Tensor:
+        """Compute pair-wise relative position index for tokens in a window."""
+        Wh, Ww = window_size
+
+        coords_h = torch.arange(Wh)
+        coords_w = torch.arange(Ww)
+        coords = torch.stack(torch.meshgrid([coords_h, coords_w], indexing='ij'))  # (2, Wh, Ww)
+        coords_flatten = torch.flatten(coords, 1)  # (2, Wh*Ww)
+
+        relative_coords = coords_flatten[:, :, None] - coords_flatten[:, None, :]  # (2, N, N)
+        relative_coords = relative_coords.permute(1, 2, 0).contiguous()  # (N, N, 2)
+        relative_coords[:, :, 0] += Wh - 1
+        relative_coords[:, :, 1] += Ww - 1
+        relative_coords[:, :, 0] *= 2 * Ww - 1
+
+        relative_position_index = relative_coords.sum(-1).to(torch.long)  # (N, N)
+
+        return relative_position_index
 
     def forward(self, x: torch.Tensor, attn_mask: torch.Tensor = None) -> torch.Tensor:
         """
@@ -97,26 +104,25 @@ class WindowAttention(nn.Module):
             Output tensor [num_windows*B, N, C]
         """
         wB, N, C = x.shape
-        qkv = self.linear_qkv(x).reshape(wB, N, 3, self.num_heads, C // self.num_heads) \
-                                .permute(2, 0, 3, 1, 4)  # [3, wB, nH, N, head_dim]
+        qkv = self.linear_qkv(x).reshape(wB, N, 3, self.num_heads, C // self.num_heads).permute(2, 0, 3, 1, 4)  # [3, wB, nH, N, head_dim]
         q, k, v = qkv.unbind(0)  # each: [wB, nH, N, head_dim]
 
         # Scale dot product
         scores = torch.matmul(q, k.transpose(-2, -1)) * (self.head_dim ** -0.5)
 
-        # relative position bias: [nH, N, N] -> broadcast to [wB, nH, N, N]
+        # Relative position bias: [nH, N, N] -> broadcast to [wB, nH, N, N]
         relative_position_bias = self.relative_position_biases[self.relative_position_index.view(-1)].view(
             self.window_size[0] * self.window_size[1], self.window_size[0] * self.window_size[1], -1)  # Wh*Ww,Wh*Ww,nH
         relative_position_bias = relative_position_bias.permute(2, 0, 1).contiguous()  # nH, Wh*Ww, Wh*Ww
-        # add learnable relative postition biases to scores (attention matrix)
+        # Add learnable relative postition biases to scores (attention matrix)
         scores = scores + relative_position_bias.unsqueeze(0)
         
-        # masking logic applied here
+        # Masking mechanism (for SW-MSA)
         if attn_mask is not None:
             nW = attn_mask.shape[0]  # num_windows
-            scores = scores.view(-1, nW, self.num_heads, N, N)
-            scores = scores.masked_fill(attn_mask.unsqueeze(1).unsqueeze(0) == 0, -100.0) # 0 after softmax layer
-            scores = scores.view(-1, self.num_heads, N, N)
+            scores = scores.view(-1, nW, self.num_heads, N, N) # [B, nW, nH, N, N]
+            scores = scores.masked_fill(attn_mask.unsqueeze(1).unsqueeze(0) != 0, -100.0) # [1, nW, 1, N, N]; -100 -> 0 after softmax
+            scores = scores.view(-1, self.num_heads, N, N) # [wB, nH, N, N]
         
         attn = F.softmax(scores, dim=-1)
         attn = self.attn_dropout(attn)

@@ -5,7 +5,7 @@ import logging
 from .mlp import MLP
 from .window_attention import WindowAttention
 from .drop_path import DropPath
-from .window_utils import window_partition, window_reverse
+from .window_utils import create_image_mask, window_partition, window_reverse
 
 logger = logging.getLogger(__name__)
 
@@ -147,6 +147,15 @@ class SwinTransformerBlock(nn.Module):
 
         self.drop_path2 = DropPath(drop_path) if drop_path > 0.0 else nn.Identity()
 
+        # Attention mask for SW-MSA (Cycle Shift)
+        image_mask = create_image_mask(self.input_resolution, self.window_size, self.shift_size)
+        mask_windows = window_partition(image_mask, self.window_size)
+        mask_windows = mask_windows.view(-1, self.window_size * self.window_size)
+        attention_mask = mask_windows.unsqueeze(1) - mask_windows.unsqueeze(2)
+
+        self.register_buffer("attention_mask", attention_mask)
+
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
         Forward pass through Swin Transformer Block.
@@ -190,16 +199,17 @@ class SwinTransformerBlock(nn.Module):
             shifted_x = torch.roll(
                 x, shifts=(-self.shift_size, -self.shift_size), dims=(1, 2)
             )
+            mask = self.attention_mask
         else:
             shifted_x = x
+            mask = None
 
         # Partition windows: [B, H, W, C] → [B*num_windows, window_size, window_size, C]
         x_windows = window_partition(shifted_x, self.window_size)
         x_windows = x_windows.view(-1, self.window_size * self.window_size, C)
 
         # Apply window attention
-        # TODO: Replace with attention mask parameter for SW-MSA
-        attn_windows = self.attn(x_windows)
+        attn_windows = self.attn(x_windows, mask)
 
         # Merge windows back: [B*num_windows, window_size*window_size, C] → [B, H, W, C]
         attn_windows = attn_windows.view(-1, self.window_size, self.window_size, C)

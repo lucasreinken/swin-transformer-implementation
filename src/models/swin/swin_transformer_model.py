@@ -56,14 +56,14 @@ class SwinTransformerModel(nn.Module):
         self.num_layers = len(depths)
         self.num_features = int(embedding_dim * 2 ** (self.num_layers - 1))
 
-        self.patch_embedding = PatchEmbed(
+        self.patch_embed = PatchEmbed(
             img_size=img_size,
             patch_size=patch_size,
             in_channels=in_channels,
             embedding_dim=embedding_dim,
         )
 
-        patches_resolution = self.patch_embedding.patches_resolution
+        patches_resolution = self.patch_embed.patches_resolution
         self.patches_resolution = patches_resolution
 
         # Generate drop path rates for each layer
@@ -105,21 +105,19 @@ class SwinTransformerModel(nn.Module):
                 attention_dropout=attention_dropout_rate,
                 projection_dropout=projection_dropout_rate,
                 drop_path=stage_drop_path_rates,
-                downsample=None,
+                # Downsampling at end of each stage except the last
+                downsample=PatchMerging if i < self.num_layers - 1 else None,
             )
 
             self.layers.append(basic_layer)
 
-            # Add patch merging between stages (not after last stage)
-            if i < self.num_layers - 1:
-                downsample = PatchMerging(
-                    input_resolution=input_resolution, dim=stage_dimension
-                )
-                self.layers.append(downsample)
-
         self.norm = norm_layer(self.num_features)  # Feature normalization
         self.avgpool = nn.AdaptiveAvgPool1d(1)  # Average pooling
-        self.head = nn.Linear(self.num_features, num_classes)
+        
+        # Match timm's head structure
+        self.head = nn.ModuleDict({
+            'fc': nn.Linear(self.num_features, num_classes)
+        })
 
         # Initialize weights
         self.apply(self._init_weights)
@@ -136,7 +134,7 @@ class SwinTransformerModel(nn.Module):
 
     def forward_features(self, x: torch.Tensor) -> torch.Tensor:
         """Extract features through transformer stages"""
-        x = self.patch_embedding(x)
+        x = self.patch_embed(x)
 
         for layer in self.layers:
             x = layer(x)
@@ -151,7 +149,7 @@ class SwinTransformerModel(nn.Module):
         x = self.avgpool(x.transpose(1, 2))
         x = torch.flatten(x, 1)
 
-        x = self.head(x)
+        x = self.head['fc'](x)
         return x
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

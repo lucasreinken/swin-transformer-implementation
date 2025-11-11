@@ -57,18 +57,18 @@ class WindowAttention(nn.Module):
             self.proj_dropout = nn.Dropout(proj_dropout)
 
             # Relative postion bias as learnable parameter
-            self.relative_position_biases = nn.Parameter(
+            self.relative_position_bias_table = nn.Parameter(
                  torch.empty((2 * self.window_size[0] - 1) * (2 * self.window_size[1] - 1), self.num_heads)
                  ) # 2*Wh-1 * 2*Ww-1, nH
             
             # Random initialization to break symmetry
-            nn.init.trunc_normal_(self.relative_position_biases, std=.02)
+            nn.init.trunc_normal_(self.relative_position_bias_table, std=.02)
 
             relative_position_index = self._get_relative_position_index(self.window_size)
             self.register_buffer("relative_position_index", relative_position_index, persistent=False)
 
             # Optimized qkv layer (normally multiple linear layers)
-            self.linear_qkv = nn.Linear(dim, dim * 3)
+            self.qkv = nn.Linear(dim, dim * 3)
 
             # Final projection layer
             self.proj = nn.Linear(dim, dim)
@@ -104,14 +104,14 @@ class WindowAttention(nn.Module):
             Output tensor [num_windows*B, N, C]
         """
         wB, N, C = x.shape
-        qkv = self.linear_qkv(x).reshape(wB, N, 3, self.num_heads, C // self.num_heads).permute(2, 0, 3, 1, 4)  # [3, wB, nH, N, head_dim]
+        qkv = self.qkv(x).reshape(wB, N, 3, self.num_heads, C // self.num_heads).permute(2, 0, 3, 1, 4)  # [3, wB, nH, N, head_dim]
         q, k, v = qkv.unbind(0)  # each: [wB, nH, N, head_dim]
 
         # Scale dot product
         scores = torch.matmul(q, k.transpose(-2, -1)) * (self.head_dim ** -0.5)
 
         # Relative position bias: [nH, N, N] -> broadcast to [wB, nH, N, N]
-        relative_position_bias = self.relative_position_biases[self.relative_position_index.view(-1)].view(
+        relative_position_bias = self.relative_position_bias_table[self.relative_position_index.view(-1)].view(
             self.window_size[0] * self.window_size[1], self.window_size[0] * self.window_size[1], -1)  # Wh*Ww,Wh*Ww,nH
         relative_position_bias = relative_position_bias.permute(2, 0, 1).contiguous()  # nH, Wh*Ww, Wh*Ww
         # Add learnable relative postition biases to scores (attention matrix)

@@ -147,14 +147,6 @@ class SwinTransformerBlock(nn.Module):
 
         self.drop_path2 = DropPath(drop_path) if drop_path > 0.0 else nn.Identity()
 
-        # Attention mask for SW-MSA (Cycle Shift)
-        image_mask = create_image_mask(self.input_resolution, self.window_size, self.shift_size)
-        mask_windows = window_partition(image_mask, self.window_size)
-        mask_windows = mask_windows.view(-1, self.window_size * self.window_size)
-        attention_mask = mask_windows.unsqueeze(1) - mask_windows.unsqueeze(2)
-
-        self.register_buffer("attention_mask", attention_mask)
-
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -199,17 +191,22 @@ class SwinTransformerBlock(nn.Module):
             shifted_x = torch.roll(
                 x, shifts=(-self.shift_size, -self.shift_size), dims=(1, 2)
             )
-            mask = self.attention_mask
+            # Create attention mask dynamically for SW-MSA
+            image_mask = create_image_mask(self.input_resolution, self.window_size, self.shift_size, device=x.device)
+            mask_windows = window_partition(image_mask, self.window_size)
+            mask_windows = mask_windows.view(-1, self.window_size * self.window_size)
+            attn_mask = mask_windows.unsqueeze(1) - mask_windows.unsqueeze(2)
+            attn_mask = attn_mask.masked_fill(attn_mask != 0, float(-100.0)).masked_fill(attn_mask == 0, float(0.0))
         else:
             shifted_x = x
-            mask = None
+            attn_mask = None
 
         # Partition windows: [B, H, W, C] → [B*num_windows, window_size, window_size, C]
         x_windows = window_partition(shifted_x, self.window_size)
         x_windows = x_windows.view(-1, self.window_size * self.window_size, C)
 
         # Apply window attention
-        attn_windows = self.attn(x_windows, mask)
+        attn_windows = self.attn(x_windows, attn_mask)
 
         # Merge windows back: [B*num_windows, window_size*window_size, C] → [B, H, W, C]
         attn_windows = attn_windows.view(-1, self.window_size, self.window_size, C)

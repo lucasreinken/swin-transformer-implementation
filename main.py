@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import SequentialLR, LinearLR, CosineAnnealingLR
 
-from config.config import SWIN_CONFIG
+from config import SWIN_CONFIG
 from src.data import load_data
 
 from src.models import SimpleModel
@@ -121,7 +121,7 @@ def setup_model(device):
             drop_path_rate=SWIN_CONFIG["drop_path_rate"],
             num_classes=SWIN_CONFIG["num_classes"],
         )
-        logger.info("Created SwinTransformerModel for CIFAR-10 training.")
+        logger.info("Created SwinTransformerModel training.")
     else:
         input_dim = 3 * DATA_CONFIG["img_size"] * DATA_CONFIG["img_size"]
         model = SimpleModel(

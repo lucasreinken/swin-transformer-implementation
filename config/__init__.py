@@ -2,12 +2,16 @@
 Configuration module for the ML pipeline.
 """
 
-import os
+# Dataset selection - choose one dataset
+# DATASET = "cifar10"
+DATASET = "cifar100"
+# DATASET = "imagenet"
 
-# Dataset selection - change this directly to switch between datasets
-# Options: "cifar10", "cifar100", "imagenet"
-# DATASET = os.getenv("DATASET", "cifar10").lower()
-DATASET = "cifar10"  # Uncomment and change this line
+# Data root configuration - choose one based on environment
+# # For local development:
+# DATA_ROOT = "./datasets"
+# For cluster:
+DATA_ROOT = "/home/space/datasets"
 
 
 def _load_config():
@@ -55,6 +59,9 @@ def _load_config():
         raise ValueError(
             f"Unknown dataset: {DATASET}. Choose from: cifar10, cifar100, imagenet"
         )
+
+    # Override data root based on environment
+    DATA_CONFIG["root"] = DATA_ROOT
 
 
 # Load the config

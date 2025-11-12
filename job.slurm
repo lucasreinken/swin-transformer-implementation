@@ -7,5 +7,5 @@
 #SBATCH --job-name=ML_Train
 
 mkdir -p logs
-apptainer run --nv pml.sif python train.py "$@"
+apptainer run --nv pml.sif python main.py "$@"
 

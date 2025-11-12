@@ -37,7 +37,9 @@ class TestWindowOperations:
         assert len(unique_ids) == 9, f"Expected 9 unique regions, got {len(unique_ids)}"
 
         # Values should range from 0 to 8
-        assert torch.all(unique_ids == torch.arange(9, dtype=unique_ids.dtype)), f"Unexpected region IDs: {unique_ids.tolist()}"
+        assert torch.all(
+            unique_ids == torch.arange(9, dtype=unique_ids.dtype)
+        ), f"Unexpected region IDs: {unique_ids.tolist()}"
 
     def test_window_partition_basic(self):
         """Test basic window partitioning."""
@@ -291,26 +293,23 @@ class TestBasicLayer:
         """Test basic layer with downsampling."""
         from src.models.swin import PatchMerging
 
-        dim = 96
-        input_resolution = (56, 56)
-        depth = 2
-        num_heads = 3
-
+        input_dim = 96
         layer = BasicLayer(
-            dim=dim,
-            input_resolution=input_resolution,
-            depth=depth,
-            num_heads=num_heads,
+            dim=192,
+            input_resolution=(56, 56),
+            depth=2,
+            num_heads=3,
             downsample=PatchMerging,
+            downsample_input_dim=input_dim,
         )
 
         B = 2
-        H, W = input_resolution
-        x = torch.randn(B, H * W, dim)
+        H, W = (56, 56)
+        x = torch.randn(B, H * W, input_dim)
         output = layer(x)
 
-        # With downsampling: H/2 * W/2 patches, 2*dim features
-        assert output.shape == (B, (H // 2) * (W // 2), 2 * dim)
+        # With downsampling: H/2 * W/2 patches, 2*input_dim features
+        assert output.shape == (B, (H // 2) * (W // 2), 2 * input_dim)
 
     def test_basic_layer_alternating_attention(self):
         """Test that basic layer creates alternating W-MSA and SW-MSA blocks."""
@@ -403,12 +402,13 @@ class TestIntegration:
 
         # Stage 3: Basic Layer with downsampling
         layer2 = BasicLayer(
-            dim=96,
+            dim=192,
             input_resolution=(56, 56),
             depth=2,
             num_heads=3,
             window_size=7,
             downsample=PatchMerging,
+            downsample_input_dim=96,
         )
         x = layer2(x)  # [B, 784, 192] = [B, 28*28, 192]
         assert x.shape == (B, 784, 192)

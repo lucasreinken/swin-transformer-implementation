@@ -1,7 +1,7 @@
 import torch
 
 
-def create_image_mask(input_resolution: tuple, window_size: int, shift_size: int) -> torch.Tensor:
+def create_image_mask(input_resolution: tuple, window_size: int, shift_size: int, device: torch.device = None) -> torch.Tensor:
     """
     Create an image region index map used to generate the shifted-window attention mask.
 
@@ -27,7 +27,7 @@ def create_image_mask(input_resolution: tuple, window_size: int, shift_size: int
                 [6., 6., 7., 7., 7., 8., 8., 8.]
     """
     H, W = input_resolution
-    img_mask = torch.empty((H, W))
+    img_mask = torch.empty((H, W), device=device)
 
     # Boundaries of the 3x3 areas
     h_regions = [(0, -window_size), (-window_size, -shift_size), (-shift_size, None)]

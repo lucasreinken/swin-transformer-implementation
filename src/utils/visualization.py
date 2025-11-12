@@ -225,8 +225,16 @@ def show_batch(
         img = images[i]
 
         # Handle different image formats
-        if img.max() > 1.0:
-            img = img.astype(np.float32) / 255.0  # Ensure [0, 1] range
+        if img.max() > 1.0 and img.min() >= 0.0:
+            # Images are in [0, 255] range, convert to [0, 1]
+            img = img.astype(np.float32) / 255.0
+        elif img.min() < -0.5 or img.max() > 2.0:
+            # Images are normalized with ImageNet stats, denormalize to [0, 1]
+            mean = np.array([0.485, 0.456, 0.406])
+            std = np.array([0.229, 0.224, 0.225])
+            img = img * std + mean  # Denormalize
+            img = np.clip(img, 0.0, 1.0)  # Ensure valid range
+        # If images are already in [0, 1] range, leave them as-is
 
         axes[i].imshow(img)
 

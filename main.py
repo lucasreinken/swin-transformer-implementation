@@ -7,6 +7,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import SequentialLR, LinearLR, CosineAnnealingLR
 
+from config import SWIN_CONFIG
 from src.data import load_data
 
 from src.models import SimpleModel
@@ -22,7 +23,7 @@ from src.training.metrics import (
 )
 from src.training.trainer import Mixup
 
-from src.utils.visualization import CIFAR_CLASSES, show_batch
+from src.utils.visualization import CIFAR10_CLASSES, show_batch
 from src.utils.seeds import set_random_seeds, get_worker_init_fn
 from src.utils.experiment import setup_run_directory, setup_logging, ExperimentTracker
 from src.utils.model_validation import ModelValidator
@@ -54,6 +55,14 @@ def setup_device():
 def setup_data(device, run_dir):
     """Load and setup data loaders and visualization."""
     logger.info("Loading data...")
+
+    # For validation, use ImageNet size; otherwise use config size
+    img_size = (
+        224
+        if VALIDATION_CONFIG.get("enable_validation", False)
+        else DATA_CONFIG["img_size"]
+    )
+
     train_generator, val_generator, test_generator = load_data(
         dataset=DATA_CONFIG["dataset"],
         n_train=DATA_CONFIG.get("n_train"),
@@ -63,7 +72,7 @@ def setup_data(device, run_dir):
         batch_size=DATA_CONFIG["batch_size"],
         num_workers=DATA_CONFIG["num_workers"],
         root=DATA_CONFIG["root"],
-        img_size=DATA_CONFIG["img_size"],
+        img_size=img_size,
         worker_init_fn=get_worker_init_fn(SEED_CONFIG["seed"]),
     )
 
@@ -85,20 +94,49 @@ def setup_data(device, run_dir):
 def setup_model(device):
     """Initialize and setup the model."""
     logger.info("Initializing model...")
-    input_dim = 3 * DATA_CONFIG["img_size"] * DATA_CONFIG["img_size"]
-    model = SimpleModel(
-        input_dim=input_dim,
-        hidden_dims=MODEL_CONFIG["hidden_dims"],
-        num_classes=MODEL_CONFIG["num_classes"],
-        dropout_rate=MODEL_CONFIG["dropout_rate"],
-        use_batch_norm=MODEL_CONFIG["use_batch_norm"],
-    ).to(device)
 
-    # Print model architecture
-    logger.info(
-        f"Model architecture: Input({MODEL_CONFIG['input_dim']}) -> "
-        f"Hidden{MODEL_CONFIG['hidden_dims']} -> Output({MODEL_CONFIG['num_classes']})"
-    )
+    if VALIDATION_CONFIG.get("enable_validation", False):
+        # For validation, use ImageNet-compatible Swin-Tiny
+        from src.models.swin import swin_tiny_patch4_window7_224
+
+        model = swin_tiny_patch4_window7_224(num_classes=1000)  # ImageNet classes
+        logger.info(
+            "Created Swin-Tiny model for validation against pretrained weights."
+        )
+    elif VALIDATION_CONFIG.get("use_swin_transformer", False):
+        # For regular training, use CIFAR-10 Swin config
+        from src.models.swin.swin_transformer_model import SwinTransformerModel
+
+        model = SwinTransformerModel(
+            img_size=SWIN_CONFIG["img_size"],
+            patch_size=SWIN_CONFIG["patch_size"],
+            embedding_dim=SWIN_CONFIG["embed_dim"],
+            depths=SWIN_CONFIG["depths"],
+            num_heads=SWIN_CONFIG["num_heads"],
+            window_size=SWIN_CONFIG["window_size"],
+            mlp_ratio=SWIN_CONFIG["mlp_ratio"],
+            dropout=SWIN_CONFIG["dropout"],
+            attention_dropout=SWIN_CONFIG["attention_dropout"],
+            projection_dropout=SWIN_CONFIG["projection_dropout"],
+            drop_path_rate=SWIN_CONFIG["drop_path_rate"],
+            num_classes=SWIN_CONFIG["num_classes"],
+        )
+        logger.info("Created SwinTransformerModel training.")
+    else:
+        input_dim = 3 * DATA_CONFIG["img_size"] * DATA_CONFIG["img_size"]
+        model = SimpleModel(
+            input_dim=input_dim,
+            hidden_dims=MODEL_CONFIG["hidden_dims"],
+            num_classes=MODEL_CONFIG["num_classes"],
+            dropout_rate=MODEL_CONFIG["dropout_rate"],
+            use_batch_norm=MODEL_CONFIG["use_batch_norm"],
+        ).to(device)
+
+        # Print model architecture
+        logger.info(
+            f"Model architecture: Input({MODEL_CONFIG['input_dim']}) -> "
+            f"Hidden{MODEL_CONFIG['hidden_dims']} -> Output({MODEL_CONFIG['num_classes']})"
+        )
     logger.info(
         f"Total parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad):,}"
     )
@@ -286,7 +324,7 @@ def generate_reports(
     )
     plot_confusion_matrix(
         final_test_metrics["confusion_matrix"],
-        CIFAR_CLASSES,
+        CIFAR10_CLASSES,
         save_path=str(run_dir / "confusion_matrix.png"),
     )
 

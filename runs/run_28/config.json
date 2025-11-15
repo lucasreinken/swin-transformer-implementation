@@ -1,0 +1,69 @@
+{
+  "DATA_CONFIG": {
+    "dataset": "CIFAR100",
+    "use_batch_for_val": true,
+    "val_batch": 5,
+    "batch_size": 32,
+    "num_workers": 4,
+    "root": "./datasets",
+    "img_size": 32
+  },
+  "MODEL_CONFIG": {
+    "input_dim": 3072,
+    "hidden_dims": [
+      512,
+      256,
+      128
+    ],
+    "num_classes": 100,
+    "dropout_rate": 0.3,
+    "use_batch_norm": true
+  },
+  "TRAINING_CONFIG": {
+    "learning_rate": 0.001,
+    "num_epochs": 50,
+    "weight_decay": 0.0001
+  },
+  "AUGMENTATION_CONFIG": {
+    "use_augmentation": false,
+    "rand_augment_m": 9,
+    "rand_augment_n": 2,
+    "mixup_alpha": 0.8,
+    "random_erase_prob": 0.25,
+    "mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "std": [
+      0.229,
+      0.224,
+      0.225
+    ]
+  },
+  "SCHEDULER_CONFIG": {
+    "use_scheduler": false,
+    "optimizer": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "warmup_epochs": 2,
+    "total_epochs": 50
+  },
+  "VALIDATION_CONFIG": {
+    "enable_validation": true,
+    "pretrained_model": "swin_tiny_patch4_window7_224",
+    "transfer_weights": true,
+    "validation_samples": 1000
+  },
+  "SEED_CONFIG": {
+    "seed": 42,
+    "deterministic": false
+  },
+  "VIZ_CONFIG": {
+    "figsize": [
+      10,
+      10
+    ],
+    "output_file": "visualization.png"
+  }
+}

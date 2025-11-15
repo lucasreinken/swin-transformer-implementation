@@ -39,6 +39,12 @@ from config import (
     VALIDATION_CONFIG,
 )
 
+# Additional imports for dataset plotting
+import matplotlib.pyplot as plt
+import numpy as np
+from torchvision import datasets, transforms
+import os
+
 # Setup logging
 import logging
 
@@ -50,6 +56,102 @@ def setup_device():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info(f"Using device: {device}")
     return device
+
+
+def plot_cifar100_class_distribution(run_dir):
+    """Generate CIFAR-100 class distribution plot and save to run directory."""
+    try:
+        logger.info("Generating CIFAR-100 class distribution plot...")
+
+        # Use same data root as training
+        dataset = datasets.CIFAR100(root=DATA_CONFIG["root"], train=True, download=False)
+
+        # Count samples per fine class
+        train_counts = np.bincount(dataset.targets, minlength=100)
+
+        # Count per superclass (5 fine classes each)
+        superclass_counts = [sum(train_counts[i * 5 : (i + 1) * 5]) for i in range(20)]
+
+        # Create figure
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+
+        # Fine-grained classes
+        ax1.bar(range(100), train_counts, color="skyblue", edgecolor="navy", alpha=0.8)
+        ax1.set_title("CIFAR-100: 100 Fine-Grained Classes", fontsize=14, pad=20)
+        ax1.set_xlabel("Class Index")
+        ax1.set_ylabel("Training Samples")
+        ax1.axhline(500, color="red", linestyle="--", linewidth=1.5, label="Expected: 500")
+        ax1.legend()
+        ax1.grid(True, axis="y", alpha=0.3)
+
+        # Superclasses
+        ax2.bar(
+            range(20), superclass_counts, color="lightcoral", edgecolor="darkred", alpha=0.8
+        )
+        ax2.set_title("20 Superclasses (5 classes each)", fontsize=14, pad=20)
+        ax2.set_xlabel("Superclass Index")
+        ax2.set_ylabel("Training Samples")
+        ax2.set_xticks(range(20))
+        ax2.set_xticklabels([f"{i}" for i in range(20)])
+        ax2.axhline(
+            2500, color="red", linestyle="--", linewidth=1.5, label="Expected: 2500"
+        )
+        ax2.legend()
+        ax2.grid(True, axis="y", alpha=0.3)
+
+        plt.suptitle("CIFAR-100 Dataset Distribution", fontsize=16, y=0.98)
+        plt.tight_layout()
+
+        # Save to run directory
+        output_path = run_dir / "cifar100_class_distribution.pdf"
+        plt.savefig(output_path, bbox_inches="tight", dpi=300)
+        plt.close()
+
+        logger.info(f"Saved CIFAR-100 distribution plot to {output_path}")
+
+    except Exception as e:
+        logger.warning(f"Could not generate CIFAR-100 distribution plot: {e}")
+
+
+def plot_upsampling_comparison(run_dir):
+    """Generate upsampling comparison plot and save to run directory."""
+    try:
+        logger.info("Generating upsampling comparison plot...")
+
+        # Use same data root as training
+        dataset = datasets.CIFAR100(root=DATA_CONFIG["root"], train=True, download=False)
+        img, label = dataset[42]  # Choose a visually clear image
+
+        # Original
+        img_np = np.array(img)
+
+        # Resized
+        resize = transforms.Resize(224, interpolation=transforms.InterpolationMode.BICUBIC)
+        img_resized = resize(img)
+        img_resized_np = np.array(img_resized)
+
+        # Plot side-by-side
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
+
+        ax1.imshow(img_np)
+        ax1.set_title("Original 32×32", fontsize=14)
+        ax1.axis("off")
+
+        ax2.imshow(img_resized_np)
+        ax2.set_title("Resized 224×224 (bicubic)", fontsize=14)
+        ax2.axis("off")
+
+        plt.tight_layout()
+
+        # Save to run directory
+        combined_path = run_dir / "upsampling_comparison.pdf"
+        plt.savefig(combined_path, bbox_inches="tight", dpi=300)
+        plt.close()
+
+        logger.info(f"Saved upsampling comparison plot to {combined_path}")
+
+    except Exception as e:
+        logger.warning(f"Could not generate upsampling comparison plot: {e}")
 
 
 def setup_data(device, run_dir):
@@ -347,6 +449,12 @@ def generate_reports(
             validation_results,
             save_path=str(run_dir / "model_validation_comparison.png"),
         )
+
+    # Generate dataset analysis plots
+    if DATA_CONFIG["dataset"] in ["CIFAR10", "CIFAR100"]:
+        if DATA_CONFIG["dataset"] == "CIFAR100":
+            plot_cifar100_class_distribution(run_dir)
+        plot_upsampling_comparison(run_dir)
 
     logger.info(f"\nFinal Test Results:")
     logger.info(f"Loss: {final_test_loss:.4f}")

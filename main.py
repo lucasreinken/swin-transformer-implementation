@@ -63,9 +63,18 @@ def plot_cifar100_class_distribution(run_dir):
     try:
         logger.info("Generating CIFAR-100 class distribution plot...")
 
+        # Check if dataset exists (for .sqfs mounted datasets)
+        dataset_path = os.path.join(DATA_CONFIG["root"], "cifar-100-batches-py")
+        download_dataset = not os.path.exists(dataset_path)
+
+        if not download_dataset:
+            logger.info(f"Using existing CIFAR-100 dataset from {dataset_path}")
+        else:
+            logger.info(f"Downloading CIFAR-100 dataset to {DATA_CONFIG['root']}")
+
         # Use same data root as training
         dataset = datasets.CIFAR100(
-            root=DATA_CONFIG["root"], train=True, download=False
+            root=DATA_CONFIG["root"], train=True, download=download_dataset
         )
 
         # Count samples per fine class
@@ -126,10 +135,26 @@ def plot_upsampling_comparison(run_dir):
     try:
         logger.info("Generating upsampling comparison plot...")
 
-        # Use same data root as training
-        dataset = datasets.CIFAR100(
-            root=DATA_CONFIG["root"], train=True, download=False
-        )
+        # Use same data root as training - works for both CIFAR-10 and CIFAR-100
+        if DATA_CONFIG["dataset"] == "CIFAR100":
+            # Check if dataset exists (for .sqfs mounted datasets)
+            dataset_path = os.path.join(DATA_CONFIG["root"], "cifar-100-batches-py")
+            download_dataset = not os.path.exists(dataset_path)
+            dataset = datasets.CIFAR100(
+                root=DATA_CONFIG["root"], train=True, download=download_dataset
+            )
+        elif DATA_CONFIG["dataset"] == "CIFAR10":
+            # Check if dataset exists (for .sqfs mounted datasets)
+            dataset_path = os.path.join(DATA_CONFIG["root"], "cifar-10-batches-py")
+            download_dataset = not os.path.exists(dataset_path)
+            dataset = datasets.CIFAR10(
+                root=DATA_CONFIG["root"], train=True, download=download_dataset
+            )
+        else:
+            logger.warning(
+                f"Upsampling comparison not supported for dataset: {DATA_CONFIG['dataset']}"
+            )
+            return
         img, label = dataset[42]  # Choose a visually clear image
 
         # Original

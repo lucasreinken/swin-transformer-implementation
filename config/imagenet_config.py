@@ -39,7 +39,13 @@ SWIN_CONFIG = {
     "attention_dropout": 0.0,
     "projection_dropout": 0.0,
     "drop_path_rate": 0.1,
-    "num_classes": 1000,
+}
+
+DOWNSTREAM_CONFIG = {
+    "mode": "linear_probe",
+    "head_type": "linear_classification",
+    "num_classes": 1000,  # Changed from 10 for ImageNet
+    "hidden_dim": None,
 }
 
 # Training configuration

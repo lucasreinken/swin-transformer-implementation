@@ -6,8 +6,11 @@ import pytest
 import torch
 import torch.nn as nn
 
-from src.models.swin import (
+from src.models import SwinTransformerModel
+
+from src.models import (
     SwinTransformerModel,
+    create_linear_classification_model,
     swin_tiny_patch4_window7_224,
     swin_small_patch4_window7_224,
     swin_base_patch4_window7_224,
@@ -26,7 +29,6 @@ class TestSwinTransformerModel:
             embedding_dim=96,
             depths=[2, 2, 6, 2],
             num_heads=[3, 6, 12, 24],
-            num_classes=1000,
         )
 
         assert model.num_layers == 4
@@ -35,14 +37,19 @@ class TestSwinTransformerModel:
 
     def test_swin_model_forward_pass(self):
         """Test complete forward pass."""
-        model = SwinTransformerModel(
+        encoder = SwinTransformerModel(
             img_size=32,  # CIFAR-10 size
             patch_size=4,
             embedding_dim=96,
             depths=[2, 2, 2, 2],  # Fewer stages for small images
             num_heads=[3, 6, 12, 24],
             window_size=4,  # Smaller windows
+        )
+        
+        model = create_linear_classification_model(
+            encoder=encoder,
             num_classes=10,
+            freeze=False,
         )
 
         # CIFAR-10 batch
@@ -59,7 +66,6 @@ class TestSwinTransformerModel:
             embedding_dim=96,
             depths=[2, 2, 2, 2],
             num_heads=[3, 6, 12, 24],
-            num_classes=10,
             window_size=4,
         )
 
@@ -80,7 +86,6 @@ class TestSwinTransformerModel:
             "embedding_dim": 96,
             "depths": [2, 2, 6, 2],
             "num_heads": [3, 6, 12, 24],
-            "num_classes": 1000,
         }
 
         model = SwinTransformerModel(**config)
@@ -97,7 +102,6 @@ class TestSwinTransformerModel:
             embedding_dim=96,
             depths=[2, 2, 2, 2],
             num_heads=[3, 6, 12, 24],
-            num_classes=10,
             window_size=4,
         )
 
@@ -119,8 +123,8 @@ class TestSwinTransformerModel:
         assert output.shape == (1, 1000)
 
         # Check configuration
-        assert model.config["embedding_dim"] == 96
-        assert model.config["depths"] == [2, 2, 6, 2]
+        assert model.encoder.config["embedding_dim"] == 96
+        assert model.encoder.config["depths"] == [2, 2, 6, 2]
 
     def test_swin_base_variant(self):
         """Test Swin-Base variant creation."""
@@ -133,8 +137,8 @@ class TestSwinTransformerModel:
         assert output.shape == (1, 1000)
 
         # Check configuration
-        assert model.config["embedding_dim"] == 128
-        assert model.config["depths"] == [2, 2, 18, 2]
+        assert model.encoder.config["embedding_dim"] == 128
+        assert model.encoder.config["depths"] == [2, 2, 18, 2]
 
     def test_swin_model_parameter_count(self):
         """Test that parameter counts are reasonable."""
@@ -156,15 +160,20 @@ class TestSwinTransformerModel:
         ), "Base model should have more parameters than Tiny"
 
     def test_swin_model_gradient_flow(self):
-        """Test that gradients flow through the model."""
-        model = SwinTransformerModel(
+        """Test that gradients flow through the model. (freeze=False)"""
+        encoder = SwinTransformerModel(
             img_size=32,
             patch_size=4,
             embedding_dim=96,
             depths=[2, 2, 2, 2],
             num_heads=[3, 6, 12, 24],
-            num_classes=10,
             window_size=4,
+        )
+
+        model = create_linear_classification_model(
+            encoder=encoder,
+            num_classes=10,
+            freeze=False,
         )
 
         x = torch.randn(2, 3, 32, 32)
@@ -178,18 +187,55 @@ class TestSwinTransformerModel:
         loss.backward()
 
         # Check that gradients exist
-        assert model.head["fc"].weight.grad is not None
-        assert model.patch_embed.proj.weight.grad is not None
+        assert model.pred_head.head["fc"].weight.grad is not None
+        assert model.encoder.layers[-1].blocks[-1].mlp.fc2.weight.grad is not None
+        assert model.encoder.patch_embed.proj.weight.grad is not None
+
+    def test_swin_model_gradient_flow_frozen(self):
+        """Test that gradients only flow through the head. (freeze=True)"""
+        encoder = SwinTransformerModel(
+            img_size=32,
+            patch_size=4,
+            embedding_dim=96,
+            depths=[2, 2, 2, 2],
+            num_heads=[3, 6, 12, 24],
+            window_size=4,
+        )
+
+        model = create_linear_classification_model(
+            encoder=encoder,
+            num_classes=10,
+            freeze=True,
+        )
+
+        x = torch.randn(2, 3, 32, 32)
+        target = torch.randint(0, 10, (2,))
+
+        # Forward pass
+        output = model(x)
+        loss = torch.nn.functional.cross_entropy(output, target)
+
+        # Backward pass
+        loss.backward()
+
+        # Check that gradients exist
+        assert model.pred_head.head["fc"].weight.grad is not None
+        assert model.encoder.layers[-1].blocks[-1].mlp.fc2.weight.grad is None
 
     def test_swin_model_different_input_sizes(self):
         """Test model with different input sizes."""
-        model = SwinTransformerModel(
+        encoder = SwinTransformerModel(
             img_size=224,
             patch_size=4,
             embedding_dim=96,
             depths=[2, 2, 6, 2],
             num_heads=[3, 6, 12, 24],
+        )
+
+        model = create_linear_classification_model(
+            encoder=encoder,
             num_classes=1000,
+            freeze=False,
         )
 
         # Test different batch sizes
@@ -216,25 +262,35 @@ class TestSwinModelIntegration:
             }
         )
 
-        model = SwinTransformerModel(**test_config)
+        encoder = SwinTransformerModel(**test_config)
+
+        model = create_linear_classification_model(
+            encoder=encoder,
+            freeze=False,
+        )
 
         # Test forward pass
         x = torch.randn(2, 3, 32, 32)
         output = model(x)
 
-        assert output.shape == (2, test_config["num_classes"])
+        assert output.shape == (2, 1000)
 
     def test_swin_model_training_mode(self):
         """Test model behavior in training vs eval mode."""
-        model = SwinTransformerModel(
+        encoder = SwinTransformerModel(
             img_size=32,
             patch_size=4,
             embedding_dim=96,
             depths=[2, 2, 2, 2],
             num_heads=[3, 6, 12, 24],
             drop_path_rate=0.1,  # Should affect training mode
-            num_classes=10,
             window_size=4,
+        )
+
+        model = create_linear_classification_model(
+            encoder=encoder,
+            num_classes=10,
+            freeze=False,
         )
 
         x = torch.randn(2, 3, 32, 32)
@@ -249,3 +305,4 @@ class TestSwinModelIntegration:
 
         # Outputs should be different due to drop path
         assert not torch.allclose(out_train, out_eval, atol=1e-6)
+        

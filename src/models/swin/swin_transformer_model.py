@@ -15,7 +15,6 @@ class SwinTransformerModel(nn.Module):
         img_size: int = 224,
         patch_size: int = 4,
         in_channels: int = 3,
-        num_classes: int = 1000,
         embedding_dim: int = 96,
         depths: List[int] = [2, 2, 6, 2],
         num_heads: List[int] = [3, 6, 12, 24],
@@ -25,7 +24,6 @@ class SwinTransformerModel(nn.Module):
         attention_dropout_rate: float = 0.0,
         projection_dropout_rate: float = 0.0,
         drop_path_rate: float = 0.1,
-        norm_layer: nn.Module = nn.LayerNorm,
         **kwargs: Dict[str, Any]
     ):
         super().__init__()
@@ -35,7 +33,6 @@ class SwinTransformerModel(nn.Module):
             "img_size": img_size,
             "patch_size": patch_size,
             "in_channels": in_channels,
-            "num_classes": num_classes,
             "embedding_dim": embedding_dim,
             "depths": depths,
             "num_heads": num_heads,
@@ -120,12 +117,6 @@ class SwinTransformerModel(nn.Module):
 
             self.layers.append(basic_layer)
 
-        self.norm = norm_layer(self.num_features)  # Feature normalization
-        self.avgpool = nn.AdaptiveAvgPool1d(1)  # Average pooling
-
-        # Match timm's head structure
-        self.head = nn.ModuleDict({"fc": nn.Linear(self.num_features, num_classes)})
-
         # Initialize weights
         self.apply(self._init_weights)
 
@@ -148,21 +139,9 @@ class SwinTransformerModel(nn.Module):
 
         return x
 
-    def forward_head(self, x: torch.Tensor) -> torch.Tensor:
-        """Classification head"""
-
-        # Average pooling
-        x = self.norm(x)
-        x = self.avgpool(x.transpose(1, 2))
-        x = torch.flatten(x, 1)
-
-        x = self.head["fc"](x)
-        return x
-
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Complete forward pass through Swin Transformer."""
         x = self.forward_features(x)
-        x = self.forward_head(x)
         return x
 
     def get_model_info(self) -> Dict[str, Any]:
@@ -175,55 +154,3 @@ class SwinTransformerModel(nn.Module):
             "patches_resolution": self.patches_resolution,
             "parameter_count": sum(p.numel() for p in self.parameters()),
         }
-
-
-def swin_tiny_patch4_window7_224(**kwargs) -> SwinTransformerModel:
-    model = SwinTransformerModel(
-        img_size=224,
-        patch_size=4,
-        embedding_dim=96,
-        depths=[2, 2, 6, 2],
-        num_heads=[3, 6, 12, 24],
-        window_size=7,
-        **kwargs
-    )
-    return model
-
-
-def swin_small_patch4_window7_224(**kwargs) -> SwinTransformerModel:
-    model = SwinTransformerModel(
-        img_size=224,
-        patch_size=4,
-        embedding_dim=96,
-        depths=[2, 2, 18, 2],
-        num_heads=[3, 6, 12, 24],
-        window_size=7,
-        **kwargs
-    )
-    return model
-
-
-def swin_base_patch4_window7_224(**kwargs) -> SwinTransformerModel:
-    model = SwinTransformerModel(
-        img_size=224,
-        patch_size=4,
-        embedding_dim=128,
-        depths=[2, 2, 18, 2],
-        num_heads=[4, 8, 16, 32],
-        window_size=7,
-        **kwargs
-    )
-    return model
-
-
-def swin_large_patch4_window7_224(**kwargs) -> SwinTransformerModel:
-    model = SwinTransformerModel(
-        img_size=224,
-        patch_size=4,
-        embedding_dim=192,
-        depths=[2, 2, 18, 2],
-        num_heads=[6, 12, 24, 48],
-        window_size=7,
-        **kwargs
-    )
-    return model

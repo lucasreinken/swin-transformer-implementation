@@ -11,10 +11,4 @@ from .window_utils import (
     window_reverse,
     generate_drop_path_rates,
 )
-from .swin_transformer_model import (
-    SwinTransformerModel,
-    swin_tiny_patch4_window7_224,
-    swin_small_patch4_window7_224,
-    swin_base_patch4_window7_224,
-    swin_large_patch4_window7_224,
-)
+from .swin_transformer_model import SwinTransformerModel

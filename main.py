@@ -32,6 +32,7 @@ from config import (
     AUGMENTATION_CONFIG,
     DATA_CONFIG,
     MODEL_CONFIG,
+    DOWNSTREAM_CONFIG,
     TRAINING_CONFIG,
     VIZ_CONFIG,
     SEED_CONFIG,
@@ -105,9 +106,13 @@ def setup_model(device):
         )
     elif VALIDATION_CONFIG.get("use_swin_transformer", False):
         # For regular training, use CIFAR-10 Swin config
-        from src.models.swin.swin_transformer_model import SwinTransformerModel
+        from src.models import (
+            SwinTransformerModel,
+            ModelWrapper,
+            LinearClassificationHead,
+        )
 
-        model = SwinTransformerModel(
+        encoder = SwinTransformerModel(
             img_size=SWIN_CONFIG["img_size"],
             patch_size=SWIN_CONFIG["patch_size"],
             embedding_dim=SWIN_CONFIG["embed_dim"],
@@ -119,9 +124,22 @@ def setup_model(device):
             attention_dropout=SWIN_CONFIG["attention_dropout"],
             projection_dropout=SWIN_CONFIG["projection_dropout"],
             drop_path_rate=SWIN_CONFIG["drop_path_rate"],
-            num_classes=SWIN_CONFIG["num_classes"],
         )
-        logger.info("Created SwinTransformerModel training.")
+
+        if DOWNSTREAM_CONFIG["head_type"] == "linear_classification":
+            pred_head = LinearClassificationHead(
+                num_features=encoder.num_features,
+                num_classes=SWIN_CONFIG["num_classes"],
+                )
+        else:
+            raise AssertionError(f"Unknown head type: {DOWNSTREAM_CONFIG['head_type']}")
+        
+        model = ModelWrapper(
+            encoder=encoder,
+            pred_head=pred_head,
+            freeze=TRAINING_CONFIG["freeze_encoder"],
+            )
+        logger.info("Created SwinTransformerModel training.")  
     else:
         input_dim = 3 * DATA_CONFIG["img_size"] * DATA_CONFIG["img_size"]
         model = SimpleModel(
@@ -148,9 +166,15 @@ def setup_training_components(model):
     """Setup optimizer, scheduler, and loss criterion."""
     criterion = nn.CrossEntropyLoss()
 
+    params = (
+        model.head.parameters()
+        if TRAINING_CONFIG["freeze_encoder"]
+        else model.parameters()
+        )
+
     if SCHEDULER_CONFIG["use_scheduler"]:
         optimizer = torch.optim.AdamW(
-            model.parameters(),
+            params,
             lr=SCHEDULER_CONFIG["lr"],
             weight_decay=SCHEDULER_CONFIG["weight_decay"],
         )
@@ -172,7 +196,7 @@ def setup_training_components(model):
         )
     else:
         optimizer = optim.Adam(
-            model.parameters(),
+            params,
             lr=TRAINING_CONFIG["learning_rate"],
             weight_decay=TRAINING_CONFIG["weight_decay"],
         )

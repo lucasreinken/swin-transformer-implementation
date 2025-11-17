@@ -16,7 +16,7 @@ DATA_ROOT = "/home/space/datasets"
 
 def _load_config():
     """Load the appropriate config based on DATASET environment variable."""
-    global AUGMENTATION_CONFIG, DATA_CONFIG, MODEL_CONFIG, TRAINING_CONFIG
+    global AUGMENTATION_CONFIG, DATA_CONFIG, MODEL_CONFIG, DOWNSTREAM_CONFIG, TRAINING_CONFIG
     global VIZ_CONFIG, SEED_CONFIG, SCHEDULER_CONFIG, VALIDATION_CONFIG, SWIN_CONFIG
 
     if DATASET == "cifar10":
@@ -24,6 +24,7 @@ def _load_config():
             AUGMENTATION_CONFIG,
             DATA_CONFIG,
             MODEL_CONFIG,
+            DOWNSTREAM_CONFIG,
             TRAINING_CONFIG,
             VIZ_CONFIG,
             SEED_CONFIG,
@@ -36,6 +37,7 @@ def _load_config():
             AUGMENTATION_CONFIG,
             DATA_CONFIG,
             MODEL_CONFIG,
+            DOWNSTREAM_CONFIG,
             TRAINING_CONFIG,
             VIZ_CONFIG,
             SEED_CONFIG,
@@ -48,6 +50,7 @@ def _load_config():
             AUGMENTATION_CONFIG,
             DATA_CONFIG,
             MODEL_CONFIG,
+            DOWNSTREAM_CONFIG,
             TRAINING_CONFIG,
             VIZ_CONFIG,
             SEED_CONFIG,
@@ -71,6 +74,7 @@ __all__ = [
     "AUGMENTATION_CONFIG",
     "DATA_CONFIG",
     "MODEL_CONFIG",
+    "DOWNSTREAM_CONFIG"
     "TRAINING_CONFIG",
     "VIZ_CONFIG",
     "SEED_CONFIG",

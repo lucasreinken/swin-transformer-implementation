@@ -110,6 +110,7 @@ def setup_model(device):
         from src.models import swin_tiny_patch4_window7_224
 
         model = swin_tiny_patch4_window7_224(num_classes=1000)  # ImageNet classes
+        model = model.to(device)
         logger.info(
             "Created Swin-Tiny model for validation against pretrained weights."
         )
@@ -147,8 +148,21 @@ def setup_model(device):
             encoder=encoder,
             pred_head=pred_head,
             freeze=DOWNSTREAM_CONFIG["freeze_encoder"],
-        ).to(device)
+        )
         logger.info("Created SwinTransformerModel training.")
+
+        # MOVE TO DEVICE FIRST, BEFORE any weight operations
+        model = model.to(device)
+        logger.info(f"Model moved to device: {device}")
+
+        # Debug: Check device placement
+        logger.info(
+            f"Patch embed proj device: {next(model.encoder.patch_embed.proj.parameters()).device}"
+        )
+        logger.info(
+            f"Encoder first layer device: {next(model.encoder.layers[0].parameters()).device}"
+        )
+        logger.info(f"Head device: {next(model.pred_head.parameters()).device}")
 
         if SWIN_CONFIG.get("pretrained_weights", False):
             model_name = get_swin_name()
@@ -157,6 +171,15 @@ def setup_model(device):
                 model, encoder_only=True, model_name=model_name, device=device
             )
             logger.info(f"Weight transfer completed: {transfer_stats}")
+
+            # Debug: Check device placement AFTER weight transfer
+            logger.info(
+                f"After transfer - Patch embed proj device: {next(model.encoder.patch_embed.proj.parameters()).device}"
+            )
+            logger.info(
+                f"After transfer - Encoder first layer device: {next(model.encoder.layers[0].parameters()).device}"
+            )
+
     else:
         input_dim = 3 * DATA_CONFIG["img_size"] * DATA_CONFIG["img_size"]
         model = SimpleModel(
@@ -172,6 +195,7 @@ def setup_model(device):
             f"Model architecture: Input({MODEL_CONFIG['input_dim']}) -> "
             f"Hidden{MODEL_CONFIG['hidden_dims']} -> Output({MODEL_CONFIG['num_classes']})"
         )
+
     logger.info(
         f"Total parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad):,}"
     )

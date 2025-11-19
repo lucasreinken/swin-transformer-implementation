@@ -8,12 +8,11 @@ logger = logging.getLogger(__name__)
 
 try:
     from timm import create_model
+
     TIMM_AVAILABLE = True
 except ImportError:
     TIMM_AVAILABLE = False
-    logger.warning(
-        "timm library not found. Cannot transfer weights."
-    )
+    logger.warning("timm library not found. Cannot transfer weights.")
 
 
 def load_pretrained_reference(
@@ -31,9 +30,7 @@ def load_pretrained_reference(
         Pretrained model set to eval mode, or None if loading fails or timm is unavailable.
     """
     if not TIMM_AVAILABLE:
-        logger.error(
-            "timm library is not available. Cannot load pretrained models."
-        )
+        logger.error("timm library is not available. Cannot load pretrained models.")
         return None
 
     try:

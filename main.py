@@ -147,7 +147,7 @@ def setup_model(device):
             encoder=encoder,
             pred_head=pred_head,
             freeze=DOWNSTREAM_CONFIG["freeze_encoder"],
-        )
+        ).to(device)
         logger.info("Created SwinTransformerModel training.")
 
         if SWIN_CONFIG.get("pretrained_weights", False):

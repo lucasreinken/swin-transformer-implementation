@@ -6,7 +6,7 @@
 
 
 Build Container (CPU node, ~15 min)
-srun --partition=cpu-2h --pty bash -c 'apptainer build --force pml.sif pml.def'
+srun --partition=gpu-teaching-2h --pty bash -c 'apptainer build --force pml.sif pml.def'
 
 
 Run GPU Jobs

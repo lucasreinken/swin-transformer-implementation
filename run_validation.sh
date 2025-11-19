@@ -23,8 +23,9 @@ echo ""
 echo "Step 2: Checking container..."
 if [ ! -f "pml.sif" ]; then
     echo "⚠️  Container not found. Building..."
-    echo "This will take ~15 minutes..."
-    srun --partition=gpu-teaching-2h --pty bash -c 'apptainer build --force pml.sif pml.def'
+    echo "This will take 10-15 minutes..."
+    echo "Requesting CPU node..."
+    srun --partition=cpu-2h --pty bash -c 'apptainer build pml.sif pml.def'
     echo "✅ Container built"
 else
     echo "✅ Container exists"
@@ -85,7 +86,7 @@ case $choice in
         echo "Starting interactive validation..."
         echo "This will take ~10-15 minutes"
         echo ""
-        srun --partition=gpu-test --gpus=1 --time=00:30:00 --pty bash -c 'apptainer run --nv pml.sif python main.py'
+        srun --partition=gpu-teaching-2h --gpus=1 --pty bash -c 'apptainer run --nv pml.sif python main.py'
         ;;
     2)
         echo ""
@@ -96,6 +97,7 @@ case $choice in
         echo "Monitor with:"
         echo "  squeue -u \$USER"
         echo "  tail -f logs/${JOBID}.out"
+        echo "  scancel ${JOBID}  # to cancel if needed"
         echo ""
         ;;
     3)

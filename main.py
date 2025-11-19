@@ -451,11 +451,6 @@ def main():
         VIZ_CONFIG=VIZ_CONFIG,
     )
 
-    # Validate model implementation
-    validation_results = validate_model_if_enabled(
-        model, val_generator, run_dir, device
-    )
-
     criterion, optimizer, scheduler = setup_training_components(model)
     metrics_history, lr_history, mixup = initialize_metrics_tracking()
 
@@ -472,6 +467,11 @@ def main():
         lr_history,
         mixup,
         device,
+    )
+
+    # Validate model implementation
+    validation_results = validate_model_if_enabled(
+        model, val_generator, run_dir, device
     )
 
     # Generate reports and save model

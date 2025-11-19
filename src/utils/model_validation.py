@@ -96,18 +96,21 @@ class ModelValidator:
                 if isinstance(outputs, tuple):
                     outputs = outputs[0]  # Take first output if tuple
 
-                # Ensure outputs are the right shape [batch_size, num_classes]
+                # Both models now have identical LinearClassificationHead structure
+                # So outputs should be [batch_size, num_classes] = [32, 100]
                 if outputs.dim() != 2:
-                    logger.error(
-                        f"Unexpected output shape: {outputs.shape}, expected 2D tensor"
+                    logger.warning(
+                        f"Unexpected output shape: {outputs.shape}, expected [batch_size, 100]"
                     )
+                    # Simple reshape as fallback
                     outputs = outputs.view(outputs.size(0), -1)
+                    if outputs.size(1) != 100:
+                        logger.error(
+                            f"Output features {outputs.size(1)} != 100 classes"
+                        )
 
                 # Ensure labels are 1D [batch_size]
                 if labels.dim() != 1:
-                    logger.error(
-                        f"Unexpected label shape: {labels.shape}, expected 1D tensor"
-                    )
                     labels = labels.view(-1)
 
                 loss = criterion(outputs, labels)
@@ -152,9 +155,14 @@ class ModelValidator:
             if isinstance(outputs, tuple):
                 outputs = outputs[0]  # Take first output if tuple
 
-            # Ensure outputs are the right shape [batch_size, num_classes]
-            if outputs.dim() != 2:
+            # Both models now have identical LinearClassificationHead structure
+            if outputs.dim() != 2 or outputs.size(1) != 100:
+                logger.warning(
+                    f"Unexpected output shape: {outputs.shape}, expected [batch_size, 100]"
+                )
                 outputs = outputs.view(outputs.size(0), -1)
+                if outputs.size(1) != 100:
+                    logger.error(f"Output features {outputs.size(1)} != 100 classes")
 
             # Top-1 accuracy
             _, pred1 = outputs.topk(1, dim=1)
@@ -247,19 +255,37 @@ class ModelValidator:
             logger.warning("Cannot perform validation - pretrained model unavailable")
             return None
 
-        # Replace the classification head to match our task
+        # Replace the classification head to match our task structure
+        # Import your LinearClassificationHead to match your custom model exactly
+        from src.models.heads import LinearClassificationHead
+
         # Get the feature dimension from the original head
         if hasattr(pretrained_model, "head"):
-            feature_dim = pretrained_model.head.in_features
-            # Replace with CIFAR-100 head (100 classes)
-            pretrained_model.head = nn.Linear(feature_dim, 100).to(self.device)
+            if hasattr(pretrained_model.head, "in_features"):
+                feature_dim = pretrained_model.head.in_features
+            elif hasattr(pretrained_model.head, "fc") and hasattr(
+                pretrained_model.head.fc, "in_features"
+            ):
+                feature_dim = pretrained_model.head.fc.in_features
+            else:
+                feature_dim = 768  # Default for Swin-Tiny
+
+            # Replace with IDENTICAL structure as your custom model
+            pretrained_model.head = LinearClassificationHead(
+                num_features=feature_dim, num_classes=100
+            ).to(self.device)
             logger.info(
-                f"Replaced TIMM classification head: {feature_dim} -> 100 classes"
+                f"Replaced TIMM head with LinearClassificationHead: {feature_dim} -> 100 classes"
             )
+
         elif hasattr(pretrained_model, "classifier"):
             feature_dim = pretrained_model.classifier.in_features
-            pretrained_model.classifier = nn.Linear(feature_dim, 100).to(self.device)
-            logger.info(f"Replaced TIMM classifier head: {feature_dim} -> 100 classes")
+            pretrained_model.classifier = LinearClassificationHead(
+                num_features=feature_dim, num_classes=100
+            ).to(self.device)
+            logger.info(
+                f"Replaced TIMM classifier with LinearClassificationHead: {feature_dim} -> 100 classes"
+            )
 
         # Note: Your custom model already has ImageNet pretrained weights from main training
         # TIMM model now also has ImageNet weights + new 100-class head

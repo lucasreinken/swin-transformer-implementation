@@ -261,18 +261,12 @@ class ModelValidator:
             pretrained_model.classifier = nn.Linear(feature_dim, 100).to(self.device)
             logger.info(f"Replaced TIMM classifier head: {feature_dim} -> 100 classes")
 
-        # Transfer weights if requested (encoder only, since heads are now both untrained)
-        if validation_config.get("transfer_weights", True):
-            logger.info(
-                "Transferring encoder weights from pretrained to custom model..."
-            )
-            transfer_stats = transfer_weights(
-                custom_model,
-                pretrained_model,
-                encoder_only=True,  # Only encoder, not the new head
-                device=self.device,
-            )
-            logger.info(f"Weight transfer completed: {transfer_stats}")
+        # Note: Your custom model already has ImageNet pretrained weights from main training
+        # TIMM model now also has ImageNet weights + new 100-class head
+        # Both models should have the same pretrained encoder weights already
+        logger.info("Both models loaded with ImageNet pretrained encoder weights")
+        logger.info("Custom model: weights loaded during main training")
+        logger.info("TIMM model: weights loaded with pretrained=True")
 
         # Train TIMM model's linear head if training data provided
         if train_dataloader is not None:

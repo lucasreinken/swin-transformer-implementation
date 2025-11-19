@@ -88,27 +88,41 @@ def main(args):
         
         # Try to load ImageNet dataset - check both local and cluster paths
         imagenet_paths = [
-            Path("/home/space/datasets/imagenet"),  # Cluster path
-            Path("./datasets/imagenet"),            # Local path
-            Path("/data/imagenet"),                 # Alternative cluster path
+            Path("/home/space/datasets/imagenet/2012/val_set"),  # Cluster path (TU Berlin)
+            Path("/home/space/datasets/imagenet"),                # Alternative cluster path
+            Path("./datasets/imagenet"),                          # Local path
+            Path("/data/imagenet"),                               # Generic cluster path
         ]
         
         imagenet_path = None
         for path in imagenet_paths:
-            if path.exists() and (path / "val").exists():
-                imagenet_path = path
-                logger.info(f"Found ImageNet dataset at: {imagenet_path}")
+            # Check if path exists and contains class folders
+            if path.exists() and any(path.iterdir()):
+                # For direct val_set path, use it directly
+                if path.name == "val_set":
+                    imagenet_path = path
+                    logger.info(f"Found ImageNet validation set at: {imagenet_path}")
+                # For parent paths, check for val subdirectory
+                elif (path / "val").exists():
+                    imagenet_path = path
+                    logger.info(f"Found ImageNet dataset at: {imagenet_path}")
                 break
         
         if imagenet_path is None:
             logger.error(f"ImageNet dataset not found. Checked paths:")
             for path in imagenet_paths:
                 logger.error(f"  - {path}")
-            logger.info("Expected structure: <path>/val/n01440764/...")
+            logger.info("Expected structure: <path>/val/n01440764/... or direct val_set/n01440764/...")
             return
         
+        # Use the found path directly if it's val_set, otherwise append 'val'
+        if imagenet_path.name == "val_set":
+            val_dataset_path = imagenet_path
+        else:
+            val_dataset_path = imagenet_path / "val"
+        
         val_dataset = datasets.ImageFolder(
-            imagenet_path / "val",
+            val_dataset_path,
             transform=val_transform
         )
         

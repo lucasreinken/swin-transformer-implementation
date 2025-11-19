@@ -109,7 +109,7 @@ SCHEDULER_CONFIG = {
 
 # Model Validation Configuration
 VALIDATION_CONFIG = {
-    "enable_validation": True,
+    "enable_validation": True,  # Now compares architectures with same task setup
     "use_swin_transformer": True,
     "pretrained_model": "swin_tiny_patch4_window7_224",
     "transfer_weights": True,

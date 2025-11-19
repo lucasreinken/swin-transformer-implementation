@@ -14,6 +14,7 @@ from src.utils.load_weights import (
     load_pretrained_reference,
     transfer_weights,
 )
+from src.training import train_one_epoch, evaluate_model
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +26,68 @@ class ModelValidator:
 
     def __init__(self, device: str = "cuda"):
         self.device = device
+
+    def train_linear_head(
+        self,
+        model: nn.Module,
+        train_dataloader: DataLoader,
+        val_dataloader: DataLoader,
+        num_epochs: int = 10,
+        learning_rate: float = 0.001,
+    ) -> nn.Module:
+        """
+        Train only the linear classification head of a model (linear probing).
+
+        Args:
+            model: Model with frozen encoder and trainable head
+            train_dataloader: Training data
+            val_dataloader: Validation data
+            num_epochs: Number of training epochs
+            learning_rate: Learning rate for optimization
+
+        Returns:
+            Trained model
+        """
+        logger.info(f"Training linear head for {num_epochs} epochs...")
+
+        # Freeze all parameters except the head
+        for name, param in model.named_parameters():
+            if "head" in name or "classifier" in name:
+                param.requires_grad = True
+            else:
+                param.requires_grad = False
+
+        # Count trainable parameters
+        trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+        logger.info(f"Training {trainable_params:,} parameters in linear head")
+
+        # Setup training components
+        criterion = nn.CrossEntropyLoss()
+        optimizer = torch.optim.Adam(
+            filter(lambda p: p.requires_grad, model.parameters()), lr=learning_rate
+        )
+
+        model.train()
+
+        for epoch in range(num_epochs):
+            # Train one epoch
+            train_loss = train_one_epoch(
+                model, train_dataloader, criterion, optimizer, self.device
+            )
+
+            # Validate
+            val_loss, val_accuracy, _ = evaluate_model(
+                model, val_dataloader, criterion, self.device
+            )
+
+            logger.info(
+                f"TIMM Training Epoch {epoch+1}/{num_epochs}: "
+                f"Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, "
+                f"Val Acc: {val_accuracy:.2f}%"
+            )
+
+        logger.info("TIMM linear head training completed")
+        return model
 
     @torch.no_grad()
     def evaluate_model(
@@ -113,6 +176,7 @@ class ModelValidator:
         val_dataloader: DataLoader,
         run_dir: Path,
         validation_config: dict,
+        train_dataloader: DataLoader = None,
     ) -> Optional[Dict]:
         """Complete validation pipeline for custom model implementation."""
 
@@ -132,16 +196,47 @@ class ModelValidator:
             logger.warning("Cannot perform validation - pretrained model unavailable")
             return None
 
-        # Transfer weights if requested
+        # Replace the classification head to match our task
+        # Get the feature dimension from the original head
+        if hasattr(pretrained_model, "head"):
+            feature_dim = pretrained_model.head.in_features
+            # Replace with CIFAR-100 head (100 classes)
+            pretrained_model.head = nn.Linear(feature_dim, 100).to(self.device)
+            logger.info(
+                f"Replaced TIMM classification head: {feature_dim} -> 100 classes"
+            )
+        elif hasattr(pretrained_model, "classifier"):
+            feature_dim = pretrained_model.classifier.in_features
+            pretrained_model.classifier = nn.Linear(feature_dim, 100).to(self.device)
+            logger.info(f"Replaced TIMM classifier head: {feature_dim} -> 100 classes")
+
+        # Transfer weights if requested (encoder only, since heads are now both untrained)
         if validation_config.get("transfer_weights", True):
-            logger.info("Transferring weights from pretrained to custom model...")
+            logger.info(
+                "Transferring encoder weights from pretrained to custom model..."
+            )
             transfer_stats = transfer_weights(
                 custom_model,
                 pretrained_model,
-                encoder_only=False,
-                device=self.device
-                )
+                encoder_only=True,  # Only encoder, not the new head
+                device=self.device,
+            )
             logger.info(f"Weight transfer completed: {transfer_stats}")
+
+        # Train TIMM model's linear head if training data provided
+        if train_dataloader is not None:
+            logger.info("Training TIMM model's linear head...")
+            pretrained_model = self.train_linear_head(
+                pretrained_model,
+                train_dataloader,
+                val_dataloader,
+                num_epochs=10,  # Match your training
+                learning_rate=0.001,
+            )
+        else:
+            logger.warning(
+                "No training data provided - TIMM model head will be untrained"
+            )
 
         # Create validation dataset
         validation_samples = validation_config.get("validation_samples", 1000)

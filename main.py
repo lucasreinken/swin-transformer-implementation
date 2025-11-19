@@ -23,7 +23,7 @@ from src.training.metrics import (
 )
 from src.training.trainer import Mixup
 
-from src.utils.visualization import CIFAR10_CLASSES, show_batch
+from src.utils.visualization import CIFAR10_CLASSES, CIFAR100_CLASSES, show_batch
 from src.utils.seeds import set_random_seeds, get_worker_init_fn
 from src.utils.experiment import setup_run_directory, setup_logging, ExperimentTracker
 from src.utils.model_validation import ModelValidator
@@ -388,9 +388,27 @@ def generate_reports(
         num_classes=MODEL_CONFIG["num_classes"],
         detailed_metrics=True,
     )
+
+    # Use the correct class labels based on dataset
+    if DATA_CONFIG["dataset"] == "CIFAR10":
+        class_labels = CIFAR10_CLASSES
+    elif DATA_CONFIG["dataset"] == "CIFAR100":
+        class_labels = CIFAR100_CLASSES
+    else:
+        # Generic labels for other datasets
+        class_labels = [f"Class {i}" for i in range(MODEL_CONFIG["num_classes"])]
+
+    # Ensure we have the right number of labels
+    expected_classes = MODEL_CONFIG["num_classes"]
+    if len(class_labels) != expected_classes:
+        logger.warning(
+            f"Class label mismatch: expected {expected_classes}, got {len(class_labels)}"
+        )
+        class_labels = [f"Class {i}" for i in range(expected_classes)]
+
     plot_confusion_matrix(
         final_test_metrics["confusion_matrix"],
-        CIFAR10_CLASSES,
+        class_labels,
         save_path=str(run_dir / "confusion_matrix.png"),
     )
 
@@ -431,7 +449,7 @@ def save_final_model(model):
     )
 
 
-def validate_model_if_enabled(model, val_generator, run_dir, device):
+def validate_model_if_enabled(model, train_generator, val_generator, run_dir, device):
     """Validate model implementation"""
     if not VALIDATION_CONFIG.get("enable_validation", False):
         return None
@@ -442,6 +460,7 @@ def validate_model_if_enabled(model, val_generator, run_dir, device):
         val_dataloader=val_generator,
         run_dir=run_dir,
         validation_config=VALIDATION_CONFIG,
+        train_dataloader=train_generator,
     )
 
 
@@ -496,7 +515,7 @@ def main():
 
     # Validate model implementation
     validation_results = validate_model_if_enabled(
-        model, val_generator, run_dir, device
+        model, train_generator, val_generator, run_dir, device
     )
 
     # Generate reports and save model

@@ -309,7 +309,7 @@ def plot_model_validation_comparison(
 
     # Top-1 Accuracy
     bars1 = ax1.bar(models, top1_scores, color=["skyblue", "lightcoral"], alpha=0.8)
-    ax1.set_title("Top-1 Accuracy Comparison", fonsize=14, fontweight="bold")
+    ax1.set_title("Top-1 Accuracy Comparison", fontsize=14, fontweight="bold")
     ax1.set_ylabel("Accuracy (%)", fontsize=12)
     ax1.set_ylim(0, 100)
     ax1.grid(True, alpha=0.3)

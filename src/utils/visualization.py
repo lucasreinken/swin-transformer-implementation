@@ -146,7 +146,8 @@ def get_class_names(dataset: str) -> list:
         # For ImageNet, return class indices since there are 1000 classes
         return [f"class_{i}" for i in range(1000)]
     else:
-        return [f"class_{i}" for i in range(10)]  # fallback
+        # Generic fallback - use the number of classes from the config
+        return [f"class_{i}" for i in range(100)]  # fallback for unknown datasets
 
 
 def show_batch(

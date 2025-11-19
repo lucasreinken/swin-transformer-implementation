@@ -86,25 +86,13 @@ def main(args):
             normalize,
         ])
         
-        # Try to load ImageNet dataset - check both local and cluster paths
-        imagenet_paths = [
-            Path("/home/space/datasets/imagenet"),  # Cluster path
-            Path("./datasets/imagenet"),            # Local path
-            Path("/data/imagenet"),                 # Alternative cluster path
-        ]
-        
-        imagenet_path = None
-        for path in imagenet_paths:
-            if path.exists() and (path / "val").exists():
-                imagenet_path = path
-                logger.info(f"Found ImageNet dataset at: {imagenet_path}")
-                break
-        
-        if imagenet_path is None:
-            logger.error(f"ImageNet dataset not found. Checked paths:")
-            for path in imagenet_paths:
-                logger.error(f"  - {path}")
-            logger.info("Expected structure: <path>/val/n01440764/...")
+        # Try to load ImageNet dataset
+        imagenet_path = Path("./datasets/imagenet")
+        if not imagenet_path.exists():
+            logger.error(f"ImageNet dataset not found at {imagenet_path}")
+            logger.info("Please download ImageNet and place it in ./datasets/imagenet/")
+            logger.info("Expected structure:")
+            logger.info("  ./datasets/imagenet/val/n01440764/...")
             return
         
         val_dataset = datasets.ImageFolder(

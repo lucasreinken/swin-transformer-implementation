@@ -6,5 +6,5 @@ $PWD/requirements.txt requirements.txt
 
 %post
 pip install --root-user-action=ignore -r requirements.txt
-pip install --root-user-action=ignore scikit-learn timm
+pip install --root-user-action=ignore scikit-learn
 

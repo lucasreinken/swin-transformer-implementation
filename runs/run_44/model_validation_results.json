@@ -1,0 +1,16 @@
+{
+  "custom_model": {
+    "top1_accuracy": 70.5,
+    "top5_accuracy": 94.4,
+    "total_samples": 1000
+  },
+  "pretrained_model": {
+    "top1_accuracy": 0.8,
+    "top5_accuracy": 1.2,
+    "total_samples": 1000
+  },
+  "differences": {
+    "top1_diff": -69.7,
+    "top5_diff": -93.2
+  }
+}

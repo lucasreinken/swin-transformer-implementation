@@ -33,6 +33,23 @@ class ModelWrapper(nn.Module):
 
     def forward(self, x):
         features = self.encoder(x)
+
+        if features.dim() == 4:
+            nf = self.encoder.num_features
+
+            if features.shape[3] == nf:
+                # Swin layout (B, H, W, C)
+                B, H, W, C = features.shape
+                features = features.view(B, H * W, C)
+
+            elif features.shape[1] == nf:
+                # ResNet layout (B, C, H, W)
+                B, C, H, W = features.shape
+                features = features.view(B, C, H * W).transpose(1, 2)  # (B, H*W, C)
+
+            else:
+                raise ValueError(f"Unexpected feature shape {features.shape} for num_features={nf}")
+
         logits = self.pred_head(features)
         return logits
 

@@ -109,6 +109,7 @@ class ExperimentTracker:
 
     def log_results(
         self,
+        variant,
         final_metrics: Dict,
         training_history: Dict,
         validation_results: Optional[Dict] = None,
@@ -122,20 +123,20 @@ class ExperimentTracker:
             "completed_at": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
         }
 
-        results_file = self.run_dir / "results.json"
+        results_file = self.run_dir / f"results_{variant}.json"
         with open(results_file, "w") as f:
             json.dump(results_data, f, indent=2, default=str)
 
         logging.info(f"Experiment completed. Results saved to {results_file}")
 
-    def finalize(self):
+    def finalize(self, variant):
         """Save metadata to metadata.json."""
         self.metadata["duration_seconds"] = time.time() - self.start_time
         self.metadata["completed_at"] = time.strftime(
             "%Y-%m-%d %H:%M:%S", time.localtime()
         )
 
-        metadata_file = self.run_dir / "metadata.json"
+        metadata_file = self.run_dir / f"metadata_{variant}.json"
         with open(metadata_file, "w") as f:
             json.dump(self.metadata, f, indent=2, default=str)
 

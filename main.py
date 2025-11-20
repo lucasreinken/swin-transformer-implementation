@@ -1,20 +1,22 @@
 """
 Main orchestration file for the machine learning pipeline.
 """
+import logging
+from pathlib import Path
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.data import DataLoader
 from torch.optim.lr_scheduler import SequentialLR, LinearLR, CosineAnnealingLR
 
 from config import SWIN_CONFIG
 from src.data import load_data
 
-from src.models import SimpleModel
+from src.models import SwinTransformerModel, ModelWrapper, LinearClassificationHead, SimpleModel
 
-from src.training import train_one_epoch, evaluate_model
-from src.training.early_stopping import EarlyStopping
-from src.training.checkpoints import save_checkpoint, save_model_weights
+from src.training import evaluate_model, run_training_loop
+from src.training.checkpoints import save_model_weights
 from src.training.metrics import (
     plot_confusion_matrix,
     plot_lr_schedule,
@@ -32,6 +34,7 @@ from src.utils.load_weights import transfer_weights
 from config import (
     AUGMENTATION_CONFIG,
     DATA_CONFIG,
+    SWIN_PRESETS,
     MODEL_CONFIG,
     DOWNSTREAM_CONFIG,
     TRAINING_CONFIG,
@@ -41,18 +44,30 @@ from config import (
     VALIDATION_CONFIG,
 )
 
+from src.utils.visualization import CIFAR100_CLASSES
+
 # Setup logging
 import logging
 
 logger = logging.getLogger(__name__)
 
+try:
+    from timm import create_model
+    TIMM_AVAILABLE = True
+except ImportError:
+    TIMM_AVAILABLE = False
+    logger.warning(
+        "timm library not found. Cannot transfer weights."
+    )
+
 
 def get_swin_name():
     variant = SWIN_CONFIG["variant"]            # "tiny", "small", "base", "large"
+    patch_size = SWIN_CONFIG.get("patch_size", 4)      # default 4
     window = SWIN_CONFIG.get("window_size", 7)  # default 7
     img = SWIN_CONFIG.get("img_size", 224)      # default 224
 
-    return f"swin_{variant}_patch4_window{window}_{img}"
+    return f"swin_{variant}_patch{patch_size}_window{window}_{img}"
 
 
 def setup_device():
@@ -177,48 +192,33 @@ def setup_model(device):
     return model
 
 
-def setup_training_components(model):
-    """Setup optimizer, scheduler, and loss criterion."""
+def setup_training_components(model: nn.Module, total_epochs: int, warmup_epochs: int, learning_rate):
+    """Setup optimizer, scheduler, and loss criterion for linear probing."""
     criterion = nn.CrossEntropyLoss()
 
-    params = (
-        model.pred_head.parameters()
-        if DOWNSTREAM_CONFIG["freeze_encoder"]
-        else model.parameters()
-        )
+    optimizer = torch.optim.AdamW(
+        model.pred_head.parameters(),
+        lr=learning_rate,
+        weight_decay=1e-4,
+    )
 
-    if SCHEDULER_CONFIG["use_scheduler"]:
-        optimizer = torch.optim.AdamW(
-            params,
-            lr=SCHEDULER_CONFIG["lr"],
-            weight_decay=SCHEDULER_CONFIG["weight_decay"],
-        )
-        scheduler = SequentialLR(
-            optimizer,
-            schedulers=[
-                LinearLR(
-                    optimizer,
-                    start_factor=0.1,
-                    total_iters=SCHEDULER_CONFIG["warmup_epochs"],
-                ),
-                CosineAnnealingLR(
-                    optimizer,
-                    T_max=SCHEDULER_CONFIG["total_epochs"]
-                    - SCHEDULER_CONFIG["warmup_epochs"],
-                ),
-            ],
-            milestones=[SCHEDULER_CONFIG["warmup_epochs"]],
-        )
-    else:
-        optimizer = optim.Adam(
-            params,
-            lr=TRAINING_CONFIG["learning_rate"],
-            weight_decay=TRAINING_CONFIG["weight_decay"],
-        )
-        scheduler = None
+    scheduler = SequentialLR(
+        optimizer,
+        schedulers=[
+            LinearLR(
+                optimizer,
+                start_factor=0.1,
+                total_iters=warmup_epochs,
+            ),
+            CosineAnnealingLR(
+                optimizer,
+                T_max=total_epochs - warmup_epochs,
+            ),
+        ],
+        milestones=[warmup_epochs],
+    )
 
     return criterion, optimizer, scheduler
-
 
 def initialize_metrics_tracking():
     """Initialize metrics history dictionaries."""
@@ -245,101 +245,9 @@ def initialize_metrics_tracking():
     return metrics_history, lr_history, mixup
 
 
-def run_training_loop(
-    model,
-    train_generator,
-    val_generator,
-    test_generator,
-    criterion,
-    optimizer,
-    scheduler,
-    metrics_history,
-    lr_history,
-    mixup,
-    device,
-):
-    """Run the main training loop."""
-    # Early stopping setup
-    early_stopper = EarlyStopping(patience=5, min_delta=0.01, mode="min")
-
-    # Training loop
-    logger.info("Starting training...")
-    for epoch in range(TRAINING_CONFIG["num_epochs"]):
-        train_loss = train_one_epoch(
-            model, train_generator, criterion, optimizer, device, mixup=mixup
-        )
-
-        # Validate every epoch
-        val_loss, val_accuracy, val_metrics = evaluate_model(
-            model,
-            val_generator,
-            criterion,
-            device,
-        )
-
-        # Store metrics
-        metrics_history["train_loss"].append(train_loss)
-        metrics_history["val_loss"].append(val_loss)
-        metrics_history["val_accuracy"].append(val_accuracy)
-        if "f1_score" in val_metrics:
-            metrics_history["val_f1"].append(val_metrics["f1_score"])
-        if "precision" in val_metrics:
-            metrics_history["val_precision"].append(val_metrics["precision"])
-        if "recall" in val_metrics:
-            metrics_history["val_recall"].append(val_metrics["recall"])
-        if "f1_per_class" in val_metrics:
-            metrics_history["val_f1_per_class"].append(val_metrics["f1_per_class"])
-
-        if scheduler:
-            scheduler.step()
-            current_lr = optimizer.param_groups[0]["lr"]
-            lr_history.append(current_lr)
-            logger.info(
-                f"Epoch {epoch+1}/{TRAINING_CONFIG['num_epochs']}: LR: {current_lr:.6f}"
-            )
-        else:
-            lr_history.append(TRAINING_CONFIG["learning_rate"])
-
-        # Early stopping check
-        if early_stopper(val_loss):
-            logger.info(f"Early stopping triggered at epoch {epoch+1}.")
-            break
-
-        # Test periodically (every 5 epochs)
-        if (epoch + 1) % 5 == 0:
-            test_loss, test_accuracy, test_metrics = evaluate_model(
-                model, test_generator, criterion, device
-            )
-
-            metrics_history["test_loss"].append(test_loss)
-            metrics_history["test_accuracy"].append(test_accuracy)
-
-            logger.info(
-                f"Epoch {epoch+1}/{TRAINING_CONFIG['num_epochs']}: "
-                f"Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Val Acc: {val_accuracy:.2f}%, "
-                f"Test Loss: {test_loss:.4f}, Test Acc: {test_accuracy:.2f}%"
-            )
-        else:
-            logger.info(
-                f"Epoch {epoch+1}/{TRAINING_CONFIG['num_epochs']}: "
-                f"Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Val Acc: {val_accuracy:.2f}%"
-            )
-
-        if (epoch + 1) % 10 == 0:
-            logger.info(f"Saving checkpoint for epoch {epoch+1}...")
-            save_checkpoint(
-                model,
-                optimizer,
-                epoch + 1,
-                train_loss,
-                f"checkpoints/checkpoint_epoch_{epoch+1}.pth",
-            )
-
-    logger.info("Training completed!")
-
-
 def generate_reports(
     model,
+    variant,
     test_generator,
     criterion,
     lr_history,
@@ -350,7 +258,7 @@ def generate_reports(
 ):
     """Generate training reports and visualizations."""
     logger.info("Generating training curves...")
-    plot_training_curves(metrics_history, save_path=str(run_dir / "training_curves"))
+    plot_training_curves(metrics_history, save_path=str(run_dir / f"training_curves_{variant}"))
 
     logger.info("Generating confusion matrix on test set...")
     _, _, final_test_metrics = evaluate_model(
@@ -358,33 +266,33 @@ def generate_reports(
         test_generator,
         criterion,
         device,
-        num_classes=MODEL_CONFIG["num_classes"],
+        num_classes=100,
         detailed_metrics=True,
     )
     plot_confusion_matrix(
         final_test_metrics["confusion_matrix"],
-        CIFAR10_CLASSES,
-        save_path=str(run_dir / "confusion_matrix.png"),
+        CIFAR100_CLASSES,
+        save_path=str(run_dir / f"confusion_matrix_{variant}.png"),
     )
 
     # Final evaluation on test set
-    logger.info("Performing final evaluation on test set...")
+    logger.info(f"Performing final evaluation of {variant} model on test set...")
     final_test_loss, final_test_accuracy, final_test_metrics = evaluate_model(
         model, test_generator, criterion, device, detailed_metrics=True
     )
     logger.info(
-        f"Final Test Results: Loss: {final_test_loss:.4f}, Accuracy: {final_test_accuracy:.2f}%"
+        f"Final Test Results of {variant} model: Loss: {final_test_loss:.4f}, Accuracy: {final_test_accuracy:.2f}%"
     )
 
     if lr_history:
-        logger.info("Generating LR schedule plot...")
-        plot_lr_schedule(lr_history, save_path=str(run_dir / "lr_schedule.png"))
+        logger.info(f"Generating LR schedule plot of {variant} model...")
+        plot_lr_schedule(lr_history, save_path=str(run_dir / f"lr_schedule_{variant}.png"))
 
     if validation_results:
-        logger.info("Generating model validation comparison plot...")
+        logger.info(f"Generating model validation comparison plot of {variant} model...")
         plot_model_validation_comparison(
             validation_results,
-            save_path=str(run_dir / "model_validation_comparison.png"),
+            save_path=str(run_dir / f"model_validation_comparison_{variant}.png"),
         )
 
     logger.info(f"\nFinal Test Results:")
@@ -397,10 +305,10 @@ def generate_reports(
     return final_test_metrics
 
 
-def save_final_model(model):
+def save_final_model(model, variant):
     """Save the final trained model weights."""
     save_model_weights(
-        model, f"trained_models/{DATA_CONFIG['dataset']}_final_model_weights.pth"
+        model, f"trained_models/CIFAR100_final_model_{variant}_weights.pth"
     )
 
 
@@ -417,6 +325,176 @@ def validate_model_if_enabled(model, val_generator, run_dir, device):
         validation_config=VALIDATION_CONFIG,
     )
 
+def create_reference_model(pretrained_model:str, device) -> nn.Module:
+    """Create the HuggingFace reference Swin model wrapped for linear probing."""
+    logger.info("Initializing reference model...")
+
+    encoder = create_model(pretrained_model, pretrained=True)
+
+    if pretrained_model.lower().startswith("swin"):
+        encoder.prune_intermediate_layers(
+            indices=None,     # keep all transformer blocks
+            prune_norm=True,  # remove final LN
+            prune_head=True   # remove classifier
+        )
+    else:
+        encoder.prune_intermediate_layers(
+            indices=None,     # keep all transformer blocks
+            prune_head=True   # remove classifier
+        )
+
+    pred_head = LinearClassificationHead(
+        num_features=encoder.num_features,
+        num_classes=100,
+    )
+
+    model = ModelWrapper(
+        encoder=encoder,
+        pred_head=pred_head,
+        freeze=True,  # freeze encoder, train head only
+    )
+
+    logger.info(
+        "Reference model created. Trainable params (head only): "
+        f"{sum(p.numel() for p in model.parameters() if p.requires_grad):,}"
+    )
+    return model.to(device)
+
+
+def create_custom_model(reference_model, model_size, device) -> nn.Module:
+    """Initialize and setup the custom Swin model, then transfer weights."""
+    logger.info("Initializing custom Swin model...")
+
+    cfg = {
+        "img_size": 224,
+        "patch_size": 4,
+        "window_size": 7,
+        "mlp_ratio": 4.0,
+        "drop_path_rate": 0.1,
+    }
+
+    preset = SWIN_PRESETS[model_size]
+
+    cfg["embed_dim"] = preset["embed_dim"]
+    cfg["depths"] = preset["depths"]
+    cfg["num_heads"] = preset["num_heads"]
+
+    encoder = SwinTransformerModel(
+        img_size=cfg["img_size"],
+        patch_size=cfg["patch_size"],
+        embedding_dim=cfg["embed_dim"],
+        depths=cfg["depths"],
+        num_heads=cfg["num_heads"],
+        window_size=cfg["window_size"],
+        mlp_ratio=cfg["mlp_ratio"],
+        drop_path_rate=cfg["drop_path_rate"],
+    )
+
+    pred_head = LinearClassificationHead(
+        num_features=encoder.num_features,
+        num_classes=100,
+    )
+
+    model = ModelWrapper(
+        encoder=encoder,
+        pred_head=pred_head,
+        freeze=True,  # linear probe: freeze encoder
+    )
+
+    logger.info("Transferring weights from reference to custom encoder...")
+    transfer_stats = transfer_weights(
+        model, encoder_only=True, pretrained_model=reference_model.encoder, device=device
+    )
+    logger.info(f"Weight transfer completed: {transfer_stats}")
+
+    logger.info(
+        "Custom model created. Trainable params (head only): "
+        f"{sum(p.numel() for p in model.parameters() if p.requires_grad):,}"
+    )
+    return model.to(device)
+
+def _train_single_model(
+    model: nn.Module,
+    train_generator: DataLoader,
+    val_generator: DataLoader,
+    test_generator: DataLoader,
+    total_epochs: int,
+    warmup_epochs,
+    learning_rate: float,
+    device
+):
+    """Run training loop for one model and return best validation accuracy."""
+    criterion, optimizer, scheduler = setup_training_components(model, total_epochs, warmup_epochs, learning_rate)
+
+    metrics_history = {
+        "train_loss": [],
+        "val_loss": [],
+        "test_loss": [],  # only populated every 5 epochs
+        "val_accuracy": [],
+        "test_accuracy": [],  # only populated every 5 epochs
+        "val_f1": [],
+        "val_precision": [],
+        "val_recall": [],
+        "val_f1_per_class": [],
+    }
+
+    lr_history = []
+
+    mixup = None
+
+    run_training_loop(
+        model,
+        train_generator,
+        val_generator,
+        test_generator,
+        total_epochs,
+        learning_rate,
+        criterion,
+        optimizer,
+        scheduler,
+        metrics_history,
+        lr_history,
+        mixup,
+        device,
+    )
+
+    return criterion, lr_history, metrics_history
+
+
+def _finalize_validation(
+    model,
+    variant,
+    test_generator,
+    criterion,
+    lr_history,
+    metrics_history,
+    device,
+    run_dir,
+    tracker,
+):
+    final_test_metrics = generate_reports(
+        model,
+        variant,
+        test_generator,
+        criterion,
+        lr_history,
+        metrics_history,
+        device,
+        run_dir,
+        None,
+    )
+
+    tracker.log_results(
+        variant,
+        final_metrics=final_test_metrics,
+        training_history=metrics_history,
+    )
+
+    tracker.finalize(variant)
+    save_final_model(model, variant)
+
+    return final_test_metrics
+    
 
 def main():
     """Main training pipeline."""
@@ -434,64 +512,90 @@ def main():
 
     # Setup components
     device = setup_device()
-    train_generator, val_generator, test_generator = setup_data(device, run_dir)
-    model = setup_model(device)
 
-    # Log all configurations
-    tracker.log_config(
-        DATA_CONFIG=DATA_CONFIG,
-        MODEL_CONFIG=MODEL_CONFIG,
-        TRAINING_CONFIG=TRAINING_CONFIG,
-        AUGMENTATION_CONFIG=AUGMENTATION_CONFIG,
-        SCHEDULER_CONFIG=SCHEDULER_CONFIG,
-        VALIDATION_CONFIG=VALIDATION_CONFIG,
-        SEED_CONFIG=SEED_CONFIG,
-        VIZ_CONFIG=VIZ_CONFIG,
+    total_epochs = 50
+    warmup_epochs = 2
+    learning_rate = 0.001
+
+    # pretrained_model = "swin_tiny_patch4_window7_224"
+    pretrained_model = "resnet50"
+
+    train_generator, val_generator, test_generator = load_data(
+        dataset="CIFAR100",
+        use_batch_for_val=True,
+        val_batch=5,
+        batch_size=32,
+        num_workers=4,
+        root="./datasets",
+        img_size=224,
+        worker_init_fn=get_worker_init_fn(42),
     )
 
-    # Validate model implementation
-    validation_results = validate_model_if_enabled(model, val_generator, run_dir, device)
+    reference_model = create_reference_model(pretrained_model, device)
+    if pretrained_model.lower().startswith("swin"):
+        model_size = None
 
-    criterion, optimizer, scheduler = setup_training_components(model)
-    metrics_history, lr_history, mixup = initialize_metrics_tracking()
+        for p in pretrained_model.lower().split("_"):
+            if p in SWIN_PRESETS:
+                model_size = p
+                break
 
-    # Run training
-    run_training_loop(
-        model,
-        train_generator,
-        val_generator,
-        test_generator,
-        criterion,
-        optimizer,
-        scheduler,
-        metrics_history,
-        lr_history,
-        mixup,
-        device,
+        custom_model = create_custom_model(reference_model, model_size, device)
+
+    reference_tracker = ExperimentTracker(run_dir)
+
+    # 3) Train & collect best validation accuracies
+    logger.info("Training reference model (HF)...")
+    reference_criterion, reference_lr_history, reference_metrics_history = _train_single_model(
+        reference_model, train_generator, val_generator, test_generator, total_epochs, warmup_epochs, learning_rate, device
     )
 
-    # Generate reports and save model
-    final_test_metrics = generate_reports(
-        model,
+    logger.info("Finished training reference model (HF)!")
+
+    final_reference_metrics = _finalize_validation(
+        reference_model,
+        "reference",
         test_generator,
-        criterion,
-        lr_history,
-        metrics_history,
+        reference_criterion,
+        reference_lr_history,
+        reference_metrics_history,
         device,
         run_dir,
-        validation_results,
+        reference_tracker
     )
 
-    tracker.log_results(
-        final_metrics=final_test_metrics,
-        training_history=metrics_history,
-        validation_results=validation_results,
-    )
+    if pretrained_model.lower().startswith("swin"):
 
-    # Finalize experiment
-    tracker.finalize()
+        custom_tracker = ExperimentTracker(run_dir)
 
-    save_final_model(model)
+        logger.info("Training custom model...")
+        custom_criterion, custom_lr_history, custom_metrics_history = _train_single_model(
+            custom_model, train_generator, val_generator, test_generator, total_epochs, warmup_epochs, learning_rate, device
+        )
+
+        logger.info("Finished training custom model (HF)!")
+
+
+        final_custom_metrics = _finalize_validation(
+            custom_model,
+            "custom",
+            test_generator,
+            custom_criterion,
+            custom_lr_history,
+            custom_metrics_history,
+            device,
+            run_dir,
+            custom_tracker
+        )
+
+        diff = abs(final_reference_metrics["accuracy"] - final_custom_metrics["accuracy"])
+
+        # 4) Log + save
+        logger.info("=== MODEL COMPARISON RESULTS (Linear Probing on CIFAR-100) ===")
+        logger.info(f"Reference (HF): {final_reference_metrics['accuracy']:.2f}%")
+        logger.info(f"Custom        : {final_custom_metrics['accuracy']:.2f}%")
+        logger.info(f"Difference    : {diff:.2f}% (custom - reference)")
+
 
 
 if __name__ == "__main__":

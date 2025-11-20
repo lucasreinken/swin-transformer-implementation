@@ -1,4 +1,9 @@
-from .trainer import train_one_epoch, evaluate_model
+from .trainer import (
+    train_one_epoch,
+    evaluate_model,
+    run_training_loop,
+)
+
 from .checkpoints import (
     save_checkpoint,
     load_checkpoint,
@@ -17,6 +22,7 @@ from .early_stopping import EarlyStopping
 __all__ = [
     "train_one_epoch",
     "evaluate_model",
+    "run_training_loop",
     "save_checkpoint",
     "load_checkpoint",
     "save_model_weights",

@@ -31,7 +31,7 @@ SWIN_PRESETS = {
 
 SWIN_CONFIG = {
     "img_size": 224,  # Changed from 32 to 224
-    "variant": "large",  # Choose: "tiny", "small", "base", "large"
+    "variant": "tiny",  # Choose: "tiny", "small", "base", "large"
     "pretrained_weights": True,
     "patch_size": 4,
     "embed_dim": None,
@@ -82,7 +82,7 @@ def get_pretrained_swin_name():
 # Training configuration
 TRAINING_CONFIG = {
     "learning_rate": 0.001,
-    "num_epochs": 3,  # More epochs for 100 classes
+    "num_epochs": 50,  # More epochs for 100 classes
     "warmup_epochs": 2,  # Number of warmup epochs for learning rate scheduler
     "weight_decay": 1e-4,
 }

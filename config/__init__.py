@@ -73,16 +73,27 @@ def _load_config():
 # Load the config
 _load_config()
 
+
+# Generate pretrained model name based on Swin variant
+def get_pretrained_swin_name():
+    """Generate TIMM model name based on SWIN_CONFIG variant."""
+    variant = SWIN_CONFIG["variant"]
+    patch_size = SWIN_CONFIG["patch_size"]
+    window_size = SWIN_CONFIG["window_size"]
+    img_size = SWIN_CONFIG["img_size"]
+    return f"swin_{variant}_patch{patch_size}_window{window_size}_{img_size}"
+
+
 __all__ = [
     "AUGMENTATION_CONFIG",
     "DATA_CONFIG",
     "SWIN_PRESETS",
     "MODEL_CONFIG",
-    "DOWNSTREAM_CONFIG"
-    "TRAINING_CONFIG",
+    "DOWNSTREAM_CONFIG" "TRAINING_CONFIG",
     "VIZ_CONFIG",
     "SEED_CONFIG",
     "SCHEDULER_CONFIG",
     "VALIDATION_CONFIG",
     "SWIN_CONFIG",
+    "get_pretrained_swin_name",
 ]

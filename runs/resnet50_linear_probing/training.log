@@ -1,0 +1,52 @@
+2025-11-20 02:13:07,554 - INFO - Logging initialized. Log file: runs/run_82/training.log
+2025-11-20 02:13:07,754 - INFO - Random seeds set to 42 (deterministic=False)
+2025-11-20 02:13:07,756 - INFO - Using device: cuda
+2025-11-20 02:13:11,465 - INFO - Initializing reference model...
+2025-11-20 02:13:12,651 - INFO - Loading pretrained weights from Hugging Face hub (timm/resnet50.a1_in1k)
+2025-11-20 02:13:12,971 - INFO - [timm/resnet50.a1_in1k] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+2025-11-20 02:13:13,498 - INFO - Reference model created. Trainable params (head only): 208,996
+2025-11-20 02:13:13,826 - INFO - Training reference model (HF)...
+2025-11-20 02:13:13,831 - INFO - Starting training...
+2025-11-20 02:15:22,087 - INFO - Epoch 1/50: LR: 0.000550
+2025-11-20 02:15:22,091 - INFO - Epoch 1/50: Train Loss: 3.7961, Val Loss: 3.1315, Val Acc: 38.59%
+2025-11-20 02:17:26,375 - INFO - Epoch 2/50: LR: 0.001000
+2025-11-20 02:17:26,396 - INFO - Epoch 2/50: Train Loss: 2.2756, Val Loss: 1.8253, Val Acc: 52.31%
+2025-11-20 02:19:30,673 - INFO - Epoch 3/50: LR: 0.000999
+2025-11-20 02:19:30,679 - INFO - Epoch 3/50: Train Loss: 1.6989, Val Loss: 1.6351, Val Acc: 55.29%
+2025-11-20 02:21:34,887 - INFO - Epoch 4/50: LR: 0.000996
+2025-11-20 02:21:34,898 - INFO - Epoch 4/50: Train Loss: 1.4509, Val Loss: 1.6195, Val Acc: 56.45%
+2025-11-20 02:23:39,123 - INFO - Epoch 5/50: LR: 0.000990
+2025-11-20 02:24:21,153 - INFO - Epoch 5/50: Train Loss: 1.3213, Val Loss: 1.6144, Val Acc: 56.58%, Test Loss: 1.6198, Test Acc: 55.45%
+2025-11-20 02:26:25,366 - INFO - Epoch 6/50: LR: 0.000983
+2025-11-20 02:26:25,412 - INFO - Epoch 6/50: Train Loss: 1.2293, Val Loss: 1.6037, Val Acc: 57.19%
+2025-11-20 02:28:29,502 - INFO - Epoch 7/50: LR: 0.000973
+2025-11-20 02:28:29,691 - INFO - Epoch 7/50: Train Loss: 1.1657, Val Loss: 1.6451, Val Acc: 56.28%
+2025-11-20 02:30:33,947 - INFO - Epoch 8/50: LR: 0.000962
+2025-11-20 02:30:33,952 - INFO - Epoch 8/50: Train Loss: 1.1078, Val Loss: 1.6457, Val Acc: 56.62%
+2025-11-20 02:32:38,098 - INFO - Epoch 9/50: LR: 0.000948
+2025-11-20 02:32:38,111 - INFO - Epoch 9/50: Train Loss: 1.0724, Val Loss: 1.7099, Val Acc: 55.78%
+2025-11-20 02:34:42,294 - INFO - Epoch 10/50: LR: 0.000933
+2025-11-20 02:35:23,797 - INFO - Epoch 10/50: Train Loss: 1.0459, Val Loss: 1.7121, Val Acc: 55.43%, Test Loss: 1.7224, Test Acc: 54.98%
+2025-11-20 02:35:23,799 - INFO - Saving checkpoint for epoch 10...
+2025-11-20 02:35:25,685 - INFO - ✅ Checkpoint saved: checkpoints/checkpoint_epoch_10.pth
+2025-11-20 02:37:29,802 - INFO - Epoch 11/50: LR: 0.000916
+2025-11-20 02:37:29,839 - INFO - Early stopping triggered at epoch 11.
+2025-11-20 02:37:29,841 - INFO - Training completed!
+2025-11-20 02:37:29,842 - INFO - Finished training reference model (HF)!
+2025-11-20 02:37:29,844 - INFO - Generating training curves...
+2025-11-20 02:37:34,075 - INFO - Training curves saved as separate images with base name 'runs/run_82/training_curves_reference'
+2025-11-20 02:37:34,080 - INFO - Generating confusion matrix on test set...
+2025-11-20 02:38:48,595 - INFO - Performing final evaluation of reference model on test set...
+2025-11-20 02:39:30,026 - INFO - Final Test Results of reference model: Loss: 1.7704, Accuracy: 54.02%
+2025-11-20 02:39:30,028 - INFO - Generating LR schedule plot of reference model...
+2025-11-20 02:39:30,757 - INFO - LR schedule plot saved to 'runs/run_82/lr_schedule_reference.png'
+2025-11-20 02:39:30,759 - INFO - 
+Final Test Results:
+2025-11-20 02:39:30,760 - INFO - Loss: 1.7704
+2025-11-20 02:39:30,761 - INFO - Accuracy: 54.02%
+2025-11-20 02:39:30,763 - INFO - Precision: 54.36%
+2025-11-20 02:39:30,764 - INFO - Recall: 54.02%
+2025-11-20 02:39:30,765 - INFO - F1 Score: 53.74%
+2025-11-20 02:39:30,798 - INFO - Experiment completed. Results saved to runs/run_82/resultsreference.json
+2025-11-20 02:39:30,803 - INFO - Experiment completed. Metadata saved to runs/run_82/metadata_reference.json
+2025-11-20 02:39:31,176 - INFO - ✅ Model weights saved: trained_models/CIFAR100_final_model_reference_weights.pth

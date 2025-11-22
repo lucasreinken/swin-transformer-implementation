@@ -1,0 +1,98 @@
+2025-11-20 00:30:45,046 - INFO - Logging initialized. Log file: runs/run_76/training.log
+2025-11-20 00:30:45,180 - INFO - Random seeds set to 42 (deterministic=False)
+2025-11-20 00:30:45,181 - INFO - Using device: cuda
+2025-11-20 00:30:47,576 - INFO - Initializing reference model...
+2025-11-20 00:30:48,103 - INFO - Loading pretrained weights from Hugging Face hub (timm/swin_tiny_patch4_window7_224.ms_in1k)
+2025-11-20 00:30:48,272 - INFO - [timm/swin_tiny_patch4_window7_224.ms_in1k] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+2025-11-20 00:30:48,478 - INFO - Reference model created. Trainable params (head only): 78,436
+2025-11-20 00:30:48,807 - INFO - Initializing custom Swin model...
+2025-11-20 00:30:49,159 - INFO - Transferring weights from reference to custom encoder...
+2025-11-20 00:30:49,175 - INFO - Weight transfer: 169 layers transferred.
+2025-11-20 00:30:49,196 - INFO - Weight transfer completed: {'transferred': 169, 'missing': 0, 'size_mismatches': 0}
+2025-11-20 00:30:49,198 - INFO - Custom model created. Trainable params (head only): 78,436
+2025-11-20 00:30:49,200 - INFO - Training reference model (HF)...
+2025-11-20 00:30:49,202 - INFO - Starting training...
+2025-11-20 00:32:59,971 - INFO - Epoch 1/50: LR: 0.000550
+2025-11-20 00:32:59,973 - INFO - Epoch 1/50: Train Loss: 3.5903, Val Loss: 2.5830, Val Acc: 60.75%
+2025-11-20 00:35:08,413 - INFO - Epoch 2/50: LR: 0.001000
+2025-11-20 00:35:08,414 - INFO - Epoch 2/50: Train Loss: 1.4175, Val Loss: 1.0003, Val Acc: 71.50%
+2025-11-20 00:37:16,773 - INFO - Epoch 3/50: LR: 0.000999
+2025-11-20 00:37:16,775 - INFO - Epoch 3/50: Train Loss: 0.9360, Val Loss: 0.8710, Val Acc: 74.08%
+2025-11-20 00:39:25,176 - INFO - Epoch 4/50: LR: 0.000996
+2025-11-20 00:39:25,178 - INFO - Epoch 4/50: Train Loss: 0.7888, Val Loss: 0.8365, Val Acc: 75.23%
+2025-11-20 00:41:33,611 - INFO - Epoch 5/50: LR: 0.000990
+2025-11-20 00:42:17,744 - INFO - Epoch 5/50: Train Loss: 0.7097, Val Loss: 0.8237, Val Acc: 75.75%, Test Loss: 0.8227, Test Acc: 75.94%
+2025-11-20 00:44:26,191 - INFO - Epoch 6/50: LR: 0.000983
+2025-11-20 00:44:26,208 - INFO - Epoch 6/50: Train Loss: 0.6571, Val Loss: 0.8189, Val Acc: 76.35%
+2025-11-20 00:46:34,697 - INFO - Epoch 7/50: LR: 0.000973
+2025-11-20 00:46:34,711 - INFO - Epoch 7/50: Train Loss: 0.6135, Val Loss: 0.8234, Val Acc: 76.04%
+2025-11-20 00:48:43,005 - INFO - Epoch 8/50: LR: 0.000962
+2025-11-20 00:48:43,006 - INFO - Epoch 8/50: Train Loss: 0.5847, Val Loss: 0.8244, Val Acc: 76.56%
+2025-11-20 00:50:51,322 - INFO - Epoch 9/50: LR: 0.000948
+2025-11-20 00:50:51,323 - INFO - Epoch 9/50: Train Loss: 0.5597, Val Loss: 0.8284, Val Acc: 76.34%
+2025-11-20 00:52:59,749 - INFO - Epoch 10/50: LR: 0.000933
+2025-11-20 00:52:59,750 - INFO - Early stopping triggered at epoch 10.
+2025-11-20 00:52:59,751 - INFO - Training completed!
+2025-11-20 00:52:59,753 - INFO - Finished training reference model (HF)!
+2025-11-20 00:52:59,754 - INFO - Generating training curves...
+2025-11-20 00:53:01,754 - INFO - Training curves saved as separate images with base name 'runs/run_76/training_curves_reference'
+2025-11-20 00:53:01,756 - INFO - Generating confusion matrix on test set...
+2025-11-20 00:53:58,138 - INFO - Performing final evaluation of reference model on test set...
+2025-11-20 00:54:42,149 - INFO - Final Test Results of reference model: Loss: 0.8394, Accuracy: 76.43%
+2025-11-20 00:54:42,150 - INFO - Generating LR schedule plot of reference model...
+2025-11-20 00:54:42,486 - INFO - LR schedule plot saved to 'runs/run_76/lr_schedule_reference.png'
+2025-11-20 00:54:42,488 - INFO - 
+Final Test Results:
+2025-11-20 00:54:42,489 - INFO - Loss: 0.8394
+2025-11-20 00:54:42,490 - INFO - Accuracy: 76.43%
+2025-11-20 00:54:42,491 - INFO - Precision: 76.99%
+2025-11-20 00:54:42,493 - INFO - Recall: 76.43%
+2025-11-20 00:54:42,494 - INFO - F1 Score: 76.43%
+2025-11-20 00:54:42,503 - INFO - Experiment completed. Results saved to runs/run_76/resultsreference.json
+2025-11-20 00:54:42,518 - INFO - Experiment completed. Metadata saved to runs/run_76/metadata_reference.json
+2025-11-20 00:54:43,297 - INFO - ✅ Model weights saved: trained_models/CIFAR100_final_model_reference_weights.pth
+2025-11-20 00:54:43,299 - INFO - Training custom model...
+2025-11-20 00:54:43,300 - INFO - Starting training...
+2025-11-20 00:56:53,205 - INFO - Epoch 1/50: LR: 0.000550
+2025-11-20 00:56:53,206 - INFO - Epoch 1/50: Train Loss: 3.5711, Val Loss: 2.5400, Val Acc: 60.30%
+2025-11-20 00:59:02,884 - INFO - Epoch 2/50: LR: 0.001000
+2025-11-20 00:59:02,886 - INFO - Epoch 2/50: Train Loss: 1.4230, Val Loss: 0.9990, Val Acc: 71.19%
+2025-11-20 01:01:12,548 - INFO - Epoch 3/50: LR: 0.000999
+2025-11-20 01:01:12,563 - INFO - Epoch 3/50: Train Loss: 0.9438, Val Loss: 0.8773, Val Acc: 74.03%
+2025-11-20 01:03:22,252 - INFO - Epoch 4/50: LR: 0.000996
+2025-11-20 01:03:22,267 - INFO - Epoch 4/50: Train Loss: 0.7957, Val Loss: 0.8216, Val Acc: 75.88%
+2025-11-20 01:05:31,855 - INFO - Epoch 5/50: LR: 0.000990
+2025-11-20 01:06:16,035 - INFO - Epoch 5/50: Train Loss: 0.7156, Val Loss: 0.8071, Val Acc: 76.08%, Test Loss: 0.8044, Test Acc: 76.42%
+2025-11-20 01:08:25,788 - INFO - Epoch 6/50: LR: 0.000983
+2025-11-20 01:08:25,790 - INFO - Epoch 6/50: Train Loss: 0.6618, Val Loss: 0.8187, Val Acc: 76.11%
+2025-11-20 01:10:35,475 - INFO - Epoch 7/50: LR: 0.000973
+2025-11-20 01:10:35,500 - INFO - Epoch 7/50: Train Loss: 0.6182, Val Loss: 0.8204, Val Acc: 76.19%
+2025-11-20 01:12:45,289 - INFO - Epoch 8/50: LR: 0.000962
+2025-11-20 01:12:45,304 - INFO - Epoch 8/50: Train Loss: 0.5847, Val Loss: 0.8183, Val Acc: 76.40%
+2025-11-20 01:14:55,110 - INFO - Epoch 9/50: LR: 0.000948
+2025-11-20 01:14:55,158 - INFO - Epoch 9/50: Train Loss: 0.5612, Val Loss: 0.8318, Val Acc: 76.34%
+2025-11-20 01:17:04,982 - INFO - Epoch 10/50: LR: 0.000933
+2025-11-20 01:17:04,984 - INFO - Early stopping triggered at epoch 10.
+2025-11-20 01:17:04,985 - INFO - Training completed!
+2025-11-20 01:17:04,987 - INFO - Finished training custom model (HF)!
+2025-11-20 01:17:04,988 - INFO - Generating training curves...
+2025-11-20 01:17:06,972 - INFO - Training curves saved as separate images with base name 'runs/run_76/training_curves_custom'
+2025-11-20 01:17:06,973 - INFO - Generating confusion matrix on test set...
+2025-11-20 01:18:03,525 - INFO - Performing final evaluation of custom model on test set...
+2025-11-20 01:18:47,708 - INFO - Final Test Results of custom model: Loss: 0.8269, Accuracy: 76.36%
+2025-11-20 01:18:47,710 - INFO - Generating LR schedule plot of custom model...
+2025-11-20 01:18:48,051 - INFO - LR schedule plot saved to 'runs/run_76/lr_schedule_custom.png'
+2025-11-20 01:18:48,053 - INFO - 
+Final Test Results:
+2025-11-20 01:18:48,053 - INFO - Loss: 0.8269
+2025-11-20 01:18:48,054 - INFO - Accuracy: 76.36%
+2025-11-20 01:18:48,055 - INFO - Precision: 76.73%
+2025-11-20 01:18:48,056 - INFO - Recall: 76.36%
+2025-11-20 01:18:48,057 - INFO - F1 Score: 76.31%
+2025-11-20 01:18:48,067 - INFO - Experiment completed. Results saved to runs/run_76/resultscustom.json
+2025-11-20 01:18:48,071 - INFO - Experiment completed. Metadata saved to runs/run_76/metadata_custom.json
+2025-11-20 01:18:48,733 - INFO - ✅ Model weights saved: trained_models/CIFAR100_final_model_custom_weights.pth
+2025-11-20 01:18:48,734 - INFO - === MODEL COMPARISON RESULTS (Linear Probing on CIFAR-100) ===
+2025-11-20 01:18:48,735 - INFO - Reference (HF): 76.43%
+2025-11-20 01:18:48,736 - INFO - Custom        : 76.36%
+2025-11-20 01:18:48,737 - INFO - Difference    : 0.07% (custom - reference)

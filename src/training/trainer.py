@@ -6,6 +6,11 @@ from .metrics import calculate_classification_metrics
 from config import AUGMENTATION_CONFIG
 import numpy as np
 
+from src.training.early_stopping import EarlyStopping
+from src.training.checkpoints import save_checkpoint, save_model_weights
+
+import logging
+logger = logging.getLogger(__name__)
 
 class Mixup:
     """Mixup augmentation for label smoothing."""
@@ -120,3 +125,99 @@ def evaluate_model(
         return test_loss, accuracy, metrics
     else:
         return test_loss, accuracy
+
+    
+def run_training_loop(
+    model,
+    train_generator,
+    val_generator,
+    test_generator,
+    num_epochs,
+    learning_rate,
+    criterion,
+    optimizer,
+    scheduler,
+    metrics_history,
+    lr_history,
+    mixup,
+    device,
+):
+    """Run the main training loop."""
+    # Early stopping setup
+    early_stopper = EarlyStopping(patience=5, min_delta=0.01, mode="min")
+
+    # Training loop
+    logger.info("Starting training...")
+    for epoch in range(num_epochs):
+        train_loss = train_one_epoch(
+            model, train_generator, criterion, optimizer, device, mixup=mixup
+        )
+
+        # Validate every epoch
+        val_loss, val_accuracy, val_metrics = evaluate_model(
+            model,
+            val_generator,
+            criterion,
+            device,
+        )
+
+        # Store metrics
+        metrics_history["train_loss"].append(train_loss)
+        metrics_history["val_loss"].append(val_loss)
+        metrics_history["val_accuracy"].append(val_accuracy)
+        if "f1_score" in val_metrics:
+            metrics_history["val_f1"].append(val_metrics["f1_score"])
+        if "precision" in val_metrics:
+            metrics_history["val_precision"].append(val_metrics["precision"])
+        if "recall" in val_metrics:
+            metrics_history["val_recall"].append(val_metrics["recall"])
+        if "f1_per_class" in val_metrics:
+            metrics_history["val_f1_per_class"].append(val_metrics["f1_per_class"])
+
+        if scheduler:
+            scheduler.step()
+            current_lr = optimizer.param_groups[0]["lr"]
+            lr_history.append(current_lr)
+            logger.info(
+                f"Epoch {epoch+1}/{num_epochs}: LR: {current_lr:.6f}"
+            )
+        else:
+            lr_history.append(learning_rate)
+
+        # Early stopping check
+        if early_stopper(val_loss):
+            logger.info(f"Early stopping triggered at epoch {epoch+1}.")
+            break
+
+        # Test periodically (every 5 epochs)
+        if (epoch + 1) % 5 == 0:
+            test_loss, test_accuracy, test_metrics = evaluate_model(
+                model, test_generator, criterion, device
+            )
+
+            metrics_history["test_loss"].append(test_loss)
+            metrics_history["test_accuracy"].append(test_accuracy)
+
+            logger.info(
+                f"Epoch {epoch+1}/{num_epochs}: "
+                f"Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Val Acc: {val_accuracy:.2f}%, "
+                f"Test Loss: {test_loss:.4f}, Test Acc: {test_accuracy:.2f}%"
+            )
+        else:
+            logger.info(
+                f"Epoch {epoch+1}/{num_epochs}: "
+                f"Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Val Acc: {val_accuracy:.2f}%"
+            )
+
+        if (epoch + 1) % 10 == 0:
+            logger.info(f"Saving checkpoint for epoch {epoch+1}...")
+            save_checkpoint(
+                model,
+                optimizer,
+                epoch + 1,
+                train_loss,
+                f"checkpoints/checkpoint_epoch_{epoch+1}.pth",
+            )
+
+    logger.info("Training completed!")
+    

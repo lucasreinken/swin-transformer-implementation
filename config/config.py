@@ -23,10 +23,10 @@ MODEL_CONFIG = {
 }
 
 SWIN_PRESETS = {
-    "tiny":  {"embed_dim": 96,  "depths": [2,2,6,2],  "num_heads": [3,6,12,24]},
-    "small": {"embed_dim": 96,  "depths": [2,2,18,2], "num_heads": [3,6,12,24]},
-    "base":  {"embed_dim": 128, "depths": [2,2,18,2], "num_heads": [4,8,16,32]},
-    "large": {"embed_dim": 192, "depths": [2,2,18,2], "num_heads": [6,12,24,48]},
+    "tiny": {"embed_dim": 96, "depths": [2, 2, 6, 2], "num_heads": [3, 6, 12, 24]},
+    "small": {"embed_dim": 96, "depths": [2, 2, 18, 2], "num_heads": [3, 6, 12, 24]},
+    "base": {"embed_dim": 128, "depths": [2, 2, 18, 2], "num_heads": [4, 8, 16, 32]},
+    "large": {"embed_dim": 192, "depths": [2, 2, 18, 2], "num_heads": [6, 12, 24, 48]},
 }
 
 SWIN_CONFIG = {
@@ -35,7 +35,7 @@ SWIN_CONFIG = {
     "pretrained_weights": True,
     "patch_size": 4,
     "embed_dim": None,
-    "depths":None,
+    "depths": None,
     "num_heads": None,
     "window_size": 7,
     "mlp_ratio": 4.0,
@@ -66,12 +66,13 @@ DOWNSTREAM_CONFIG = {
 }
 
 # auto-set
-DOWNSTREAM_CONFIG["freeze_encoder"] = (DOWNSTREAM_CONFIG["mode"] == "linear_probe")
+DOWNSTREAM_CONFIG["freeze_encoder"] = DOWNSTREAM_CONFIG["mode"] == "linear_probe"
 
 # Training configuration
 TRAINING_CONFIG = {
     "learning_rate": 0.0001,  # Changed from 0.001 for ImageNet
     "num_epochs": 90,  # Changed from 20 for ImageNet
+    "warmup_epochs": 2,  # Number of warmup epochs for learning rate scheduler
     "weight_decay": 1e-4,
 }
 

@@ -1,0 +1,15 @@
+2025-11-21 22:24:51,229 - INFO - Logging initialized. Log file: runs/run_27/training.log
+2025-11-21 22:24:51,254 - INFO - Experiment directory: runs/run_27
+2025-11-21 22:24:51,468 - INFO - Setting random seeds for reproducibility (seed: 42)...
+2025-11-21 22:24:51,488 - INFO - Random seeds set to 42 (deterministic=False)
+2025-11-21 22:24:51,489 - INFO - Setting up device...
+2025-11-21 22:24:51,490 - INFO - Using device: cuda
+2025-11-21 22:24:51,490 - INFO - Using device: cuda
+2025-11-21 22:24:51,491 - ERROR - Experiment failed with error: warmup_epochs (2) must be less than total_epochs (1)
+2025-11-21 22:24:51,492 - ERROR - Full traceback:
+Traceback (most recent call last):
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/main.py", line 743, in main
+    validate_training_parameters(total_epochs, warmup_epochs, learning_rate)
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/main.py", line 112, in validate_training_parameters
+    raise ValueError(
+ValueError: warmup_epochs (2) must be less than total_epochs (1)

@@ -31,7 +31,7 @@ SWIN_PRESETS = {
 
 SWIN_CONFIG = {
     "img_size": 224,  # Changed from 32 to 224
-    "variant": "base",
+    "variant": "tiny",  # Choose: "tiny", "small", "base", "large"
     "pretrained_weights": True,
     "patch_size": 4,
     "embed_dim": None,

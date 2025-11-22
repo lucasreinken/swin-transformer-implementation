@@ -82,7 +82,7 @@ def get_pretrained_swin_name():
 # Training configuration
 TRAINING_CONFIG = {
     "learning_rate": 0.001,
-    "num_epochs": 20,
+    "num_epochs": 3,
     "warmup_epochs": 2,  # Number of warmup epochs for learning rate scheduler
     "weight_decay": 1e-4,
 }

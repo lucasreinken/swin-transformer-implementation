@@ -3,8 +3,8 @@ Configuration module for the ML pipeline.
 """
 
 # Dataset selection - choose one dataset
-# DATASET = "cifar10"
-DATASET = "cifar100"
+DATASET = "cifar10"
+# DATASET = "cifar100"
 # DATASET = "imagenet"
 
 # Data root configuration - choose one based on environment

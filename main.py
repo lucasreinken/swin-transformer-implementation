@@ -4,6 +4,8 @@ Main orchestration file for the machine learning pipeline.
 import logging
 from pathlib import Path
 
+from src.training.metrics import calculate_classification_metrics
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -13,11 +15,10 @@ from torch.optim.lr_scheduler import SequentialLR, LinearLR, CosineAnnealingLR
 from config import SWIN_CONFIG
 from src.data import load_data
 
-from src.models import SwinTransformerModel, ModelWrapper, LinearClassificationHead, SimpleModel
+from src.models import SwinTransformerModel, ModelWrapper, LinearClassificationHead
 
 from src.training import evaluate_model, run_training_loop
 from src.training.checkpoints import save_model_weights, load_checkpoint
-from src.training.metrics import calculate_classification_metrics
 from src.training.metrics import (
     plot_confusion_matrix,
     plot_lr_schedule,
@@ -524,9 +525,9 @@ def main():
     # Setup components
     device = setup_device()
 
-    total_epochs = 50
-    warmup_epochs = 2
-    learning_rate = 0.001
+    # total_epochs = 50
+    # warmup_epochs = 2
+    #learning_rate = 0.001
 
     pretrained_model = "swin_tiny_patch4_window7_224"
     # pretrained_model = "resnet50"
@@ -553,60 +554,14 @@ def main():
 
         custom_model = create_custom_model(reference_model, model_size, device)
 
-    reference_tracker = ExperimentTracker(run_dir)
+    custom_model, _, _, _ = load_checkpoint(custom_model, filepath="trained_models/CIFAR100_swin_final_model_custom_weights_es.pth")
 
-    # 3) Train & collect best validation accuracies
-    logger.info("Training reference model (HF)...")
-    reference_criterion, reference_lr_history, reference_metrics_history = _train_single_model(
-        reference_model, train_generator, val_generator, test_generator, total_epochs, warmup_epochs, learning_rate, device
-    )
-
-    logger.info("Finished training reference model (HF)!")
-
-    final_reference_metrics = _finalize_validation(
-        reference_model,
-        "reference",
+    metrics = calculate_classification_metrics(
+        custom_model,
         test_generator,
-        reference_criterion,
-        reference_lr_history,
-        reference_metrics_history,
         device,
-        run_dir,
-        reference_tracker
+        100
     )
-
-    if pretrained_model.lower().startswith("swin"):
-
-        custom_tracker = ExperimentTracker(run_dir)
-
-        logger.info("Training custom model...")
-        custom_criterion, custom_lr_history, custom_metrics_history = _train_single_model(
-            custom_model, train_generator, val_generator, test_generator, total_epochs, warmup_epochs, learning_rate, device
-        )
-
-        logger.info("Finished training custom model (HF)!")
-
-
-        final_custom_metrics = _finalize_validation(
-            custom_model,
-            "custom",
-            test_generator,
-            custom_criterion,
-            custom_lr_history,
-            custom_metrics_history,
-            device,
-            run_dir,
-            custom_tracker
-        )
-
-        diff = abs(final_reference_metrics["accuracy"] - final_custom_metrics["accuracy"])
-
-        # 4) Log + save
-        logger.info("=== MODEL COMPARISON RESULTS (Linear Probing on CIFAR-100) ===")
-        logger.info(f"Reference (HF): {final_reference_metrics['accuracy']:.2f}%")
-        logger.info(f"Custom        : {final_custom_metrics['accuracy']:.2f}%")
-        logger.info(f"Difference    : {diff:.2f}% (custom - reference)")
-
 
 
 if __name__ == "__main__":

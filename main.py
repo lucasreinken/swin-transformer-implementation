@@ -15,7 +15,7 @@ from torch.optim.lr_scheduler import SequentialLR, LinearLR, CosineAnnealingLR
 from config import SWIN_CONFIG
 from src.data import load_data
 
-from src.models import SwinTransformerModel, ModelWrapper, LinearClassificationHead
+from src.models import SwinTransformerModel, ModelWrapper, LinearClassificationHead, SimpleModel
 
 from src.training import evaluate_model, run_training_loop
 from src.training.checkpoints import save_model_weights, load_checkpoint

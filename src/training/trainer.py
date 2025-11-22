@@ -144,7 +144,7 @@ def run_training_loop(
 ):
     """Run the main training loop."""
     # Early stopping setup
-    early_stopper = EarlyStopping(patience=5, min_delta=0.01, mode="min")
+    # early_stopper = EarlyStopping(patience=5, min_delta=0.01, mode="min")
 
     # Training loop
     logger.info("Starting training...")
@@ -185,9 +185,9 @@ def run_training_loop(
             lr_history.append(learning_rate)
 
         # Early stopping check
-        if early_stopper(val_loss):
-            logger.info(f"Early stopping triggered at epoch {epoch+1}.")
-            break
+        # if early_stopper(val_loss):
+        #     logger.info(f"Early stopping triggered at epoch {epoch+1}.")
+        #     break
 
         # Test periodically (every 5 epochs)
         if (epoch + 1) % 5 == 0:

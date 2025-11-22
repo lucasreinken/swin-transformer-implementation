@@ -16,7 +16,8 @@ from src.data import load_data
 from src.models import SwinTransformerModel, ModelWrapper, LinearClassificationHead, SimpleModel
 
 from src.training import evaluate_model, run_training_loop
-from src.training.checkpoints import save_model_weights
+from src.training.checkpoints import save_model_weights, load_checkpoint
+from src.training.metrics import calculate_classification_metrics
 from src.training.metrics import (
     plot_confusion_matrix,
     plot_lr_schedule,
@@ -355,7 +356,12 @@ def create_reference_model(pretrained_model:str, device) -> nn.Module:
     )
 
     logger.info(
-        "Reference model created. Trainable params (head only): "
+        "Reference model created. Frozen params (encoder only): "
+        f"{sum(p.numel() for p in encoder.parameters()):,}"
+    )
+
+    logger.info(
+        "Trainable params (head only): "
         f"{sum(p.numel() for p in model.parameters() if p.requires_grad):,}"
     )
     return model.to(device)
@@ -408,7 +414,12 @@ def create_custom_model(reference_model, model_size, device) -> nn.Module:
     logger.info(f"Weight transfer completed: {transfer_stats}")
 
     logger.info(
-        "Custom model created. Trainable params (head only): "
+        "Custom model created. Frozen params (encoder only): "
+        f"{sum(p.numel() for p in encoder.parameters()):,}"
+    )
+
+    logger.info(
+        "Trainable params (head only): "
         f"{sum(p.numel() for p in model.parameters() if p.requires_grad):,}"
     )
     return model.to(device)
@@ -517,8 +528,8 @@ def main():
     warmup_epochs = 2
     learning_rate = 0.001
 
-    # pretrained_model = "swin_tiny_patch4_window7_224"
-    pretrained_model = "resnet50"
+    pretrained_model = "swin_tiny_patch4_window7_224"
+    # pretrained_model = "resnet50"
 
     train_generator, val_generator, test_generator = load_data(
         dataset="CIFAR100",

@@ -49,15 +49,15 @@ def load_checkpoint(
 
     checkpoint = torch.load(filepath, map_location=device, weights_only=False)
 
-    model.load_state_dict(checkpoint["model_state_dict"])
+    model.load_state_dict(checkpoint)
     if optimizer:
         optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
 
-    epoch = checkpoint.get("epoch", 0)
-    loss = checkpoint.get("loss", 0.0)
+    # epoch = checkpoint.get("epoch", 0)
+    # loss = checkpoint.get("loss", 0.0)
 
-    logger.info(f"✅ Checkpoint loaded: {filepath} (epoch {epoch}, loss {loss:.4f})")
-    return model, optimizer, epoch, loss
+    logger.info(f"✅ Checkpoint loaded: {filepath})")
+    return model, optimizer, True, False
 
 
 def save_model_weights(

@@ -287,15 +287,17 @@ def setup_training_components(
     optimizer = torch.optim.AdamW(
         model.pred_head.parameters(),
         lr=learning_rate,
-        weight_decay=1e-4,
+        weight_decay=TRAINING_CONFIG["weight_decay"],
     )
+
+    warmup_start_factor = TRAINING_CONFIG.get("warmup_start_factor", 0.1)
 
     scheduler = SequentialLR(
         optimizer,
         schedulers=[
             LinearLR(
                 optimizer,
-                start_factor=0.1,
+                start_factor=warmup_start_factor,
                 total_iters=warmup_epochs,
             ),
             CosineAnnealingLR(
@@ -357,7 +359,7 @@ def generate_reports(
         test_generator,
         criterion,
         device,
-        num_classes=100,
+        num_classes=DOWNSTREAM_CONFIG["num_classes"],
         detailed_metrics=True,
     )
     plot_confusion_matrix(
@@ -466,11 +468,11 @@ def create_reference_model(pretrained_model: str, device: torch.device) -> nn.Mo
 
         pred_head = LinearClassificationHead(
             num_features=encoder.num_features,
-            num_classes=100,
+            num_classes=DOWNSTREAM_CONFIG["num_classes"],
         )
 
         logger.info(
-            f"Created classification head: {encoder.num_features} -> 100 classes"
+            f"Created classification head: {encoder.num_features} -> {DOWNSTREAM_CONFIG['num_classes']} classes"
         )
 
         model = ModelWrapper(
@@ -553,11 +555,11 @@ def create_custom_model(
             )
 
         logger.debug(
-            f"Creating classification head for {encoder.num_features} features -> 100 classes"
+            f"Creating classification head for {encoder.num_features} features -> {DOWNSTREAM_CONFIG['num_classes']} classes"
         )
         pred_head = LinearClassificationHead(
             num_features=encoder.num_features,
-            num_classes=100,
+            num_classes=DOWNSTREAM_CONFIG["num_classes"],
         )
 
         logger.debug("Wrapping encoder and head in ModelWrapper")

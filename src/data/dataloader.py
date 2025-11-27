@@ -294,7 +294,9 @@ def load_data(
     elif dataset == "CIFAR100":
         train_dataset, val_dataset, test_dataset = _load_cifar100_data(transformation)
     elif dataset == "ImageNet":
-        train_dataset, val_dataset, test_dataset = _load_imagenet_data(transformation)
+        train_dataset, val_dataset, test_dataset = _load_imagenet_data(
+            transformation, root
+        )
     else:
         raise ValueError(f"Dataset {dataset} not supported.")
 

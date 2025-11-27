@@ -143,6 +143,10 @@ def _load_cifar100_data(
     return train_dataset, val_dataset, test_dataset
 
 
+# src/data/dataloader.py
+# ... existing code ...
+
+
 def _load_imagenet_data(
     transformation: Callable,
     root: str,
@@ -150,11 +154,24 @@ def _load_imagenet_data(
     torch.utils.data.Dataset, torch.utils.data.Dataset, torch.utils.data.Dataset
 ]:
     """Load ImageNet dataset."""
-    root_path = Path(root)
+    logger.info(f"Starting ImageNet data loading from root: {root}")
 
-    # Debug: Check if root exists and list contents
+    root_path = Path(root)
+    logger.info(f"Resolved root path: {root_path}")
+    logger.info(f"Root path exists: {root_path.exists()}")
+    logger.info(f"Root path is dir: {root_path.is_dir()}")
+
     if not root_path.exists():
-        logger.error(f"Root path {root} does not exist.")
+        logger.error(f"Root path {root} does not exist. Checking parent directories...")
+        parent = root_path.parent
+        while parent != Path("/") and not parent.exists():
+            logger.info(f"Parent {parent} does not exist")
+            parent = parent.parent
+        logger.info(f"Closest existing parent: {parent}")
+        if parent.exists():
+            logger.info(
+                f"Contents of {parent}: {list(parent.iterdir()) if parent.is_dir() else 'Not a dir'}"
+            )
         raise FileNotFoundError(f"Root path {root} does not exist.")
 
     contents = list(root_path.iterdir()) if root_path.is_dir() else []
@@ -162,6 +179,8 @@ def _load_imagenet_data(
 
     train_dir = root_path / "train_set"
     val_dir = root_path / "val_set"
+    logger.info(f"Expected train_dir: {train_dir}, exists: {train_dir.exists()}")
+    logger.info(f"Expected val_dir: {val_dir}, exists: {val_dir.exists()}")
 
     if not train_dir.exists() or not val_dir.exists():
         logger.error(
@@ -173,10 +192,13 @@ def _load_imagenet_data(
             f"ImageNet data not found in {root}. Expected 'train_set' and 'val_set' subfolders."
         )
 
+    logger.info("Loading datasets...")
     train_dataset = datasets.ImageFolder(train_dir, transform=transformation)
     val_dataset = datasets.ImageFolder(val_dir, transform=transformation)
 
-    logger.info(f"Loaded ImageNet data from {root}")
+    logger.info(
+        f"Loaded ImageNet data from {root}: train={len(train_dataset)}, val={len(val_dataset)}"
+    )
 
     # For ImageNet, we'll use the provided val split, but create a smaller validation set
     # and use part of training for additional validation if needed
@@ -192,6 +214,9 @@ def _load_imagenet_data(
     test_dataset = val_dataset
 
     return train_dataset, val_dataset, test_dataset
+
+
+# ... existing code ...
 
 
 def _create_dataloaders(

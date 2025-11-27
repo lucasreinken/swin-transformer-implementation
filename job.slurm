@@ -5,6 +5,7 @@
 #SBATCH --output=logs/%j.out
 #SBATCH --error=logs/%j.err
 #SBATCH --job-name=ML_Train
+#SBATCH --chdir=/home/pml04/swin_transformer/Machine-Learning-Project
 
 mkdir -p logs
-apptainer run --nv --bind /home/space/datasets:/home/space/datasets pml.sif python main.py "$@"
+apptainer run --nv --bind /home/space/datasets:/mnt/datasets pml.sif python main.py "$@"

@@ -61,8 +61,8 @@ DOWNSTREAM_CONFIG = {
 # Training configuration
 TRAINING_CONFIG = {
     "learning_rate": 0.0001,
-    "num_epochs": 90,
-    "warmup_epochs": 2,
+    "num_epochs": 2,
+    "warmup_epochs": 1,
     "warmup_start_factor": 0.1,  # LR multiplier at start of warmup
     "weight_decay": 1e-4,
 }

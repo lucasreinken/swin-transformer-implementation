@@ -12,8 +12,8 @@ from .base_config import (
 
 # Dataset selection - choose one dataset
 # DATASET = "cifar10"
-DATASET = "cifar100"
-# DATASET = "imagenet"
+# DATASET = "cifar100"
+DATASET = "imagenet"
 
 # Data root configuration - choose one based on environment
 # For local development:

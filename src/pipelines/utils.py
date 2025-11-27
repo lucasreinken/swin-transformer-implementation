@@ -31,7 +31,7 @@ from src.training.metrics import (
     plot_model_validation_comparison,
 )
 
-from src.utils.visualization import CIFAR100_CLASSES
+from src.utils.visualization import CIFAR100_CLASSES, IMAGENET_CLASSES
 
 logger = logging.getLogger(__name__)
 
@@ -155,7 +155,11 @@ def generate_reports(
     )
     plot_confusion_matrix(
         final_test_metrics["confusion_matrix"],
-        CIFAR100_CLASSES,
+        (
+            IMAGENET_CLASSES
+            if DOWNSTREAM_CONFIG["num_classes"] == 1000
+            else CIFAR100_CLASSES
+        ),
         save_path=str(run_dir / f"confusion_matrix_{variant}.png"),
     )
 

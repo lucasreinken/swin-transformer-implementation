@@ -25,7 +25,7 @@ DATA_CONFIG = {
 # Swin Transformer configuration
 SWIN_CONFIG = {
     "img_size": 224,
-    "variant": "small",  # Choose: "tiny", "small", "base", "large"
+    "variant": "base",  # Choose: "tiny", "small", "base", "large"
     "patch_size": 4,
     "embed_dim": None,  # Auto-set from preset
     "depths": None,  # Auto-set from preset

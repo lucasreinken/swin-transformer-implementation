@@ -7,4 +7,4 @@
 #SBATCH --job-name=ML_Train
 
 mkdir -p logs
-apptainer run --nv pml.sif python main.py "$@"
+apptainer run --nv --bind /home/space/datasets:/home/space/datasets pml.sif python main.py "$@"

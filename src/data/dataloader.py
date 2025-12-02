@@ -20,7 +20,8 @@ logger = logging.getLogger(__name__)
 
 
 def _load_cifar10_data(
-    transformation: Callable,
+    train_transformation: Callable,
+    val_transformation: Callable,
     use_batch_for_val: bool,
     val_batch: int,
     img_size: int,
@@ -98,15 +99,9 @@ def _load_cifar10_data(
         test_labels = np.array(test_batch[b"labels"])
 
     # Get correct transformations for train/val/test
-    train_transform = get_default_transforms(
-        "CIFAR10", img_size=img_size, is_training=True
-    )
-    val_transform = get_default_transforms(
-        "CIFAR10", img_size=img_size, is_training=False
-    )
-    test_transform = get_default_transforms(
-        "CIFAR10", img_size=img_size, is_training=False
-    )
+    train_transform = train_transformation
+    val_transform = val_transformation
+    test_transform = val_transformation
 
     # Create datasets
     train_dataset = CIFAR10Dataset(train_data, train_labels, transform=train_transform)
@@ -117,16 +112,22 @@ def _load_cifar10_data(
 
 
 def _load_cifar100_data(
-    transformation: Callable,
+    train_transformation: Callable,
+    val_transformation: Callable,
 ) -> Tuple[
     torch.utils.data.Dataset, torch.utils.data.Dataset, torch.utils.data.Dataset
 ]:
     """Load CIFAR-100 dataset with validation split."""
     train_dataset = datasets.CIFAR100(
-        root="./datasets", train=True, transform=transformation, download=True
+        root="./datasets", train=True, transform=train_transformation, download=True
     )
     test_dataset = datasets.CIFAR100(
-        root="./datasets", train=False, transform=transformation, download=True
+        root="./datasets", train=False, transform=val_transformation, download=True
+    )
+
+    # Create validation dataset with val transform
+    val_full_dataset = datasets.CIFAR100(
+        root="./datasets", train=True, transform=val_transformation, download=False
     )
 
     # Split training data for validation
@@ -134,8 +135,14 @@ def _load_cifar100_data(
     val_size = total_size // 6  # Roughly 1/6 for validation
     train_size = total_size - val_size
 
-    train_dataset, val_dataset = torch.utils.data.random_split(
+    train_dataset, _ = torch.utils.data.random_split(
         train_dataset,
+        [train_size, val_size],
+        generator=torch.Generator().manual_seed(42),
+    )
+
+    _, val_dataset = torch.utils.data.random_split(
+        val_full_dataset,
         [train_size, val_size],
         generator=torch.Generator().manual_seed(42),
     )
@@ -343,10 +350,12 @@ def load_data(
     # Load dataset-specific data
     if dataset == "CIFAR10":
         train_dataset, val_dataset, test_dataset = _load_cifar10_data(
-            transformation, use_batch_for_val, val_batch, img_size
+            transformation, val_transformation, use_batch_for_val, val_batch, img_size
         )
     elif dataset == "CIFAR100":
-        train_dataset, val_dataset, test_dataset = _load_cifar100_data(transformation)
+        train_dataset, val_dataset, test_dataset = _load_cifar100_data(
+            transformation, val_transformation
+        )
     elif dataset == "ImageNet":
         train_dataset, val_dataset, test_dataset = _load_imagenet_data(
             transformation, val_transformation, root

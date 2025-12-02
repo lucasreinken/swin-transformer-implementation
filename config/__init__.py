@@ -61,7 +61,7 @@ def _load_config():
 
     # Override data root based on environment
     if DATASET == "imagenet":
-        DATA_CONFIG["root"] = "/mnt/datasets-sqfs"
+        DATA_CONFIG["root"] = "/imagenet/2012"
     else:
         DATA_CONFIG["root"] = DATA_ROOT
 

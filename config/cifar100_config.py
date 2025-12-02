@@ -17,7 +17,7 @@ DATA_CONFIG = {
     "use_batch_for_val": True,
     "val_batch": 5,
     "batch_size": 32,
-    "num_workers": 4,
+    "num_workers": 2,
     "root": "./datasets",
     "img_size": 224,  # Resized to 224 for ImageNet-pretrained weights compatibility
 }
@@ -45,7 +45,7 @@ apply_swin_preset(SWIN_CONFIG, SWIN_PRESETS)
 # Downstream Task Configuration
 # =============================================================================
 # Training mode: "linear_probe" or "from_scratch"
-_TRAINING_MODE = TrainingMode.LINEAR_PROBE
+_TRAINING_MODE = TrainingMode.FROM_SCRATCH
 _mode_settings = get_training_mode_settings(_TRAINING_MODE)
 
 DOWNSTREAM_CONFIG = {

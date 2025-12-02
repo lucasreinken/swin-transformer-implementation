@@ -200,18 +200,32 @@ def plot_per_class_f1_curves(
     ):
         plt.figure(figsize=(figsize[0] * 1.5, figsize[1]))  # Wider for multiple lines
         f1_per_class = np.array(metrics_history["val_f1_per_class"])
-        class_names = [
-            "airplane",
-            "automobile",
-            "bird",
-            "cat",
-            "deer",
-            "dog",
-            "frog",
-            "horse",
-            "ship",
-            "truck",
-        ]
+        num_classes = f1_per_class.shape[1]
+
+        # Skip if too many classes
+        if num_classes > 50:
+            logger.info(
+                f"Too many classes ({num_classes}) for per-class plotting, skipping"
+            )
+            return
+
+        # Generate class names
+        if num_classes == 10:
+            class_names = [
+                "airplane",
+                "automobile",
+                "bird",
+                "cat",
+                "deer",
+                "dog",
+                "frog",
+                "horse",
+                "ship",
+                "truck",
+            ]
+        else:
+            class_names = [f"Class {i}" for i in range(num_classes)]
+
         for i, class_name in enumerate(class_names):
             plt.plot(epochs, f1_per_class[:, i], label=class_name, linewidth=2)
         plt.title("Validation F1 Score per Class")

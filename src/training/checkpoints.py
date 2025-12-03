@@ -18,6 +18,7 @@ def save_checkpoint(
     epoch: int,
     loss: float,
     filepath: str = "checkpoints/checkpoint_epoch_{epoch}.pth",
+    metadata: Optional[dict] = None,
 ) -> None:
     """Save full training checkpoint."""
     # Format filename with epoch if placeholder used
@@ -33,6 +34,9 @@ def save_checkpoint(
         "loss": loss,
     }
 
+    if metadata:
+        checkpoint["metadata"] = metadata
+
     torch.save(checkpoint, filepath)
     logger.info(f"✅ Checkpoint saved: {filepath}")
 
@@ -42,7 +46,7 @@ def load_checkpoint(
     optimizer: Optional[Optimizer] = None,
     filepath: str = "checkpoints/checkpoint_epoch_10.pth",
     device: Optional[torch.device] = None,
-) -> Tuple[nn.Module, Optional[Optimizer], int, float]:
+) -> Tuple[nn.Module, Optional[Optimizer], int, float, Optional[dict]]:
     """Load full training checkpoint."""
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"Checkpoint file not found: {filepath}")
@@ -55,17 +59,30 @@ def load_checkpoint(
 
     epoch = checkpoint.get("epoch", 0)
     loss = checkpoint.get("loss", 0.0)
+    metadata = checkpoint.get("metadata", None)
 
     logger.info(f"✅ Checkpoint loaded: {filepath} (epoch {epoch}, loss {loss:.4f})")
-    return model, optimizer, epoch, loss
+    return model, optimizer, epoch, loss, metadata
 
 
 def save_model_weights(
-    model: nn.Module, filepath: str = "trained_models/model_weights.pth"
+    model: nn.Module,
+    filepath: str = "trained_models/model_weights.pth",
+    metadata: Optional[dict] = None,
 ) -> None:
     """Save model weights for inference."""
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
-    torch.save(model.state_dict(), filepath)
+
+    state_dict = model.state_dict()
+    if metadata:
+        checkpoint = {
+            "model_state_dict": state_dict,
+            "metadata": metadata,
+        }
+        torch.save(checkpoint, filepath)
+    else:
+        torch.save(state_dict, filepath)
+
     logger.info(f"✅ Model weights saved: {filepath}")
 
 

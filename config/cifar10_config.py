@@ -20,6 +20,9 @@ DATA_CONFIG = {
     "num_workers": 4,
     "root": "./datasets",
     "img_size": 224,  # Resized to 224 for ImageNet-pretrained weights compatibility
+    # Subset configuration (optional, set to None to use full dataset)
+    "n_train": None,  # Number of training samples
+    "n_test": None,  # Number of validation/test samples
 }
 
 # Swin Transformer configuration

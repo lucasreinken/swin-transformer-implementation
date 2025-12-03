@@ -17,15 +17,18 @@ DATA_CONFIG = {
     "use_batch_for_val": False,
     "val_batch": 5,
     "batch_size": 128,
-    "num_workers": 8,
+    "num_workers": 0,  # Set to 0 to avoid worker process issues
     "root": "./datasets",
     "img_size": 224,
+    # Subset configuration for faster training
+    "n_train": 50000,  # Number of training samples (None for full dataset) - good balance of speed vs representativeness
+    "n_test": 5000,  # Number of validation/test samples (None for full dataset)
 }
 
 # Swin Transformer configuration
 SWIN_CONFIG = {
     "img_size": 224,
-    "variant": "base",  # Choose: "tiny", "small", "base", "large"
+    "variant": "tiny",  # Choose: "tiny", "small", "base", "large"
     "patch_size": 4,
     "embed_dim": None,  # Auto-set from preset
     "depths": None,  # Auto-set from preset
@@ -45,7 +48,7 @@ apply_swin_preset(SWIN_CONFIG, SWIN_PRESETS)
 # Downstream Task Configuration
 # =============================================================================
 # Training mode: "linear_probe" or "from_scratch"
-_TRAINING_MODE = TrainingMode.LINEAR_PROBE
+_TRAINING_MODE = TrainingMode.FROM_SCRATCH
 _mode_settings = get_training_mode_settings(_TRAINING_MODE)
 
 DOWNSTREAM_CONFIG = {
@@ -60,11 +63,19 @@ DOWNSTREAM_CONFIG = {
 
 # Training configuration
 TRAINING_CONFIG = {
-    "learning_rate": 0.0001,
-    "num_epochs": 90,
-    "warmup_epochs": 2,
-    "warmup_start_factor": 0.1,  # LR multiplier at start of warmup
-    "weight_decay": 1e-4,
+    "learning_rate": 5e-4,  # Higher LR for from-scratch training
+    "num_epochs": 15,  # Fits within 5h partition (15 epochs ≈ 4-5 hours)y
+    "warmup_epochs": 3,  # Longer warmup for stability
+    "warmup_start_factor": 0.01,  # Start from very low LR
+    "weight_decay": 0.05,  # Higher weight decay for regularization
+    "min_lr": 1e-6,  # Minimum LR for cosine annealing
+    # Early stopping configuration
+    "early_stopping": {
+        "enabled": False,  # Disabled for ablation studies to ensure consistent training duration
+        "patience": 5,
+        "min_delta": 0.01,
+        "mode": "min",  # 'min' for loss, 'max' for accuracy
+    },
 }
 
 # Augmentation configuration

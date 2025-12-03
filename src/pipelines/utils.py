@@ -5,6 +5,8 @@ Contains setup functions, reporting, and validation that are common across
 linear probing and from-scratch training.
 """
 
+from datetime import datetime
+import json
 import logging
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -29,7 +31,7 @@ from src.training.metrics import (
     plot_model_validation_comparison,
 )
 
-from src.utils.visualization import CIFAR100_CLASSES
+from src.utils.visualization import CIFAR100_CLASSES, IMAGENET_CLASSES
 
 logger = logging.getLogger(__name__)
 
@@ -100,6 +102,7 @@ def setup_training_components(
     )
 
     warmup_start_factor = TRAINING_CONFIG.get("warmup_start_factor", 0.1)
+    min_lr = TRAINING_CONFIG.get("min_lr", 0.0)
 
     scheduler = SequentialLR(
         optimizer,
@@ -112,6 +115,7 @@ def setup_training_components(
             CosineAnnealingLR(
                 optimizer,
                 T_max=total_epochs - warmup_epochs,
+                eta_min=min_lr,
             ),
         ],
         milestones=[warmup_epochs],
@@ -153,7 +157,11 @@ def generate_reports(
     )
     plot_confusion_matrix(
         final_test_metrics["confusion_matrix"],
-        CIFAR100_CLASSES,
+        (
+            IMAGENET_CLASSES
+            if DOWNSTREAM_CONFIG["num_classes"] == 1000
+            else CIFAR100_CLASSES
+        ),
         save_path=str(run_dir / f"confusion_matrix_{variant}.png"),
     )
 
@@ -191,8 +199,25 @@ def generate_reports(
     return final_test_metrics
 
 
-def save_final_model(model, variant):
+def save_final_model(model, variant, run_dir=None, config=None):
     """Save the final trained model weights."""
-    save_model_weights(
-        model, f"trained_models/CIFAR100_final_model_{variant}_weights.pth"
-    )
+    if run_dir:
+        weights_path = run_dir / f"final_model_{variant}_weights.pth"
+        metadata_path = run_dir / f"final_model_{variant}_metadata.json"
+    else:
+        weights_path = f"trained_models/final_model_{variant}_weights.pth"
+        metadata_path = f"trained_models/final_model_{variant}_metadata.json"
+
+    metadata = {
+        "timestamp": datetime.now().isoformat(),
+        "variant": variant,
+        "config": config or {},
+    }
+
+    save_model_weights(model, str(weights_path), metadata=metadata)
+
+    with open(metadata_path, "w") as f:
+        json.dump(metadata, f, indent=2)
+
+    logger.info(f"Final model saved: {weights_path}")
+    logger.info(f"Final model metadata saved: {metadata_path}")

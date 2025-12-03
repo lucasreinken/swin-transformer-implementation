@@ -20,7 +20,8 @@ logger = logging.getLogger(__name__)
 
 
 def _load_cifar10_data(
-    transformation: Callable,
+    train_transformation: Callable,
+    val_transformation: Callable,
     use_batch_for_val: bool,
     val_batch: int,
     img_size: int,
@@ -98,15 +99,9 @@ def _load_cifar10_data(
         test_labels = np.array(test_batch[b"labels"])
 
     # Get correct transformations for train/val/test
-    train_transform = get_default_transforms(
-        "CIFAR10", img_size=img_size, is_training=True
-    )
-    val_transform = get_default_transforms(
-        "CIFAR10", img_size=img_size, is_training=False
-    )
-    test_transform = get_default_transforms(
-        "CIFAR10", img_size=img_size, is_training=False
-    )
+    train_transform = train_transformation
+    val_transform = val_transformation
+    test_transform = val_transformation
 
     # Create datasets
     train_dataset = CIFAR10Dataset(train_data, train_labels, transform=train_transform)
@@ -117,16 +112,22 @@ def _load_cifar10_data(
 
 
 def _load_cifar100_data(
-    transformation: Callable,
+    train_transformation: Callable,
+    val_transformation: Callable,
 ) -> Tuple[
     torch.utils.data.Dataset, torch.utils.data.Dataset, torch.utils.data.Dataset
 ]:
     """Load CIFAR-100 dataset with validation split."""
     train_dataset = datasets.CIFAR100(
-        root="./datasets", train=True, transform=transformation, download=True
+        root="./datasets", train=True, transform=train_transformation, download=True
     )
     test_dataset = datasets.CIFAR100(
-        root="./datasets", train=False, transform=transformation, download=True
+        root="./datasets", train=False, transform=val_transformation, download=True
+    )
+
+    # Create validation dataset with val transform
+    val_full_dataset = datasets.CIFAR100(
+        root="./datasets", train=True, transform=val_transformation, download=False
     )
 
     # Split training data for validation
@@ -134,8 +135,14 @@ def _load_cifar100_data(
     val_size = total_size // 6  # Roughly 1/6 for validation
     train_size = total_size - val_size
 
-    train_dataset, val_dataset = torch.utils.data.random_split(
+    train_dataset, _ = torch.utils.data.random_split(
         train_dataset,
+        [train_size, val_size],
+        generator=torch.Generator().manual_seed(42),
+    )
+
+    _, val_dataset = torch.utils.data.random_split(
+        val_full_dataset,
         [train_size, val_size],
         generator=torch.Generator().manual_seed(42),
     )
@@ -143,22 +150,47 @@ def _load_cifar100_data(
     return train_dataset, val_dataset, test_dataset
 
 
+# src/data/dataloader.py
+# ... existing code ...
+
+
 def _load_imagenet_data(
     transformation: Callable,
+    val_transformation: Callable,
+    root: str,
 ) -> Tuple[
     torch.utils.data.Dataset, torch.utils.data.Dataset, torch.utils.data.Dataset
 ]:
-    """Load ImageNet dataset."""
-    train_dir = Path("./datasets/imagenet/train")
-    val_dir = Path("./datasets/imagenet/val")
+    """Load ImageNet dataset using ImageFolder for squashed filesystem."""
+    logger.info(f"Starting ImageNet data loading from root: {root}")
 
-    if not Path(train_dir).exists() or not Path(val_dir).exists():
+    root_path = Path(root)
+    logger.info(f"Resolved root path: {root_path}")
+    logger.info(f"Root path exists: {root_path.exists()}")
+    logger.info(f"Root path is dir: {root_path.is_dir()}")
+
+    if not root_path.exists():
+        raise FileNotFoundError(f"Root path {root} does not exist.")
+
+    contents = list(root_path.iterdir()) if root_path.is_dir() else []
+    logger.info(f"Contents of {root}: {[str(p) for p in contents]}")
+
+    # Use ImageFolder for squashed filesystem structure
+    train_dir = root_path / "train_set"
+    val_dir = root_path / "val_set"
+    logger.info(f"Expected train_dir: {train_dir}, exists: {train_dir.exists()}")
+    logger.info(f"Expected val_dir: {val_dir}, exists: {val_dir.exists()}")
+
+    if not train_dir.exists() or not val_dir.exists():
         raise FileNotFoundError(
-            "ImageNet data not found in ./datasets. Please download and extract it."
+            f"ImageNet data not found in {root}. Expected 'train_set' and 'val_set' subfolders."
         )
 
     train_dataset = datasets.ImageFolder(train_dir, transform=transformation)
-    val_dataset = datasets.ImageFolder(val_dir, transform=transformation)
+    val_dataset = datasets.ImageFolder(val_dir, transform=val_transformation)
+    logger.info(
+        f"Loaded ImageNet data from {root}: train={len(train_dataset)}, val={len(val_dataset)}"
+    )
 
     # For ImageNet, we'll use the provided val split, but create a smaller validation set
     # and use part of training for additional validation if needed
@@ -174,6 +206,9 @@ def _load_imagenet_data(
     test_dataset = val_dataset
 
     return train_dataset, val_dataset, test_dataset
+
+
+# ... existing code ...
 
 
 def _create_dataloaders(
@@ -229,13 +264,25 @@ def _apply_dataset_limits(
 ]:
     """Apply size limits to datasets if specified."""
     if n_train is not None and n_train < len(train_dataset):
-        train_dataset = torch.utils.data.Subset(train_dataset, range(n_train))
+        train_dataset, _ = torch.utils.data.random_split(
+            train_dataset,
+            [n_train, len(train_dataset) - n_train],
+            generator=torch.Generator().manual_seed(42),
+        )
 
     if n_test is not None and n_test < len(val_dataset):
-        val_dataset = torch.utils.data.Subset(val_dataset, range(n_test))
+        val_dataset, _ = torch.utils.data.random_split(
+            val_dataset,
+            [n_test, len(val_dataset) - n_test],
+            generator=torch.Generator().manual_seed(42),
+        )
 
     if n_test is not None and n_test < len(test_dataset):
-        test_dataset = torch.utils.data.Subset(test_dataset, range(n_test))
+        test_dataset, _ = torch.utils.data.random_split(
+            test_dataset,
+            [n_test, len(test_dataset) - n_test],
+            generator=torch.Generator().manual_seed(42),
+        )
 
     return train_dataset, val_dataset, test_dataset
 
@@ -243,6 +290,7 @@ def _apply_dataset_limits(
 def load_data(
     dataset: str = "CIFAR10",
     transformation: Optional[callable] = None,
+    val_transformation: Optional[callable] = None,
     n_train: Optional[int] = None,
     n_test: Optional[int] = None,
     use_batch_for_val: bool = False,
@@ -261,7 +309,8 @@ def load_data(
 
     Args:
         dataset: Dataset name
-        transformation: Optional transform for data.
+        transformation: Optional transform for training data.
+        val_transformation: Optional transform for validation/test data.
         n_train: Number of training samples to use.
         n_test: Number of test samples to use.
         use_batch_for_val: If True, use one CIFAR-10 training batch for validation.
@@ -276,17 +325,25 @@ def load_data(
     """
     # Set default transformation if not provided
     if transformation is None:
-        transformation = get_default_transforms(dataset, img_size)
+        transformation = get_default_transforms(dataset, img_size, is_training=True)
+    if val_transformation is None:
+        val_transformation = get_default_transforms(
+            dataset, img_size, is_training=False
+        )
 
     # Load dataset-specific data
     if dataset == "CIFAR10":
         train_dataset, val_dataset, test_dataset = _load_cifar10_data(
-            transformation, use_batch_for_val, val_batch, img_size
+            transformation, val_transformation, use_batch_for_val, val_batch, img_size
         )
     elif dataset == "CIFAR100":
-        train_dataset, val_dataset, test_dataset = _load_cifar100_data(transformation)
+        train_dataset, val_dataset, test_dataset = _load_cifar100_data(
+            transformation, val_transformation
+        )
     elif dataset == "ImageNet":
-        train_dataset, val_dataset, test_dataset = _load_imagenet_data(transformation)
+        train_dataset, val_dataset, test_dataset = _load_imagenet_data(
+            transformation, val_transformation, root
+        )
     else:
         raise ValueError(f"Dataset {dataset} not supported.")
 

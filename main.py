@@ -13,6 +13,7 @@ import logging
 import torch
 
 from src.data import load_data
+from src.data.transforms import get_default_transforms
 from src.utils.seeds import set_random_seeds, get_worker_init_fn
 from src.utils.experiment import setup_run_directory, setup_logging
 
@@ -151,8 +152,23 @@ def main():
 
         # Load dataset
         logger.info("Loading dataset...")
+        # Configure subset sizes for faster training/testing
+        # Use config values if available, otherwise None for full dataset
+        n_train = DATA_CONFIG.get("n_train")
+        n_test = DATA_CONFIG.get("n_test")
+        # Set transforms
+        train_transformation = get_default_transforms(
+            DATA_CONFIG["dataset"], DATA_CONFIG["img_size"], is_training=True
+        )
+        val_transformation = get_default_transforms(
+            DATA_CONFIG["dataset"], DATA_CONFIG["img_size"], is_training=False
+        )
         train_generator, val_generator, test_generator = load_data(
             dataset=DATA_CONFIG["dataset"],
+            transformation=train_transformation,
+            val_transformation=val_transformation,
+            n_train=n_train,
+            n_test=n_test,
             use_batch_for_val=DATA_CONFIG.get("use_batch_for_val", True),
             val_batch=DATA_CONFIG.get("val_batch", 5),
             batch_size=DATA_CONFIG["batch_size"],
@@ -162,8 +178,9 @@ def main():
             worker_init_fn=get_worker_init_fn(SEED_CONFIG["seed"]),
         )
         logger.info(
-            f"Dataset loaded: train={len(train_generator)}, "
-            f"val={len(val_generator)}, test={len(test_generator)} batches"
+            f"Dataset loaded: train={len(train_generator.dataset)} samples ({len(train_generator)} batches), "
+            f"val={len(val_generator.dataset)} samples ({len(val_generator)} batches), "
+            f"test={len(test_generator.dataset)} samples ({len(test_generator)} batches)"
         )
 
         # Run mode-specific training pipeline

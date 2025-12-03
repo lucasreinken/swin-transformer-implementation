@@ -12,8 +12,8 @@ from .base_config import (
 
 # Dataset selection - choose one dataset
 # DATASET = "cifar10"
-DATASET = "cifar100"
-# DATASET = "imagenet"
+# DATASET = "cifar100"
+DATASET = "imagenet"
 
 # Data root configuration - choose one based on environment
 # For local development:
@@ -60,7 +60,10 @@ def _load_config():
         )
 
     # Override data root based on environment
-    DATA_CONFIG["root"] = DATA_ROOT
+    if DATASET == "imagenet":
+        DATA_CONFIG["root"] = "/"
+    else:
+        DATA_CONFIG["root"] = DATA_ROOT
 
 
 # Load the config

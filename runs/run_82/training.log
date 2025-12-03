@@ -1,0 +1,44 @@
+2025-12-02 21:23:53,643 - INFO - Logging initialized. Log file: runs/run_82/training.log
+2025-12-02 21:23:53,644 - INFO - Experiment directory: runs/run_82
+2025-12-02 21:23:53,644 - INFO - Setting random seeds for reproducibility (seed: 42)...
+2025-12-02 21:23:53,779 - INFO - Random seeds set to 42 (deterministic=False)
+2025-12-02 21:23:53,780 - INFO - Using device: cuda
+2025-12-02 21:23:53,780 - INFO - Training configuration: epochs=2, warmup=1, lr=0.0001
+2025-12-02 21:23:53,780 - INFO - Loading dataset...
+2025-12-02 21:23:53,782 - INFO - Starting ImageNet data loading from root: /mnt/datasets-sqfs
+2025-12-02 21:23:53,782 - INFO - Resolved root path: /mnt/datasets-sqfs
+2025-12-02 21:23:53,783 - INFO - Root path exists: True
+2025-12-02 21:23:53,783 - INFO - Root path is dir: True
+2025-12-02 21:23:53,785 - INFO - Contents of /mnt/datasets-sqfs: ['/mnt/datasets-sqfs/medconf_synth.sqfs', '/mnt/datasets-sqfs/imagenet_torchvision.sqfs', '/mnt/datasets-sqfs/peal-follicles2.sqfs', '/mnt/datasets-sqfs/peal-camelyon17.sqfs', '/mnt/datasets-sqfs/acr-data.sqfs', '/mnt/datasets-sqfs/hao__deepseek-ai__DeepSeek-Coder-V2-Lite-Instruct.sqfs', '/mnt/datasets-sqfs/hao__meta-llama__Llama-3.3-70B-Instruct.sqfs', '/mnt/datasets-sqfs/imagenet_kaggle_train.sqfs', '/mnt/datasets-sqfs/tiny-imagenet-200.sqfs', '/mnt/datasets-sqfs/GTZAN16k.sqfs', '/mnt/datasets-sqfs/peal-celeba_copyrighttag.sqfs', '/mnt/datasets-sqfs/FLIIDNIID', '/mnt/datasets-sqfs/pathology', '/mnt/datasets-sqfs/tiny-imagenet-200_train.sqfs', '/mnt/datasets-sqfs/CelebAMask-HQ.sqfs', '/mnt/datasets-sqfs/imagenet2012.sqfs', '/mnt/datasets-sqfs/imagenet100_train.sqfs', '/mnt/datasets-sqfs/celeba_csv.sqfs', '/mnt/datasets-sqfs/imagenet_50k_train.sqfs', '/mnt/datasets-sqfs/isic2019_downsampled.sqfs', '/mnt/datasets-sqfs/new_fsd.sqfs', '/mnt/datasets-sqfs/celeba_copyrighttag.sqfs', '/mnt/datasets-sqfs/rsna.sqfs', '/mnt/datasets-sqfs/celeba-jtt.sqfs', '/mnt/datasets-sqfs/camelyon17_shuffled.sqfs', '/mnt/datasets-sqfs/VisualGenome.sqfs', '/mnt/datasets-sqfs/hao__openai__gpt-oss-20b__mxfp4.sqfs', '/mnt/datasets-sqfs/mnist-colored.sqfs', '/mnt/datasets-sqfs/peal-celeba.sqfs', '/mnt/datasets-sqfs/ccdv_arxiv-summarization_hao.sqfs', '/mnt/datasets-sqfs/hao__Qwen__Qwen2.5-7B-Instruct.sqfs', '/mnt/datasets-sqfs/GTZAN16k2.sqfs', '/mnt/datasets-sqfs/cifar-10-batches-py.sqfs', '/mnt/datasets-sqfs/hao__deepseek-ai__DeepSeek-R1-Distill-Llama-70B.sqfs', '/mnt/datasets-sqfs/isic2020_train.sqfs', '/mnt/datasets-sqfs/objectnet-1.0.sqfs', '/mnt/datasets-sqfs/mvtec_anomaly_detection.sqfs', '/mnt/datasets-sqfs/lw', '/mnt/datasets-sqfs/squashfs_example.sqfs', '/mnt/datasets-sqfs/peal-waterbirds.sqfs', '/mnt/datasets-sqfs/square.sqfs', '/mnt/datasets-sqfs/peal-square.sqfs', '/mnt/datasets-sqfs/ffhq.sqfs', '/mnt/datasets-sqfs/QM9.sqfs', '/mnt/datasets-sqfs/isic2019_test_train.sqfs', '/mnt/datasets-sqfs/google-landmark-v2-train.sqfs', '/mnt/datasets-sqfs/medconf_synth_new.sqfs', '/mnt/datasets-sqfs/imagenet64_conv.sqfs', '/mnt/datasets-sqfs/MIMIC3_extract.sqfs', '/mnt/datasets-sqfs/pierre_recommender_models', '/mnt/datasets-sqfs/small_nih.sqfs', '/mnt/datasets-sqfs/tiny-imagenet.sqfs', '/mnt/datasets-sqfs/imagenet_torchvision_val.sqfs', '/mnt/datasets-sqfs/imagenette2-160.sqfs', '/mnt/datasets-sqfs/rat_data.sqfs', '/mnt/datasets-sqfs/pcam.sqfs', '/mnt/datasets-sqfs/cifar-10.sqfs', '/mnt/datasets-sqfs/peal-follicles.sqfs', '/mnt/datasets-sqfs/imagenet64.sqfs', '/mnt/datasets-sqfs/reflection-data.sqfs', '/mnt/datasets-sqfs/mohe_patterns_1m.sqfs', '/mnt/datasets-sqfs/camelyon17.sqfs', '/mnt/datasets-sqfs/QM7-X.sqfs', '/mnt/datasets-sqfs/xaikd', '/mnt/datasets-sqfs/imagenette2_160_train.sqfs', '/mnt/datasets-sqfs/peal-square2.sqfs', '/mnt/datasets-sqfs/imagenet_2012_train_set_small.sqfs', '/mnt/datasets-sqfs/GTZAN.sqfs', '/mnt/datasets-sqfs/hao__openai__gpt-oss-20b.sqfs', '/mnt/datasets-sqfs/imgnet_segments_val.sqfs', '/mnt/datasets-sqfs/tiny-imagenet-200_val.sqfs', '/mnt/datasets-sqfs/nih_atelectasis.sqfs', '/mnt/datasets-sqfs/nih_chest.sqfs', '/mnt/datasets-sqfs/ilsvrc2012-train.sqfs', '/mnt/datasets-sqfs/imgnet_bbox_val.sqfs', '/mnt/datasets-sqfs/isic', '/mnt/datasets-sqfs/mohe_patterns_5m.sqfs', '/mnt/datasets-sqfs/isic2020_test.sqfs', '/mnt/datasets-sqfs/celeba.sqfs', '/mnt/datasets-sqfs/follicles.sqfs', '/mnt/datasets-sqfs/fma.sqfs', '/mnt/datasets-sqfs/square3_mirrored.sqfs', '/mnt/datasets-sqfs/cifar10.sqfs']
+2025-12-02 21:23:53,785 - INFO - Loading ImageNet datasets using torchvision.ImageNet...
+2025-12-02 21:23:53,941 - ERROR - Failed to load ImageNet with torchvision.ImageNet: The archive ILSVRC2012_devkit_t12.tar.gz is not present in the root directory or is corrupted. You need to download it externally and place it in /mnt/datasets-sqfs.
+2025-12-02 21:23:53,942 - INFO - Fallback: Expected train_dir: /mnt/datasets-sqfs/train_set, exists: False
+2025-12-02 21:23:53,943 - INFO - Fallback: Expected val_dir: /mnt/datasets-sqfs/val_set, exists: False
+2025-12-02 21:23:53,944 - ERROR - Experiment failed with error: ImageNet data not found in /mnt/datasets-sqfs. Expected 'train_set' and 'val_set' subfolders or squashed filesystem.
+2025-12-02 21:23:53,945 - ERROR - Full traceback:
+Traceback (most recent call last):
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/data/dataloader.py", line 191, in _load_imagenet_data
+    train_dataset = datasets.ImageNet(
+                    ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torchvision/datasets/imagenet.py", line 56, in __init__
+    self.parse_archives()
+  File "/usr/local/lib/python3.12/site-packages/torchvision/datasets/imagenet.py", line 69, in parse_archives
+    parse_devkit_archive(self.root)
+  File "/usr/local/lib/python3.12/site-packages/torchvision/datasets/imagenet.py", line 150, in parse_devkit_archive
+    _verify_archive(root, file, md5)
+  File "/usr/local/lib/python3.12/site-packages/torchvision/datasets/imagenet.py", line 106, in _verify_archive
+    raise RuntimeError(msg.format(file, root))
+RuntimeError: The archive ILSVRC2012_devkit_t12.tar.gz is not present in the root directory or is corrupted. You need to download it externally and place it in /mnt/datasets-sqfs.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/main.py", line 166, in main
+    train_generator, val_generator, test_generator = load_data(
+                                                     ^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/data/dataloader.py", line 360, in load_data
+    train_dataset, val_dataset, test_dataset = _load_imagenet_data(
+                                               ^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/data/dataloader.py", line 213, in _load_imagenet_data
+    raise FileNotFoundError(
+FileNotFoundError: ImageNet data not found in /mnt/datasets-sqfs. Expected 'train_set' and 'val_set' subfolders or squashed filesystem.

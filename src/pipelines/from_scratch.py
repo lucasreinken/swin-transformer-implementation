@@ -26,6 +26,7 @@ from src.models import (
 )
 
 from src.training import run_training_loop
+from src.training.checkpoints import load_checkpoint
 from src.utils.experiment import ExperimentTracker
 from src.utils.load_weights import transfer_weights
 
@@ -102,6 +103,9 @@ def _train_single_model(
     warmup_epochs: int,
     learning_rate: float,
     device: torch.device,
+    start_epoch: int = 0,
+    run_dir: Path = None,
+    checkpoint_frequency: int = 10,
 ) -> Tuple[nn.Module, List[float], Dict[str, List[float]]]:
     """Run training loop for one model and return training artifacts."""
     criterion, optimizer, scheduler = setup_training_components(
@@ -137,6 +141,9 @@ def _train_single_model(
         lr_history,
         mixup,
         device,
+        start_epoch,
+        run_dir,
+        checkpoint_frequency,
     )
 
     return criterion, lr_history, metrics_history
@@ -173,7 +180,7 @@ def _finalize_training(
     )
 
     tracker.finalize(variant)
-    save_final_model(model, variant)
+    save_final_model(model, variant, run_dir, config=DOWNSTREAM_CONFIG)
 
     return final_test_metrics
 
@@ -208,6 +215,15 @@ def run_from_scratch(
     # Create model with random initialization
     model = create_model_from_scratch(device)
 
+    start_epoch = 0
+    resume_checkpoint = TRAINING_CONFIG.get("resume_from_checkpoint")
+    if resume_checkpoint:
+        logger.info(f"Resuming from checkpoint: {resume_checkpoint}")
+        model, _, start_epoch, _, _ = load_checkpoint(
+            model, None, resume_checkpoint, device
+        )
+        logger.info(f"Resumed training from epoch {start_epoch}")
+
     # Train
     tracker = ExperimentTracker(run_dir)
     logger.info("Starting from-scratch training...")
@@ -220,6 +236,9 @@ def run_from_scratch(
         warmup_epochs,
         learning_rate,
         device,
+        start_epoch,
+        run_dir,
+        TRAINING_CONFIG.get("checkpoint_frequency", 10),
     )
     logger.info("Training completed!")
 

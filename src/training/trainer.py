@@ -3,14 +3,16 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from typing import Optional, Tuple, Union, Dict
 from .metrics import calculate_classification_metrics
-from config import AUGMENTATION_CONFIG
+from config import AUGMENTATION_CONFIG, TRAINING_CONFIG
 import numpy as np
 
 from src.training.early_stopping import EarlyStopping
 from src.training.checkpoints import save_checkpoint, save_model_weights
 
 import logging
+
 logger = logging.getLogger(__name__)
+
 
 class Mixup:
     """Mixup augmentation for label smoothing."""
@@ -126,7 +128,7 @@ def evaluate_model(
     else:
         return test_loss, accuracy
 
-    
+
 def run_training_loop(
     model,
     train_generator,
@@ -141,14 +143,25 @@ def run_training_loop(
     lr_history,
     mixup,
     device,
+    start_epoch=0,
+    run_dir=None,
+    checkpoint_frequency=10,
 ):
     """Run the main training loop."""
-    # Early stopping setup
-    early_stopper = EarlyStopping(patience=5, min_delta=0.01, mode="min")
+    # Early stopping setup - configurable for different experiments
+    early_stopping_config = TRAINING_CONFIG.get("early_stopping", {})
+    if early_stopping_config.get("enabled", False):
+        early_stopper = EarlyStopping(
+            patience=early_stopping_config.get("patience", 5),
+            min_delta=early_stopping_config.get("min_delta", 0.01),
+            mode=early_stopping_config.get("mode", "min"),
+        )
+    else:
+        early_stopper = None
 
     # Training loop
     logger.info("Starting training...")
-    for epoch in range(num_epochs):
+    for epoch in range(start_epoch, num_epochs):
         train_loss = train_one_epoch(
             model, train_generator, criterion, optimizer, device, mixup=mixup
         )
@@ -178,14 +191,12 @@ def run_training_loop(
             scheduler.step()
             current_lr = optimizer.param_groups[0]["lr"]
             lr_history.append(current_lr)
-            logger.info(
-                f"Epoch {epoch+1}/{num_epochs}: LR: {current_lr:.6f}"
-            )
+            logger.info(f"Epoch {epoch+1}/{num_epochs}: LR: {current_lr:.6f}")
         else:
             lr_history.append(learning_rate)
 
         # Early stopping check
-        if early_stopper(val_loss):
+        if early_stopper and early_stopper(val_loss):
             logger.info(f"Early stopping triggered at epoch {epoch+1}.")
             break
 
@@ -209,15 +220,15 @@ def run_training_loop(
                 f"Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Val Acc: {val_accuracy:.2f}%"
             )
 
-        if (epoch + 1) % 10 == 0:
+        if run_dir and (epoch + 1) % checkpoint_frequency == 0:
+            checkpoint_path = run_dir / f"checkpoint_epoch_{epoch+1}.pth"
             logger.info(f"Saving checkpoint for epoch {epoch+1}...")
             save_checkpoint(
                 model,
                 optimizer,
                 epoch + 1,
                 train_loss,
-                f"checkpoints/checkpoint_epoch_{epoch+1}.pth",
+                str(checkpoint_path),
             )
 
     logger.info("Training completed!")
-    

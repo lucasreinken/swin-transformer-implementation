@@ -1,0 +1,88 @@
+2025-12-02 20:59:08,224 - INFO - Logging initialized. Log file: runs/run_80/training.log
+2025-12-02 20:59:08,225 - INFO - Experiment directory: runs/run_80
+2025-12-02 20:59:08,225 - INFO - Setting random seeds for reproducibility (seed: 42)...
+2025-12-02 20:59:08,368 - INFO - Random seeds set to 42 (deterministic=False)
+2025-12-02 20:59:08,369 - INFO - Using device: cuda
+2025-12-02 20:59:08,370 - INFO - Training configuration: epochs=1, warmup=0, lr=0.001
+2025-12-02 20:59:08,371 - INFO - Loading dataset...
+2025-12-02 20:59:11,695 - INFO - Dataset loaded: train=1303, val=261, test=313 batches
+2025-12-02 20:59:13,459 - INFO - Using pretrained model: swin_tiny_patch4_window7_224
+2025-12-02 20:59:13,460 - INFO - Model architecture: Swin-Tiny
+2025-12-02 20:59:13,460 - INFO - Initializing reference model...
+2025-12-02 20:59:13,461 - INFO - Loading TIMM model: swin_tiny_patch4_window7_224 with pretrained weights
+2025-12-02 20:59:13,985 - INFO - Loading pretrained weights from Hugging Face hub (timm/swin_tiny_patch4_window7_224.ms_in1k)
+2025-12-02 20:59:14,201 - INFO - HTTP Request: HEAD https://huggingface.co/timm/swin_tiny_patch4_window7_224.ms_in1k/resolve/main/model.safetensors "HTTP/1.1 302 Found"
+2025-12-02 20:59:14,250 - INFO - [timm/swin_tiny_patch4_window7_224.ms_in1k] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+2025-12-02 20:59:14,291 - INFO - Successfully loaded swin_tiny_patch4_window7_224 from TIMM
+2025-12-02 20:59:14,292 - INFO - Encoder loaded: 768 output features
+2025-12-02 20:59:14,294 - INFO - Created classification head: 768 -> 100 classes
+2025-12-02 20:59:14,296 - INFO - Reference model created. Trainable params (head only): 78,436
+2025-12-02 20:59:14,599 - INFO - Detected Swin Transformer architecture
+2025-12-02 20:59:14,600 - INFO - Detected model size: tiny
+2025-12-02 20:59:14,601 - INFO - Initializing custom Swin model (size: tiny)...
+2025-12-02 20:59:14,602 - INFO - Custom model will match architecture: embed_dim=96, depths=[2, 2, 6, 2], num_heads=[3, 6, 12, 24]
+2025-12-02 20:59:14,936 - INFO - Transferring weights from reference to custom encoder...
+2025-12-02 20:59:14,937 - INFO - Weight transfer: SwinTransformer -> SwinTransformerModel
+2025-12-02 20:59:14,951 - INFO - Weight transfer: 169 layers transferred.
+2025-12-02 20:59:14,971 - INFO - Weight transfer completed: {'transferred': 169, 'missing': 0, 'size_mismatches': 0}
+2025-12-02 20:59:14,972 - INFO - ✓ All expected weights transferred successfully
+2025-12-02 20:59:14,973 - INFO - Custom model created. Trainable params (head only): 78,436
+2025-12-02 20:59:14,976 - INFO - Starting reference model training...
+2025-12-02 20:59:14,977 - INFO - Optimizer: training head parameters only (encoder frozen)
+2025-12-02 20:59:14,978 - INFO - Starting training...
+2025-12-02 21:01:23,817 - INFO - Epoch 1/1: LR: 0.001100
+2025-12-02 21:01:23,818 - INFO - Epoch 1/1: Train Loss: 3.5903, Val Loss: 2.5830, Val Acc: 60.75%
+2025-12-02 21:01:23,819 - INFO - Training completed!
+2025-12-02 21:01:23,820 - INFO - Reference model training completed!
+2025-12-02 21:01:23,821 - INFO - Generating training curves...
+2025-12-02 21:01:25,167 - INFO - Too many classes (100) for per-class plotting, skipping
+2025-12-02 21:01:25,168 - INFO - Training curves saved as separate images with base name 'runs/run_80/training_curves_reference'
+2025-12-02 21:01:25,168 - INFO - Generating confusion matrix on test set...
+2025-12-02 21:02:21,310 - INFO - Performing final evaluation of reference model on test set...
+2025-12-02 21:03:05,211 - INFO - Final Test Results of reference model: Loss: 2.5921, Accuracy: 60.50%
+2025-12-02 21:03:05,212 - INFO - Generating LR schedule plot of reference model...
+2025-12-02 21:03:05,517 - INFO - LR schedule plot saved to 'runs/run_80/lr_schedule_reference.png'
+2025-12-02 21:03:05,518 - INFO - 
+Final Test Results:
+2025-12-02 21:03:05,519 - INFO - Loss: 2.5921
+2025-12-02 21:03:05,520 - INFO - Accuracy: 60.50%
+2025-12-02 21:03:05,520 - INFO - Precision: 62.66%
+2025-12-02 21:03:05,521 - INFO - Recall: 60.50%
+2025-12-02 21:03:05,522 - INFO - F1 Score: 58.87%
+2025-12-02 21:03:05,528 - INFO - Experiment completed. Results saved to runs/run_80/results_reference.json
+2025-12-02 21:03:05,583 - INFO - Experiment completed. Metadata saved to runs/run_80/metadata_reference.json
+2025-12-02 21:03:05,891 - INFO - ✅ Model weights saved: trained_models/final_model_reference_weights.pth
+2025-12-02 21:03:05,895 - INFO - Final model saved: trained_models/final_model_reference_weights.pth
+2025-12-02 21:03:05,895 - INFO - Final model metadata saved: trained_models/final_model_reference_metadata.json
+2025-12-02 21:03:05,896 - INFO - Starting custom model training...
+2025-12-02 21:03:05,896 - INFO - Optimizer: training head parameters only (encoder frozen)
+2025-12-02 21:03:05,898 - INFO - Starting training...
+2025-12-02 21:05:14,585 - INFO - Epoch 1/1: LR: 0.001100
+2025-12-02 21:05:14,586 - INFO - Epoch 1/1: Train Loss: 3.5707, Val Loss: 2.5371, Val Acc: 60.73%
+2025-12-02 21:05:14,587 - INFO - Training completed!
+2025-12-02 21:05:14,588 - INFO - Custom model training completed!
+2025-12-02 21:05:14,588 - INFO - Generating training curves...
+2025-12-02 21:05:15,788 - INFO - Too many classes (100) for per-class plotting, skipping
+2025-12-02 21:05:15,789 - INFO - Training curves saved as separate images with base name 'runs/run_80/training_curves_custom'
+2025-12-02 21:05:15,790 - INFO - Generating confusion matrix on test set...
+2025-12-02 21:06:11,514 - INFO - Performing final evaluation of custom model on test set...
+2025-12-02 21:06:55,572 - INFO - Final Test Results of custom model: Loss: 2.5471, Accuracy: 60.42%
+2025-12-02 21:06:55,573 - INFO - Generating LR schedule plot of custom model...
+2025-12-02 21:06:55,896 - INFO - LR schedule plot saved to 'runs/run_80/lr_schedule_custom.png'
+2025-12-02 21:06:55,897 - INFO - 
+Final Test Results:
+2025-12-02 21:06:55,898 - INFO - Loss: 2.5471
+2025-12-02 21:06:55,899 - INFO - Accuracy: 60.42%
+2025-12-02 21:06:55,900 - INFO - Precision: 63.13%
+2025-12-02 21:06:55,901 - INFO - Recall: 60.42%
+2025-12-02 21:06:55,902 - INFO - F1 Score: 58.83%
+2025-12-02 21:06:55,908 - INFO - Experiment completed. Results saved to runs/run_80/results_custom.json
+2025-12-02 21:06:55,911 - INFO - Experiment completed. Metadata saved to runs/run_80/metadata_custom.json
+2025-12-02 21:06:56,132 - INFO - ✅ Model weights saved: trained_models/final_model_custom_weights.pth
+2025-12-02 21:06:56,200 - INFO - Final model saved: trained_models/final_model_custom_weights.pth
+2025-12-02 21:06:56,201 - INFO - Final model metadata saved: trained_models/final_model_custom_metadata.json
+2025-12-02 21:06:56,201 - INFO - === MODEL COMPARISON RESULTS (linear_probe on CIFAR100) ===
+2025-12-02 21:06:56,202 - INFO - Reference (TIMM): 60.50%
+2025-12-02 21:06:56,203 - INFO - Custom          : 60.42%
+2025-12-02 21:06:56,203 - INFO - Difference      : 0.08%
+2025-12-02 21:06:56,206 - INFO - linear_probe experiment completed successfully!

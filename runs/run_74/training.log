@@ -1,0 +1,107 @@
+2025-12-02 20:13:03,183 - INFO - Logging initialized. Log file: runs/run_74/training.log
+2025-12-02 20:13:03,420 - INFO - Experiment directory: runs/run_74
+2025-12-02 20:13:03,421 - INFO - Setting random seeds for reproducibility (seed: 42)...
+2025-12-02 20:13:03,588 - INFO - Random seeds set to 42 (deterministic=False)
+2025-12-02 20:13:03,589 - INFO - Using device: cuda
+2025-12-02 20:13:03,590 - INFO - Training configuration: epochs=2, warmup=1, lr=0.0001
+2025-12-02 20:13:03,590 - INFO - Loading dataset...
+2025-12-02 20:13:03,591 - INFO - Starting ImageNet data loading from root: /mnt/datasets/imagenet/2012
+2025-12-02 20:13:03,591 - INFO - Resolved root path: /mnt/datasets/imagenet/2012
+2025-12-02 20:13:03,591 - INFO - Root path exists: True
+2025-12-02 20:13:03,592 - INFO - Root path is dir: True
+2025-12-02 20:13:03,592 - INFO - Contents of /mnt/datasets/imagenet/2012: ['/mnt/datasets/imagenet/2012/train_set_small', '/mnt/datasets/imagenet/2012/train_set', '/mnt/datasets/imagenet/2012/val_set_unlabeled', '/mnt/datasets/imagenet/2012/val_set', '/mnt/datasets/imagenet/2012/meta']
+2025-12-02 20:13:03,593 - INFO - Expected train_dir: /mnt/datasets/imagenet/2012/train_set, exists: True
+2025-12-02 20:13:03,594 - INFO - Expected val_dir: /mnt/datasets/imagenet/2012/val_set, exists: True
+2025-12-02 20:13:03,594 - INFO - Loading datasets...
+2025-12-02 20:13:30,571 - INFO - Loaded ImageNet data from /mnt/datasets/imagenet/2012: train=1281167, val=50000
+2025-12-02 20:13:30,574 - INFO - Dataset loaded: train=10010, val=391, test=391 batches
+2025-12-02 20:13:33,708 - INFO - Using pretrained model: swin_base_patch4_window7_224
+2025-12-02 20:13:33,709 - INFO - Model architecture: Swin-Base
+2025-12-02 20:13:33,709 - INFO - Initializing reference model...
+2025-12-02 20:13:33,709 - INFO - Loading TIMM model: swin_base_patch4_window7_224 with pretrained weights
+2025-12-02 20:13:35,031 - INFO - Loading pretrained weights from Hugging Face hub (timm/swin_base_patch4_window7_224.ms_in22k_ft_in1k)
+2025-12-02 20:13:35,248 - INFO - HTTP Request: HEAD https://huggingface.co/timm/swin_base_patch4_window7_224.ms_in22k_ft_in1k/resolve/main/model.safetensors "HTTP/1.1 302 Found"
+2025-12-02 20:13:35,348 - INFO - [timm/swin_base_patch4_window7_224.ms_in22k_ft_in1k] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+2025-12-02 20:13:35,434 - INFO - Successfully loaded swin_base_patch4_window7_224 from TIMM
+2025-12-02 20:13:35,435 - INFO - Encoder loaded: 1024 output features
+2025-12-02 20:13:35,441 - INFO - Created classification head: 1024 -> 1000 classes
+2025-12-02 20:13:35,443 - INFO - Reference model created. Trainable params (head only): 1,027,048
+2025-12-02 20:13:35,803 - INFO - Detected Swin Transformer architecture
+2025-12-02 20:13:35,804 - INFO - Detected model size: base
+2025-12-02 20:13:35,805 - INFO - Initializing custom Swin model (size: base)...
+2025-12-02 20:13:35,805 - INFO - Custom model will match architecture: embed_dim=128, depths=[2, 2, 18, 2], num_heads=[4, 8, 16, 32]
+2025-12-02 20:13:36,920 - INFO - Transferring weights from reference to custom encoder...
+2025-12-02 20:13:36,920 - INFO - Weight transfer: SwinTransformer -> SwinTransformerModel
+2025-12-02 20:13:36,959 - INFO - Weight transfer: 325 layers transferred.
+2025-12-02 20:13:37,025 - INFO - Weight transfer completed: {'transferred': 325, 'missing': 0, 'size_mismatches': 0}
+2025-12-02 20:13:37,026 - INFO - ✓ All expected weights transferred successfully
+2025-12-02 20:13:37,027 - INFO - Custom model created. Trainable params (head only): 1,027,048
+2025-12-02 20:13:37,031 - INFO - Starting reference model training...
+2025-12-02 20:13:37,032 - INFO - Optimizer: training head parameters only (encoder frozen)
+2025-12-02 20:13:37,032 - INFO - Starting training...
+2025-12-02 20:13:48,187 - ERROR - Experiment failed with error: Caught RuntimeError in DataLoader worker process 0.
+Original Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/torch/utils/data/_utils/worker.py", line 349, in _worker_loop
+    data = fetcher.fetch(index)  # type: ignore[possibly-undefined]
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/utils/data/_utils/fetch.py", line 55, in fetch
+    return self.collate_fn(data)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/utils/data/_utils/collate.py", line 398, in default_collate
+    return collate(batch, collate_fn_map=default_collate_fn_map)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/utils/data/_utils/collate.py", line 212, in collate
+    collate(samples, collate_fn_map=collate_fn_map)
+  File "/usr/local/lib/python3.12/site-packages/torch/utils/data/_utils/collate.py", line 155, in collate
+    return collate_fn_map[elem_type](batch, collate_fn_map=collate_fn_map)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/utils/data/_utils/collate.py", line 271, in collate_tensor_fn
+    out = elem.new(storage).resize_(len(batch), *list(elem.size()))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Trying to resize storage that is not resizable
+
+2025-12-02 20:13:48,188 - ERROR - Full traceback:
+Traceback (most recent call last):
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/main.py", line 173, in main
+    run_linear_probing(
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/pipelines/linear_probing.py", line 376, in run_linear_probing
+    _train_single_model(
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/pipelines/linear_probing.py", line 263, in _train_single_model
+    run_training_loop(
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/training/trainer.py", line 157, in run_training_loop
+    train_loss = train_one_epoch(
+                 ^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/training/trainer.py", line 57, in train_one_epoch
+    for batch_idx, (inputs, labels) in enumerate(train_loader):
+                                       ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/utils/data/dataloader.py", line 732, in __next__
+    data = self._next_data()
+           ^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/utils/data/dataloader.py", line 1506, in _next_data
+    return self._process_data(data, worker_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/utils/data/dataloader.py", line 1541, in _process_data
+    data.reraise()
+  File "/usr/local/lib/python3.12/site-packages/torch/_utils.py", line 769, in reraise
+    raise exception
+RuntimeError: Caught RuntimeError in DataLoader worker process 0.
+Original Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/torch/utils/data/_utils/worker.py", line 349, in _worker_loop
+    data = fetcher.fetch(index)  # type: ignore[possibly-undefined]
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/utils/data/_utils/fetch.py", line 55, in fetch
+    return self.collate_fn(data)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/utils/data/_utils/collate.py", line 398, in default_collate
+    return collate(batch, collate_fn_map=default_collate_fn_map)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/utils/data/_utils/collate.py", line 212, in collate
+    collate(samples, collate_fn_map=collate_fn_map)
+  File "/usr/local/lib/python3.12/site-packages/torch/utils/data/_utils/collate.py", line 155, in collate
+    return collate_fn_map[elem_type](batch, collate_fn_map=collate_fn_map)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/utils/data/_utils/collate.py", line 271, in collate_tensor_fn
+    out = elem.new(storage).resize_(len(batch), *list(elem.size()))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Trying to resize storage that is not resizable
+

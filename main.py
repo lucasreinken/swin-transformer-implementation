@@ -19,6 +19,7 @@ from src.utils.experiment import setup_run_directory, setup_logging
 
 from config import (
     DATA_CONFIG,
+    SWIN_CONFIG,
     SWIN_PRESETS,
     DOWNSTREAM_CONFIG,
     TRAINING_CONFIG,
@@ -148,6 +149,14 @@ def main():
         validate_training_parameters(total_epochs, warmup_epochs, learning_rate)
         logger.info(
             f"Training configuration: epochs={total_epochs}, warmup={warmup_epochs}, lr={learning_rate}"
+        )
+
+        # Log SWIN configuration for ablation tracking
+        logger.info(
+            f"SWIN configuration: variant={SWIN_CONFIG['variant']}, use_shifted_window={SWIN_CONFIG['use_shifted_window']}"
+        )
+        logger.info(
+            f"SWIN details: embed_dim={SWIN_CONFIG['embed_dim']}, depths={SWIN_CONFIG['depths']}, num_heads={SWIN_CONFIG['num_heads']}, window_size={SWIN_CONFIG['window_size']}"
         )
 
         # Load dataset

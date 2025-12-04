@@ -76,6 +76,7 @@ class BasicLayer(nn.Module):
         drop_path: float = 0.0,
         downsample: nn.Module = None,
         downsample_input_dim: int = None,
+        use_shifted_window: bool = True,  # Ablation flag: True for alternating W-MSA/SW-MSA, False for W-MSA only
     ):
         """
         Initialize Basic Layer.
@@ -139,8 +140,10 @@ class BasicLayer(nn.Module):
                     num_heads=num_heads,
                     window_size=window_size,
                     shift_size=(
-                        0 if (i % 2 == 0) else window_size // 2
-                    ),  # Alternate W-MSA and SW-MSA
+                        0
+                        if (i % 2 == 0 or not use_shifted_window)
+                        else window_size // 2
+                    ),  # Alternate W-MSA and SW-MSA if use_shifted_window=True, else W-MSA only
                     mlp_ratio=mlp_ratio,
                     dropout=dropout,
                     attention_dropout=attention_dropout,

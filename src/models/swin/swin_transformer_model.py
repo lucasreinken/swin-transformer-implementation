@@ -105,8 +105,8 @@ class SwinTransformerModel(nn.Module):
                 downsample = PatchMerging
 
             basic_layer = BasicLayer(
-                dim=stage_dim,
-                input_resolution=stage_resolution,
+                dim=stage_dimension,
+                input_resolution=input_resolution,
                 depth=state_depth,
                 num_heads=stage_num_heads,
                 window_size=window_size,

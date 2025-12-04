@@ -25,6 +25,7 @@ class SwinTransformerModel(nn.Module):
         projection_dropout_rate: float = 0.0,
         drop_path_rate: float = 0.1,
         use_shifted_window: bool = True,  # Ablation flag: True for SW-MSA, False for W-MSA only
+        use_relative_bias: bool = True,  # Ablation flag: True for learned bias, False for zero bias
         **kwargs: Dict[str, Any]
     ):
         super().__init__()
@@ -44,6 +45,7 @@ class SwinTransformerModel(nn.Module):
             "projection_dropout_rate": projection_dropout_rate,
             "drop_path_rate": drop_path_rate,
             "use_shifted_window": use_shifted_window,
+            "use_relative_bias": use_relative_bias,
         }
 
         # Validate configuration
@@ -103,8 +105,8 @@ class SwinTransformerModel(nn.Module):
                 downsample = PatchMerging
 
             basic_layer = BasicLayer(
-                dim=stage_dimension,
-                input_resolution=input_resolution,
+                dim=stage_dim,
+                input_resolution=stage_resolution,
                 depth=state_depth,
                 num_heads=stage_num_heads,
                 window_size=window_size,
@@ -116,6 +118,7 @@ class SwinTransformerModel(nn.Module):
                 downsample=downsample,  # Timm-compatible downsampling
                 downsample_input_dim=downsample_input_dim,
                 use_shifted_window=use_shifted_window,  # Pass ablation flag
+                use_relative_bias=use_relative_bias,  # Pass ablation flag
             )
 
             self.layers.append(basic_layer)

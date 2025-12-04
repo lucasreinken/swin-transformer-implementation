@@ -81,6 +81,7 @@ class SwinTransformerBlock(nn.Module):
         attention_dropout: float = 0.0,
         projection_dropout: float = 0.0,
         drop_path: float = 0.0,
+        use_relative_bias: bool = True,  # Ablation flag: True for learned bias, False for zero bias
     ):
         """
         Initialize Swin Transformer Block.
@@ -138,6 +139,7 @@ class SwinTransformerBlock(nn.Module):
             num_heads=num_heads,
             attn_dropout=attention_dropout,
             proj_dropout=projection_dropout,
+            use_relative_bias=use_relative_bias,  # Pass ablation flag
         )
 
         # Stochastic depth (DropPath) for regularization

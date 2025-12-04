@@ -77,6 +77,7 @@ class BasicLayer(nn.Module):
         downsample: nn.Module = None,
         downsample_input_dim: int = None,
         use_shifted_window: bool = True,  # Ablation flag: True for alternating W-MSA/SW-MSA, False for W-MSA only
+        use_relative_bias: bool = True,  # Ablation flag: True for learned bias, False for zero bias
     ):
         """
         Initialize Basic Layer.
@@ -151,6 +152,7 @@ class BasicLayer(nn.Module):
                     drop_path=(
                         drop_path[i] if isinstance(drop_path, list) else drop_path
                     ),
+                    use_relative_bias=use_relative_bias,  # Pass ablation flag
                 )
                 for i in range(depth)
             ]

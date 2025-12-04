@@ -186,6 +186,7 @@ class TestSwinTransformerBlock:
             num_heads=num_heads,
             window_size=window_size,
             shift_size=0,  # W-MSA
+            use_relative_bias=True,
         )
 
         B = 2
@@ -208,6 +209,7 @@ class TestSwinTransformerBlock:
             num_heads=num_heads,
             window_size=window_size,
             shift_size=window_size // 2,  # SW-MSA
+            use_relative_bias=True,
         )
 
         B = 2
@@ -230,6 +232,7 @@ class TestSwinTransformerBlock:
             num_heads=num_heads,
             window_size=window_size,
             shift_size=0,
+            use_relative_bias=True,
         )
 
         # Window size should be adjusted
@@ -253,6 +256,7 @@ class TestSwinTransformerBlock:
                 num_heads=num_heads,
                 window_size=window_size,
                 shift_size=0,
+                use_relative_bias=True,
             )
 
             B = 2
@@ -425,6 +429,7 @@ class TestIntegration:
             shift_size=0,
             dropout=0.0,  # No dropout
             drop_path=0.0,  # No drop path
+            use_relative_bias=True,
         )
 
         B = 2

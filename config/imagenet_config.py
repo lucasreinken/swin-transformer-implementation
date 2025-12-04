@@ -39,7 +39,8 @@ SWIN_CONFIG = {
     "attention_dropout": 0.0,
     "projection_dropout": 0.0,
     "drop_path_rate": 0.1,
-    "use_shifted_window": False,  # Ablation flag: True for SW-MSA, False for W-MSA only
+    "use_shifted_window": True,  # Enable shifted windows (normal model)
+    "use_relative_bias": True,  # Ablation flag for experiment #2: True for learned bias, False for zero bias
 }
 
 # Apply preset values for None fields

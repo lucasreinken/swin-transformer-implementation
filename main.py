@@ -153,7 +153,7 @@ def main():
 
         # Log SWIN configuration for ablation tracking
         logger.info(
-            f"SWIN configuration: variant={SWIN_CONFIG['variant']}, use_shifted_window={SWIN_CONFIG['use_shifted_window']}"
+            f"SWIN configuration: variant={SWIN_CONFIG['variant']}, use_shifted_window={SWIN_CONFIG['use_shifted_window']}, use_relative_bias={SWIN_CONFIG['use_relative_bias']}"
         )
         logger.info(
             f"SWIN details: embed_dim={SWIN_CONFIG['embed_dim']}, depths={SWIN_CONFIG['depths']}, num_heads={SWIN_CONFIG['num_heads']}, window_size={SWIN_CONFIG['window_size']}"

@@ -39,7 +39,7 @@ SWIN_CONFIG = {
     "attention_dropout": 0.0,
     "projection_dropout": 0.0,
     "drop_path_rate": 0.1,
-    "use_shifted_window": False,  # Ablation flag: True for SW-MSA, False for W-MSA only
+    "use_shifted_window": True,  # Ablation flag: True for SW-MSA, False for W-MSA only
 }
 
 # Apply preset values for None fields

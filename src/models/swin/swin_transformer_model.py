@@ -24,6 +24,7 @@ class SwinTransformerModel(nn.Module):
         attention_dropout_rate: float = 0.0,
         projection_dropout_rate: float = 0.0,
         drop_path_rate: float = 0.1,
+        use_shifted_window: bool = True,  # Ablation flag: True for SW-MSA, False for W-MSA only
         **kwargs: Dict[str, Any]
     ):
         super().__init__()
@@ -42,6 +43,7 @@ class SwinTransformerModel(nn.Module):
             "attention_dropout_rate": attention_dropout_rate,
             "projection_dropout_rate": projection_dropout_rate,
             "drop_path_rate": drop_path_rate,
+            "use_shifted_window": use_shifted_window,
         }
 
         # Validate configuration
@@ -113,6 +115,7 @@ class SwinTransformerModel(nn.Module):
                 drop_path=stage_drop_path_rates,
                 downsample=downsample,  # Timm-compatible downsampling
                 downsample_input_dim=downsample_input_dim,
+                use_shifted_window=use_shifted_window,  # Pass ablation flag
             )
 
             self.layers.append(basic_layer)

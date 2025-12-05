@@ -54,7 +54,8 @@ def create_model_from_scratch(device: torch.device) -> nn.Module:
     logger.info(f"Model architecture: Swin-{SWIN_CONFIG['variant'].title()}")
     logger.info(
         f"Model config: embed_dim={SWIN_CONFIG['embed_dim']}, "
-        f"depths={SWIN_CONFIG['depths']}, num_heads={SWIN_CONFIG['num_heads']}"
+        f"depths={SWIN_CONFIG['depths']}, num_heads={SWIN_CONFIG['num_heads']}, "
+        f"window_size={SWIN_CONFIG['window_size']}, use_shifted_window={SWIN_CONFIG['use_shifted_window']}"
     )
 
     encoder = SwinTransformerModel(
@@ -69,6 +70,7 @@ def create_model_from_scratch(device: torch.device) -> nn.Module:
         attention_dropout=SWIN_CONFIG["attention_dropout"],
         projection_dropout=SWIN_CONFIG["projection_dropout"],
         drop_path_rate=SWIN_CONFIG["drop_path_rate"],
+        use_shifted_window=SWIN_CONFIG["use_shifted_window"],  # Ablation flag
     )
 
     if DOWNSTREAM_CONFIG["head_type"] == "linear_classification":

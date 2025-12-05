@@ -1,0 +1,44 @@
+2025-12-04 13:27:47,393 - INFO - Logging initialized. Log file: runs/run_105/training.log
+2025-12-04 13:27:47,395 - INFO - Experiment directory: runs/run_105
+2025-12-04 13:27:47,397 - INFO - Setting random seeds for reproducibility (seed: 42)...
+2025-12-04 13:27:47,531 - INFO - Random seeds set to 42 (deterministic=False)
+2025-12-04 13:27:47,533 - INFO - Using device: cuda
+2025-12-04 13:27:47,535 - INFO - Training configuration: epochs=5, warmup=3, lr=0.0005
+2025-12-04 13:27:47,537 - INFO - SWIN configuration: variant=tiny, use_shifted_window=True
+2025-12-04 13:27:47,538 - INFO - SWIN details: embed_dim=96, depths=[2, 2, 6, 2], num_heads=[3, 6, 12, 24], window_size=7
+2025-12-04 13:27:47,540 - INFO - Loading dataset...
+2025-12-04 13:27:47,544 - INFO - Starting ImageNet data loading from root: /
+2025-12-04 13:27:47,546 - INFO - Resolved root path: /
+2025-12-04 13:27:47,548 - INFO - Root path exists: True
+2025-12-04 13:27:47,550 - INFO - Root path is dir: True
+2025-12-04 13:27:47,561 - INFO - Contents of /: ['/.exec', '/.run', '/.shell', '/.singularity.d', '/.test', '/bin', '/boot', '/dev', '/environment', '/etc', '/home', '/lib', '/lib64', '/media', '/mnt', '/opt', '/proc', '/requirements.txt', '/root', '/run', '/sbin', '/singularity', '/srv', '/sys', '/tmp', '/usr', '/var', '/meta', '/train_set', '/train_set_small', '/val_set', '/val_set_unlabeled']
+2025-12-04 13:27:47,563 - INFO - Expected train_dir: /train_set, exists: True
+2025-12-04 13:27:47,565 - INFO - Expected val_dir: /val_set, exists: True
+2025-12-04 13:28:02,303 - INFO - Loaded ImageNet data from /: train=1281167, val=50000
+2025-12-04 13:28:02,627 - INFO - Dataset loaded: train=50000 samples (782 batches), val=5000 samples (79 batches), test=5000 samples (79 batches)
+2025-12-04 13:28:06,734 - INFO - Training Swin-Tiny from scratch
+2025-12-04 13:28:06,736 - INFO - Initializing model from scratch...
+2025-12-04 13:28:06,738 - INFO - Model architecture: Swin-Tiny
+2025-12-04 13:28:06,739 - INFO - Model config: embed_dim=96, depths=[2, 2, 6, 2], num_heads=[3, 6, 12, 24], window_size=7, use_shifted_window=True
+2025-12-04 13:28:08,035 - INFO - Model created with random initialization
+2025-12-04 13:28:08,037 - INFO - Total parameters: 28,288,354
+2025-12-04 13:28:08,038 - INFO - Trainable parameters: 28,288,354
+2025-12-04 13:28:08,270 - INFO - Starting from-scratch training...
+2025-12-04 13:28:08,272 - INFO - Optimizer: training all model parameters
+2025-12-04 13:28:08,276 - INFO - Starting training...
+2025-12-04 13:58:57,556 - INFO - Epoch 1/5: LR: 0.000170
+2025-12-04 13:58:57,558 - INFO - Epoch 1/5: Train Loss: 6.8974, Val Loss: 6.8133, Val Acc: 0.40%
+2025-12-04 14:15:10,154 - INFO - Epoch 2/5: LR: 0.000335
+2025-12-04 14:15:10,156 - INFO - Epoch 2/5: Train Loss: 6.8262, Val Loss: 6.7190, Val Acc: 0.38%
+2025-12-04 14:35:24,857 - INFO - Epoch 3/5: LR: 0.000500
+2025-12-04 14:35:24,872 - INFO - Epoch 3/5: Train Loss: 6.8109, Val Loss: 6.7559, Val Acc: 0.46%
+2025-12-04 14:52:07,158 - INFO - Epoch 4/5: LR: 0.000251
+2025-12-04 14:52:07,160 - INFO - Epoch 4/5: Train Loss: 6.9413, Val Loss: 6.9513, Val Acc: 0.16%
+2025-12-04 15:07:28,331 - INFO - Epoch 5/5: LR: 0.000001
+2025-12-04 15:09:03,603 - INFO - Epoch 5/5: Train Loss: 6.9182, Val Loss: 6.9133, Val Acc: 0.14%, Test Loss: 6.9133, Test Acc: 0.14%
+2025-12-04 15:09:03,605 - INFO - Training completed!
+2025-12-04 15:09:03,608 - INFO - Training completed!
+2025-12-04 15:09:03,610 - INFO - Generating training curves...
+2025-12-04 15:09:07,494 - WARNING - Inhomogeneous shapes in per-class F1 data: [(997,), (997,), (996,), (996,), (996,)]. Skipping per-class plotting.
+2025-12-04 15:09:07,496 - INFO - Training curves saved as separate images with base name 'runs/run_105/training_curves_from_scratch'
+2025-12-04 15:09:07,498 - INFO - Generating confusion matrix on test set...

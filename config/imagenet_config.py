@@ -16,7 +16,7 @@ DATA_CONFIG = {
     "dataset": "ImageNet",
     "use_batch_for_val": False,
     "val_batch": 5,
-    "batch_size": 96,  # Reduced from 128 to fit in GPU memory
+    "batch_size": 128,  # Reduced from 128 to fit in GPU memory
     "num_workers": 0,  # Set to 0 to avoid worker process issues
     "root": "./datasets",
     "img_size": 224,

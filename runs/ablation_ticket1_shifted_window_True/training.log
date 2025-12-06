@@ -1,0 +1,78 @@
+2025-12-05 07:52:07,842 - INFO - Logging initialized. Log file: runs/run_113/training.log
+2025-12-05 07:52:07,843 - INFO - Experiment directory: runs/run_113
+2025-12-05 07:52:07,845 - INFO - Setting random seeds for reproducibility (seed: 42)...
+2025-12-05 07:52:07,950 - INFO - Random seeds set to 42 (deterministic=False)
+2025-12-05 07:52:07,951 - INFO - Using device: cuda
+2025-12-05 07:52:07,953 - INFO - Training configuration: epochs=20, warmup=3, lr=0.0005
+2025-12-05 07:52:07,954 - INFO - SWIN configuration: variant=tiny, use_shifted_window=True
+2025-12-05 07:52:07,955 - INFO - SWIN details: embed_dim=96, depths=[2, 2, 6, 2], num_heads=[3, 6, 12, 24], window_size=7
+2025-12-05 07:52:07,957 - INFO - Loading dataset...
+2025-12-05 07:52:07,959 - INFO - Starting ImageNet data loading from root: /
+2025-12-05 07:52:07,960 - INFO - Resolved root path: /
+2025-12-05 07:52:07,961 - INFO - Root path exists: True
+2025-12-05 07:52:07,962 - INFO - Root path is dir: True
+2025-12-05 07:52:07,966 - INFO - Contents of /: ['/.exec', '/.run', '/.shell', '/.singularity.d', '/.test', '/bin', '/boot', '/dev', '/environment', '/etc', '/home', '/lib', '/lib64', '/media', '/mnt', '/opt', '/proc', '/requirements.txt', '/root', '/run', '/sbin', '/singularity', '/srv', '/sys', '/tmp', '/usr', '/var', '/meta', '/train_set', '/train_set_small', '/val_set', '/val_set_unlabeled']
+2025-12-05 07:52:07,968 - INFO - Expected train_dir: /train_set, exists: True
+2025-12-05 07:52:07,969 - INFO - Expected val_dir: /val_set, exists: True
+2025-12-05 07:52:13,887 - INFO - Loaded ImageNet data from /: train=1281167, val=50000
+2025-12-05 07:52:14,003 - INFO - Dataset loaded: train=50000 samples (391 batches), val=5000 samples (40 batches), test=5000 samples (40 batches)
+2025-12-05 07:52:15,769 - INFO - Training Swin-Tiny from scratch
+2025-12-05 07:52:15,770 - INFO - Initializing model from scratch...
+2025-12-05 07:52:15,771 - INFO - Model architecture: Swin-Tiny
+2025-12-05 07:52:15,773 - INFO - Model config: embed_dim=96, depths=[2, 2, 6, 2], num_heads=[3, 6, 12, 24], window_size=7, use_shifted_window=True
+2025-12-05 07:52:16,276 - INFO - Model created with random initialization
+2025-12-05 07:52:16,278 - INFO - Total parameters: 28,288,354
+2025-12-05 07:52:16,279 - INFO - Trainable parameters: 28,288,354
+2025-12-05 07:52:16,599 - INFO - Starting from-scratch training...
+2025-12-05 07:52:16,601 - INFO - Optimizer: training all model parameters
+2025-12-05 07:52:16,603 - INFO - Starting training...
+2025-12-05 08:12:25,800 - INFO - Epoch 1/20: LR: 0.000170
+2025-12-05 08:12:25,811 - INFO - Epoch 1/20: Train Loss: 6.9086, Val Loss: 6.8331, Val Acc: 0.40%
+2025-12-05 08:26:19,413 - INFO - Epoch 2/20: LR: 0.000335
+2025-12-05 08:26:19,427 - INFO - Epoch 2/20: Train Loss: 6.8191, Val Loss: 6.6931, Val Acc: 0.32%
+2025-12-05 08:40:22,447 - INFO - Epoch 3/20: LR: 0.000500
+2025-12-05 08:40:22,449 - INFO - Epoch 3/20: Train Loss: 6.7566, Val Loss: 6.6551, Val Acc: 0.52%
+2025-12-05 08:54:07,375 - INFO - Epoch 4/20: LR: 0.000496
+2025-12-05 08:54:07,377 - INFO - Epoch 4/20: Train Loss: 6.6824, Val Loss: 6.5408, Val Acc: 0.88%
+2025-12-05 09:07:48,062 - INFO - Epoch 5/20: LR: 0.000483
+2025-12-05 09:09:07,991 - INFO - Epoch 5/20: Train Loss: 6.5465, Val Loss: 6.3902, Val Acc: 1.04%, Test Loss: 6.3902, Test Acc: 1.04%
+2025-12-05 09:22:47,889 - INFO - Epoch 6/20: LR: 0.000463
+2025-12-05 09:22:47,891 - INFO - Epoch 6/20: Train Loss: 6.4270, Val Loss: 6.2581, Val Acc: 1.64%
+2025-12-05 09:36:30,822 - INFO - Epoch 7/20: LR: 0.000435
+2025-12-05 09:36:30,841 - INFO - Epoch 7/20: Train Loss: 6.3309, Val Loss: 6.1265, Val Acc: 1.88%
+2025-12-05 09:50:09,082 - INFO - Epoch 8/20: LR: 0.000401
+2025-12-05 09:50:09,083 - INFO - Epoch 8/20: Train Loss: 6.2531, Val Loss: 6.0519, Val Acc: 2.06%
+2025-12-05 10:03:56,627 - INFO - Epoch 9/20: LR: 0.000362
+2025-12-05 10:03:56,678 - INFO - Epoch 9/20: Train Loss: 6.1673, Val Loss: 5.9933, Val Acc: 2.54%
+2025-12-05 10:17:41,410 - INFO - Epoch 10/20: LR: 0.000319
+2025-12-05 10:18:59,698 - INFO - Epoch 10/20: Train Loss: 6.1081, Val Loss: 5.8854, Val Acc: 3.38%, Test Loss: 5.8854, Test Acc: 3.38%
+2025-12-05 10:18:59,713 - INFO - Saving checkpoint for epoch 10...
+2025-12-05 10:19:00,479 - INFO - ✅ Checkpoint saved: runs/run_113/checkpoint_epoch_10.pth
+2025-12-05 10:33:10,845 - INFO - Epoch 11/20: LR: 0.000274
+2025-12-05 10:33:10,893 - INFO - Epoch 11/20: Train Loss: 6.0191, Val Loss: 5.8127, Val Acc: 3.14%
+2025-12-05 10:48:40,247 - INFO - Epoch 12/20: LR: 0.000227
+2025-12-05 10:48:40,265 - INFO - Epoch 12/20: Train Loss: 5.9236, Val Loss: 5.6683, Val Acc: 4.14%
+2025-12-05 11:03:20,633 - INFO - Epoch 13/20: LR: 0.000182
+2025-12-05 11:03:20,635 - INFO - Epoch 13/20: Train Loss: 5.8358, Val Loss: 5.6006, Val Acc: 5.00%
+2025-12-05 11:17:56,607 - INFO - Epoch 14/20: LR: 0.000139
+2025-12-05 11:17:56,610 - INFO - Epoch 14/20: Train Loss: 5.7451, Val Loss: 5.5186, Val Acc: 5.40%
+2025-12-05 11:32:22,363 - INFO - Epoch 15/20: LR: 0.000100
+2025-12-05 11:33:41,717 - INFO - Epoch 15/20: Train Loss: 5.6653, Val Loss: 5.4618, Val Acc: 6.08%, Test Loss: 5.4618, Test Acc: 6.08%
+2025-12-05 11:48:53,948 - INFO - Epoch 16/20: LR: 0.000066
+2025-12-05 11:48:53,950 - INFO - Epoch 16/20: Train Loss: 5.5791, Val Loss: 5.4102, Val Acc: 6.72%
+2025-12-05 12:03:53,661 - INFO - Epoch 17/20: LR: 0.000038
+2025-12-05 12:03:53,664 - INFO - Epoch 17/20: Train Loss: 5.5247, Val Loss: 5.3494, Val Acc: 6.92%
+2025-12-05 12:18:47,820 - INFO - Epoch 18/20: LR: 0.000018
+2025-12-05 12:18:47,835 - INFO - Epoch 18/20: Train Loss: 5.4786, Val Loss: 5.3179, Val Acc: 6.98%
+2025-12-05 12:33:03,028 - INFO - Epoch 19/20: LR: 0.000005
+2025-12-05 12:33:03,030 - INFO - Epoch 19/20: Train Loss: 5.4382, Val Loss: 5.2939, Val Acc: 7.42%
+2025-12-05 12:47:01,669 - INFO - Epoch 20/20: LR: 0.000001
+2025-12-05 12:48:20,846 - INFO - Epoch 20/20: Train Loss: 5.4275, Val Loss: 5.2934, Val Acc: 7.58%, Test Loss: 5.2934, Test Acc: 7.58%
+2025-12-05 12:48:20,848 - INFO - Saving checkpoint for epoch 20...
+2025-12-05 12:48:21,556 - INFO - ✅ Checkpoint saved: runs/run_113/checkpoint_epoch_20.pth
+2025-12-05 12:48:21,557 - INFO - Training completed!
+2025-12-05 12:48:21,560 - INFO - Training completed!
+2025-12-05 12:48:21,561 - INFO - Generating training curves...
+2025-12-05 12:48:23,166 - WARNING - Inhomogeneous shapes in per-class F1 data: [(996,), (997,), (996,), (998,), (998,), (996,), (998,), (998,), (998,), (998,), (998,), (998,), (998,), (999,), (998,), (999,), (999,), (999,), (999,), (999,)]. Skipping per-class plotting.
+2025-12-05 12:48:23,167 - INFO - Training curves saved as separate images with base name 'runs/run_113/training_curves_from_scratch'
+2025-12-05 12:48:23,167 - INFO - Generating confusion matrix on test set...

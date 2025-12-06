@@ -41,7 +41,7 @@ SWIN_CONFIG = {
     "drop_path_rate": 0.1,
     "use_shifted_window": True,  # Ablation flag: True for SW-MSA, False for W-MSA only
     "use_relative_bias": True,  # Ablation flag: True for learned bias, False for zero bias
-    "use_absolute_pos_embed": False,  # Ablation flag: True for absolute pos embed (ViT-style), False for relative bias
+    "use_absolute_pos_embed": True,  # Ablation flag: True for absolute pos embed (ViT-style), False for relative bias
 }
 
 # Apply preset values for None fields

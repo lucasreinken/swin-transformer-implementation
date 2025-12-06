@@ -57,6 +57,7 @@ class WindowAttention(nn.Module):
         self.window_size = window_size
         self.num_heads = num_heads
         self.use_relative_bias = use_relative_bias
+        self.use_absolute_pos_embed = use_absolute_pos_embed
 
         self.attn_dropout = nn.Dropout(attn_dropout)
         self.proj_dropout = nn.Dropout(proj_dropout)

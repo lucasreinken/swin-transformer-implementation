@@ -122,6 +122,7 @@ class SwinTransformerModel(nn.Module):
                 downsample_input_dim=downsample_input_dim,
                 use_shifted_window=use_shifted_window,  # Pass ablation flag
                 use_relative_bias=use_relative_bias,  # Pass ablation flag
+                use_absolute_pos_embed=use_absolute_pos_embed,  # Pass ablation flag
             )
 
             self.layers.append(basic_layer)

@@ -67,7 +67,7 @@ DOWNSTREAM_CONFIG = {
 # Training configuration
 TRAINING_CONFIG = {
     "learning_rate": 5e-4,  # Higher LR for from-scratch training
-    "num_epochs": 15,  # Temporarily reduced for testing memory usage
+    "num_epochs": 20,  # Temporarily reduced for testing memory usage
     "warmup_epochs": 3,  # Longer warmup for stability
     "warmup_start_factor": 0.01,  # Start from very low LR
     "weight_decay": 0.05,  # Higher weight decay for regularization

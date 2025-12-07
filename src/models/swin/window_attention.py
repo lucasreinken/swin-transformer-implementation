@@ -33,6 +33,7 @@ class WindowAttention(nn.Module):
         attn_dropout: float = 0.0,
         proj_dropout: float = 0.0,
         use_relative_bias: bool = True,  # Ablation flag: True for learned bias, False for zero bias
+        use_absolute_pos_embed: bool = False,  # Ablation flag: True for absolute pos embed (ViT-style)
     ):
         """
         Initialize W-MSA (/ SW-MSA).
@@ -56,6 +57,7 @@ class WindowAttention(nn.Module):
         self.window_size = window_size
         self.num_heads = num_heads
         self.use_relative_bias = use_relative_bias
+        self.use_absolute_pos_embed = use_absolute_pos_embed
 
         self.attn_dropout = nn.Dropout(attn_dropout)
         self.proj_dropout = nn.Dropout(proj_dropout)
@@ -130,7 +132,7 @@ class WindowAttention(nn.Module):
         scores = torch.matmul(q, k.transpose(-2, -1)) * (self.head_dim**-0.5)
 
         # Relative position bias: [nH, N, N] -> broadcast to [wB, nH, N, N]
-        if self.use_relative_bias:
+        if self.use_relative_bias and not self.use_absolute_pos_embed:
             relative_position_bias = self.relative_position_bias_table[
                 self.relative_position_index.view(-1)
             ].view(
@@ -143,7 +145,8 @@ class WindowAttention(nn.Module):
             ).contiguous()  # nH, Wh*Ww, Wh*Ww
             # Add learnable relative postition biases to scores (attention matrix)
             scores = scores + relative_position_bias.unsqueeze(0)
-        # If use_relative_bias is False, skip adding the bias (effectively zero bias)
+        # If use_absolute_pos_embed=True, skip relative bias (positional info already in inputs)
+        # If use_relative_bias=False, skip relative bias (ablation)
 
         # Masking mechanism (for SW-MSA)
         if attn_mask is not None:

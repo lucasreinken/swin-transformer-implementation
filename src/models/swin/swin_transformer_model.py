@@ -26,6 +26,7 @@ class SwinTransformerModel(nn.Module):
         drop_path_rate: float = 0.1,
         use_shifted_window: bool = True,  # Ablation flag: True for SW-MSA, False for W-MSA only
         use_relative_bias: bool = True,  # Ablation flag: True for learned bias, False for zero bias
+        use_absolute_pos_embed: bool = False,  # Ablation flag: True for absolute pos embed (ViT-style), False for relative bias
         **kwargs: Dict[str, Any]
     ):
         super().__init__()
@@ -46,6 +47,7 @@ class SwinTransformerModel(nn.Module):
             "drop_path_rate": drop_path_rate,
             "use_shifted_window": use_shifted_window,
             "use_relative_bias": use_relative_bias,
+            "use_absolute_pos_embed": use_absolute_pos_embed,
         }
 
         # Validate configuration
@@ -62,6 +64,7 @@ class SwinTransformerModel(nn.Module):
             patch_size=patch_size,
             in_channels=in_channels,
             embedding_dim=embedding_dim,
+            use_absolute_pos_embed=use_absolute_pos_embed,
         )
 
         patches_resolution = self.patch_embed.patches_resolution
@@ -119,6 +122,7 @@ class SwinTransformerModel(nn.Module):
                 downsample_input_dim=downsample_input_dim,
                 use_shifted_window=use_shifted_window,  # Pass ablation flag
                 use_relative_bias=use_relative_bias,  # Pass ablation flag
+                use_absolute_pos_embed=use_absolute_pos_embed,  # Pass ablation flag
             )
 
             self.layers.append(basic_layer)

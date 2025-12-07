@@ -187,6 +187,7 @@ class TestSwinTransformerBlock:
             window_size=window_size,
             shift_size=0,  # W-MSA
             use_relative_bias=True,
+            use_absolute_pos_embed=False,
         )
 
         B = 2
@@ -210,6 +211,7 @@ class TestSwinTransformerBlock:
             window_size=window_size,
             shift_size=window_size // 2,  # SW-MSA
             use_relative_bias=True,
+            use_absolute_pos_embed=False,
         )
 
         B = 2
@@ -233,6 +235,7 @@ class TestSwinTransformerBlock:
             window_size=window_size,
             shift_size=0,
             use_relative_bias=True,
+            use_absolute_pos_embed=False,
         )
 
         # Window size should be adjusted
@@ -257,6 +260,7 @@ class TestSwinTransformerBlock:
                 window_size=window_size,
                 shift_size=0,
                 use_relative_bias=True,
+                use_absolute_pos_embed=False,
             )
 
             B = 2
@@ -430,6 +434,7 @@ class TestIntegration:
             dropout=0.0,  # No dropout
             drop_path=0.0,  # No drop path
             use_relative_bias=True,
+            use_absolute_pos_embed=False,
         )
 
         B = 2

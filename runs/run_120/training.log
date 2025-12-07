@@ -1,0 +1,95 @@
+2025-12-06 21:06:34,834 - INFO - Logging initialized. Log file: runs/run_120/training.log
+2025-12-06 21:06:34,837 - INFO - Experiment directory: runs/run_120
+2025-12-06 21:06:34,839 - INFO - Setting random seeds for reproducibility (seed: 42)...
+2025-12-06 21:06:34,988 - INFO - Random seeds set to 42 (deterministic=False)
+2025-12-06 21:06:34,990 - INFO - Using device: cuda
+2025-12-06 21:06:34,992 - INFO - Training configuration: epochs=20, warmup=3, lr=0.0005
+2025-12-06 21:06:34,993 - INFO - SWIN configuration: variant=tiny, use_shifted_window=True, use_relative_bias=True, use_absolute_pos_embed=False
+2025-12-06 21:06:34,995 - INFO - SWIN details: embed_dim=96, depths=[2, 2, 6, 2], num_heads=[3, 6, 12, 24], window_size=7
+2025-12-06 21:06:34,997 - INFO - Loading dataset...
+2025-12-06 21:06:34,999 - INFO - Starting ImageNet data loading from root: /
+2025-12-06 21:06:35,001 - INFO - Resolved root path: /
+2025-12-06 21:06:35,003 - INFO - Root path exists: True
+2025-12-06 21:06:35,004 - INFO - Root path is dir: True
+2025-12-06 21:06:35,009 - INFO - Contents of /: ['/.exec', '/.run', '/.shell', '/.singularity.d', '/.test', '/bin', '/boot', '/dev', '/environment', '/etc', '/home', '/lib', '/lib64', '/media', '/mnt', '/opt', '/proc', '/requirements.txt', '/root', '/run', '/sbin', '/singularity', '/srv', '/sys', '/tmp', '/usr', '/var', '/meta', '/train_set', '/train_set_small', '/val_set', '/val_set_unlabeled']
+2025-12-06 21:06:35,011 - INFO - Expected train_dir: /train_set, exists: True
+2025-12-06 21:06:35,013 - INFO - Expected val_dir: /val_set, exists: True
+2025-12-06 21:06:41,575 - INFO - Loaded ImageNet data from /: train=1281167, val=50000
+2025-12-06 21:06:41,696 - INFO - Dataset loaded: train=50000 samples (391 batches), val=5000 samples (40 batches), test=5000 samples (40 batches)
+2025-12-06 21:06:44,257 - INFO - Training Swin-Tiny from scratch
+2025-12-06 21:06:44,260 - INFO - Initializing model from scratch...
+2025-12-06 21:06:44,262 - INFO - Model architecture: Swin-Tiny
+2025-12-06 21:06:44,263 - INFO - Model config: embed_dim=96, depths=[2, 2, 6, 2], num_heads=[3, 6, 12, 24], window_size=7, use_shifted_window=True, use_relative_bias=True, use_absolute_pos_embed=False
+2025-12-06 21:06:44,881 - INFO - Model created with random initialization
+2025-12-06 21:06:44,883 - INFO - Total parameters: 28,288,354
+2025-12-06 21:06:44,885 - INFO - Trainable parameters: 28,288,354
+2025-12-06 21:06:45,598 - INFO - Starting from-scratch training...
+2025-12-06 21:06:45,600 - INFO - Optimizer: training all model parameters
+2025-12-06 21:06:45,603 - INFO - Starting training...
+2025-12-06 21:06:48,205 - ERROR - Experiment failed with error: 'WindowAttention' object has no attribute 'use_absolute_pos_embed'
+2025-12-06 21:06:48,207 - ERROR - Full traceback:
+Traceback (most recent call last):
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/main.py", line 212, in main
+    run_from_scratch(
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/pipelines/from_scratch.py", line 234, in run_from_scratch
+    criterion, lr_history, metrics_history = _train_single_model(
+                                             ^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/pipelines/from_scratch.py", line 134, in _train_single_model
+    run_training_loop(
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/training/trainer.py", line 165, in run_training_loop
+    train_loss = train_one_epoch(
+                 ^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/training/trainer.py", line 64, in train_one_epoch
+    outputs = model(inputs)
+              ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/models/model_wrapper.py", line 35, in forward
+    features = self.encoder(x)
+               ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/models/swin/swin_transformer_model.py", line 153, in forward
+    x = self.forward_features(x)
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/models/swin/swin_transformer_model.py", line 147, in forward_features
+    x = layer(x)
+        ^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/models/swin/basic_layer.py", line 195, in forward
+    x = block(x)
+        ^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/models/swin/swin_transformer_block.py", line 223, in forward
+    attn_windows = self.attn(x_windows, attn_mask)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/models/swin/window_attention.py", line 134, in forward
+    if self.use_relative_bias and not self.use_absolute_pos_embed:
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1964, in __getattr__
+    raise AttributeError(
+AttributeError: 'WindowAttention' object has no attribute 'use_absolute_pos_embed'

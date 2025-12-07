@@ -64,6 +64,7 @@ class PatchEmbed(nn.Module):
         patch_size: int = 4,
         in_channels: int = 3,
         embedding_dim: int = 96,
+        use_absolute_pos_embed: bool = False,  # Ablation flag: True for absolute pos embed (ViT-style)
     ):
         """
         Initialize the Patch Embedding layer.
@@ -77,6 +78,7 @@ class PatchEmbed(nn.Module):
 
         self.in_channels = in_channels
         self.embedding_dim = embedding_dim
+        self.use_absolute_pos_embed = use_absolute_pos_embed
 
         # Convolutional projection: efficiently extracts non-overlapping patches
         # This is equivalent to splitting image into patches + linear projection
@@ -88,6 +90,15 @@ class PatchEmbed(nn.Module):
         # Normalization layer: stabilizes training and improves convergence
         # Applied to each patch's feature vector independently
         self.norm = nn.LayerNorm(embedding_dim)
+
+        # Absolute position embedding (ViT-style) - ablation flag
+        if self.use_absolute_pos_embed:
+            self.absolute_pos_embed = nn.Parameter(
+                torch.zeros(1, self.num_patches, embedding_dim)
+            )
+            nn.init.trunc_normal_(self.absolute_pos_embed, std=0.02)
+        else:
+            self.absolute_pos_embed = None
 
         self._initialize_weights()
 
@@ -127,5 +138,9 @@ class PatchEmbed(nn.Module):
         # Step 3: Normalize each patch's features for stable training
         # Applied independently to each patch's 96-dimensional feature vector
         x = self.norm(x)
+
+        # Step 4: Add absolute position embeddings (ViT-style) if enabled
+        if self.use_absolute_pos_embed:
+            x = x + self.absolute_pos_embed
 
         return x

@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --partition=gpu-teaching-2d # 2 day partition
+#SBATCH --partition=gpu-teaching-5h # 2 day partition
 #SBATCH --gpus=1
-#SBATCH --time=48:00:00  # 48 hours for training
+#SBATCH --time=05:00:00  # 48 hours for training
 #SBATCH --output=logs/%j.out
 #SBATCH --error=logs/%j.err
 #SBATCH --job-name=Ticket5_ablation_on

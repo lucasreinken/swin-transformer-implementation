@@ -39,7 +39,7 @@ SWIN_CONFIG = {
     "attention_dropout": 0.0,
     "projection_dropout": 0.0,
     "drop_path_rate": 0.1,
-    "use_shifted_window": True,  # Ablation flag: True for SW-MSA, False for W-MSA only
+    "use_shifted_window": False,  # Ablation flag: True for SW-MSA, False for W-MSA only
     "use_relative_bias": True,  # Ablation flag: True for learned bias, False for zero bias
     "use_absolute_pos_embed": False,  # Ablation flag: True for absolute pos embed (ViT-style), False for relative bias. Can be combined with use_relative_bias=True for hybrid approach
     "use_hierarchical_merge": False,  # Ablation flag: False for hierarchical PatchMerging (normal Swin), True for single-resolution with conv downsampling

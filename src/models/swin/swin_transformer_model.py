@@ -6,6 +6,7 @@ from typing import Optional, List, Dict, Any
 from .patch_embedding import PatchEmbed
 from .basic_layer import BasicLayer
 from .patch_merging import PatchMerging
+from .conv_downsample import ConvDownsample
 from .window_utils import generate_drop_path_rates
 
 
@@ -27,6 +28,7 @@ class SwinTransformerModel(nn.Module):
         use_shifted_window: bool = True,  # Ablation flag: True for SW-MSA, False for W-MSA only
         use_relative_bias: bool = True,  # Ablation flag: True for learned bias, False for zero bias
         use_absolute_pos_embed: bool = False,  # Ablation flag: True for absolute pos embed (ViT-style), False for relative bias
+        use_hierarchical_merge: bool = False,  # Ablation flag: False for hierarchical PatchMerging, True for single-resolution conv
         **kwargs: Dict[str, Any]
     ):
         super().__init__()
@@ -48,6 +50,7 @@ class SwinTransformerModel(nn.Module):
             "use_shifted_window": use_shifted_window,
             "use_relative_bias": use_relative_bias,
             "use_absolute_pos_embed": use_absolute_pos_embed,
+            "use_hierarchical_merge": use_hierarchical_merge,
         }
 
         # Validate configuration
@@ -57,7 +60,11 @@ class SwinTransformerModel(nn.Module):
         assert img_size % patch_size == 0, "Image size must be divisible by patch size"
 
         self.num_layers = len(depths)
-        self.num_features = int(embedding_dim * 2 ** (self.num_layers - 1))
+        self.num_features = (
+            embedding_dim
+            if use_hierarchical_merge
+            else int(embedding_dim * 2 ** (self.num_layers - 1))
+        )
 
         self.patch_embed = PatchEmbed(
             img_size=img_size,
@@ -75,37 +82,53 @@ class SwinTransformerModel(nn.Module):
 
         self.layers = nn.ModuleList()
         for i in range(self.num_layers):
-            # Timm dimension pattern: 96, 192, 384, 768
-            stage_dimension = int(embedding_dim * (2**i))  # 96, 192, 384, 768
-            state_depth = depths[i]
-            stage_num_heads = num_heads[i]
-
-            # Calculate input resolution for stage (timm-compatible)
-            if i == 0:
-                input_resolution = [
-                    patches_resolution[0],
-                    patches_resolution[1],
-                ]  # 56x56
+            # For hierarchical ablation: all stages use same dimension and resolution
+            if use_hierarchical_merge:
+                stage_dimension = embedding_dim  # All stages: 96 dims
+                stage_num_heads = num_heads[0]  # All stages: same num heads as stage 1
+                # All stages: 56×56 resolution (no downsampling)
+                input_resolution = [patches_resolution[0], patches_resolution[1]]
             else:
-                input_resolution = [
-                    patches_resolution[0] // (2 ** (i - 1)),
-                    patches_resolution[1] // (2 ** (i - 1)),
-                ]
+                # Normal hierarchical Swin: dimensions double each stage
+                stage_dimension = int(embedding_dim * (2**i))  # 96, 192, 384, 768
+                stage_num_heads = num_heads[i]
+
+                # Calculate input resolution for stage (hierarchical downsampling)
+                if i == 0:
+                    input_resolution = [
+                        patches_resolution[0],
+                        patches_resolution[1],
+                    ]  # 56x56
+                else:
+                    input_resolution = [
+                        patches_resolution[0] // (2 ** (i - 1)),
+                        patches_resolution[1] // (2 ** (i - 1)),
+                    ]
+
+            state_depth = depths[i]
 
             # Prepare Stage specific drop path rates
             stage_drop_path_rates = drop_path_rates[
                 sum(depths[:i]) : sum(depths[: i + 1])
             ]
 
-            # Create basic layer with timm-compatible downsampling pattern
-            if i == 0:  # First stage - no downsampling (Identity in timm)
-                downsample = None
-                downsample_input_dim = None
-            else:  # stages 1, 2, 3 - with downsampling
-                # For PatchMerging, we need to pass the correct input dim
-                # The input dim should match the previous layer's output dim
-                downsample_input_dim = int(embedding_dim * (2 ** (i - 1)))
-                downsample = PatchMerging
+            # Create basic layer with appropriate downsampling
+            if use_hierarchical_merge:
+                # Single-resolution ablation: use ConvDownsample for all stages except first
+                if i == 0:  # First stage - no downsampling
+                    downsample = None
+                    downsample_input_dim = None
+                else:  # stages 1, 2, 3 - use ConvDownsample (maintains resolution)
+                    downsample = ConvDownsample
+                    downsample_input_dim = embedding_dim  # Always 96 for all stages
+            else:
+                # Normal hierarchical: use PatchMerging for stages 1, 2, 3
+                if i == 0:  # First stage - no downsampling
+                    downsample = None
+                    downsample_input_dim = None
+                else:  # stages 1, 2, 3 - with PatchMerging downsampling
+                    downsample = PatchMerging
+                    downsample_input_dim = int(embedding_dim * (2 ** (i - 1)))
 
             basic_layer = BasicLayer(
                 dim=stage_dimension,
@@ -118,7 +141,7 @@ class SwinTransformerModel(nn.Module):
                 attention_dropout=attention_dropout_rate,
                 projection_dropout=projection_dropout_rate,
                 drop_path=stage_drop_path_rates,
-                downsample=downsample,  # Timm-compatible downsampling
+                downsample=downsample,
                 downsample_input_dim=downsample_input_dim,
                 use_shifted_window=use_shifted_window,  # Pass ablation flag
                 use_relative_bias=use_relative_bias,  # Pass ablation flag

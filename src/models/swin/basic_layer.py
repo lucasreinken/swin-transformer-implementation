@@ -124,12 +124,18 @@ class BasicLayer(nn.Module):
         self.depth = depth
 
         # Determine the input resolution for blocks
-        # If downsampling exists, blocks work at the downsampled resolution
+        # If downsampling exists, blocks work at the downsampled resolution (for PatchMerging)
+        # or same resolution (for ConvDownsample in single-resolution ablation)
         if downsample is not None:
-            block_input_resolution = [
-                input_resolution[0] // 2,
-                input_resolution[1] // 2,
-            ]
+            if downsample.__name__ == "ConvDownsample":
+                # ConvDownsample maintains resolution
+                block_input_resolution = input_resolution
+            else:
+                # PatchMerging reduces resolution
+                block_input_resolution = [
+                    input_resolution[0] // 2,
+                    input_resolution[1] // 2,
+                ]
         else:
             block_input_resolution = input_resolution
 

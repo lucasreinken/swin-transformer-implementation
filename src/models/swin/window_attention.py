@@ -132,7 +132,7 @@ class WindowAttention(nn.Module):
         scores = torch.matmul(q, k.transpose(-2, -1)) * (self.head_dim**-0.5)
 
         # Relative position bias: [nH, N, N] -> broadcast to [wB, nH, N, N]
-        if self.use_relative_bias and not self.use_absolute_pos_embed:
+        if self.use_relative_bias:
             relative_position_bias = self.relative_position_bias_table[
                 self.relative_position_index.view(-1)
             ].view(
@@ -145,8 +145,7 @@ class WindowAttention(nn.Module):
             ).contiguous()  # nH, Wh*Ww, Wh*Ww
             # Add learnable relative postition biases to scores (attention matrix)
             scores = scores + relative_position_bias.unsqueeze(0)
-        # If use_absolute_pos_embed=True, skip relative bias (positional info already in inputs)
-        # If use_relative_bias=False, skip relative bias (ablation)
+        # Note: Relative bias can now be combined with absolute position embeddings
 
         # Masking mechanism (for SW-MSA)
         if attn_mask is not None:

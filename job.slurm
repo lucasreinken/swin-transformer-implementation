@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --partition=gpu-teaching-5h # 5 hour partition
+#SBATCH --partition=gpu-teaching-2d # 2 day partition
 #SBATCH --gpus=1
-#SBATCH --time=05:00:00  # 5 hours for training
+#SBATCH --time=10:00:00  # 10 hours for training
 #SBATCH --output=logs/%j.out
 #SBATCH --error=logs/%j.err
 #SBATCH --job-name=Ticket1_shifted_window_on_off

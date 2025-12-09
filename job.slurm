@@ -4,7 +4,7 @@
 #SBATCH --time=05:00:00  # 48 hours for training
 #SBATCH --output=logs/%j.out
 #SBATCH --error=logs/%j.err
-#SBATCH --job-name=Ticket5_ablation_on
+#SBATCH --job-name=Ticket10_rel_and_abs_bias
 #SBATCH --chdir=/home/pml04/swin_transformer/Machine-Learning-Project
 
 mkdir -p logs

@@ -64,11 +64,11 @@ DOWNSTREAM_CONFIG = {
 # Training configuration
 TRAINING_CONFIG = {
     "learning_rate": 1.25e-4,  # Scaled for batch_size=128: 5e-4 * (128/512) = 1.25e-4
-    "num_epochs": 100,  # Full training for CIFAR-100 convergence
-    "warmup_epochs": 7,  # Scaled from Swin paper: 20 epochs warmup for 300 epochs = 6.7%, so ~7 epochs for 100 epochs
+    "num_epochs": 50,  # Full training for CIFAR-100 convergence
+    "warmup_epochs": 3,  # Scaled from Swin paper: 20 epochs warmup for 300 epochs = 6.7%, so ~3 epochs for 50 epochs
     "warmup_start_factor": 0.01,  # Start from very low LR
     "weight_decay": 0.05,  # Higher weight decay for regularization
-    "min_lr": 1e-6,  # Lower min LR for longer training (allow more decay)
+    "min_lr": 5e-5,  # Higher min LR for shorter training (don't decay too low)
     "lr_scheduler_type": "cosine",  # Pure cosine annealing
     # Early stopping configuration
     "early_stopping": {

@@ -1,5 +1,5 @@
 """
-Configuration file for ImageNet-1K dataset.
+Configuration file for ImageNet-1K dataset - Variant 2: Large Batch Size.
 """
 
 from .base_config import (
@@ -16,7 +16,7 @@ DATA_CONFIG = {
     "dataset": "ImageNet",
     "use_batch_for_val": False,
     "val_batch": 5,
-    "batch_size": 128,  # Reduced from 128 to fit in GPU memory
+    "batch_size": 256,  # Increased from 128 to 256 for better gradient estimates
     "num_workers": 0,  # Set to 0 to avoid worker process issues
     "root": "./datasets",
     "img_size": 224,
@@ -65,14 +65,14 @@ DOWNSTREAM_CONFIG = {
     "use_pretrained": _mode_settings["use_pretrained"],
 }
 
-# Training configuration
+# Training configuration - Variant 2: Large Batch Size
 TRAINING_CONFIG = {
-    "learning_rate": 1.25e-4,  # Scaled from 5e-4 for batch_size=128 (5e-4 * 128/512 = 1.25e-4)
-    "num_epochs": 100,  # Full training duration
-    "warmup_epochs": 7,  # Scaled from Swin paper: 20 epochs warmup for 300 epochs = 6.7%, so ~7 epochs for 100 epochs
+    "learning_rate": 2.5e-4,  # Scaled for batch_size=256: 5e-4 * (256/512) = 2.5e-4
+    "num_epochs": 20,  # Short training for testing
+    "warmup_epochs": 2,  # Scaled from Swin paper: 20 epochs warmup for 300 epochs = 6.7%, so ~1.3 epochs for 20 epochs
     "warmup_start_factor": 0.01,  # Start from very low LR
     "weight_decay": 0.05,  # Higher weight decay for regularization
-    "min_lr": 1e-6,  # Lower min LR for longer training (allow more decay)
+    "min_lr": 5e-5,  # Higher min LR for short training (don't decay too low)
     "lr_scheduler_type": "cosine",  # Pure cosine annealing as in Swin paper (no hybrid approaches)
     # Early stopping configuration
     "early_stopping": {

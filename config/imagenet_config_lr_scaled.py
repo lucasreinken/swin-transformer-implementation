@@ -1,5 +1,5 @@
 """
-Configuration file for ImageNet-1K dataset.
+Configuration file for ImageNet-1K dataset - Variant 1: LR Scaled (proper scaling for batch size).
 """
 
 from .base_config import (
@@ -65,14 +65,14 @@ DOWNSTREAM_CONFIG = {
     "use_pretrained": _mode_settings["use_pretrained"],
 }
 
-# Training configuration
+# Training configuration - Variant 1: LR Scaled (proper scaling for batch size)
 TRAINING_CONFIG = {
     "learning_rate": 1.25e-4,  # Scaled from 5e-4 for batch_size=128 (5e-4 * 128/512 = 1.25e-4)
-    "num_epochs": 100,  # Full training duration
-    "warmup_epochs": 7,  # Scaled from Swin paper: 20 epochs warmup for 300 epochs = 6.7%, so ~7 epochs for 100 epochs
+    "num_epochs": 20,  # Short training for testing
+    "warmup_epochs": 2,  # Scaled from Swin paper: 20 epochs warmup for 300 epochs = 6.7%, so ~1.3 epochs for 20 epochs
     "warmup_start_factor": 0.01,  # Start from very low LR
     "weight_decay": 0.05,  # Higher weight decay for regularization
-    "min_lr": 1e-6,  # Lower min LR for longer training (allow more decay)
+    "min_lr": 5e-5,  # Higher min LR for short training (don't decay too low)
     "lr_scheduler_type": "cosine",  # Pure cosine annealing as in Swin paper (no hybrid approaches)
     # Early stopping configuration
     "early_stopping": {

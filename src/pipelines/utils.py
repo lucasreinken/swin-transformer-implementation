@@ -14,7 +14,14 @@ from typing import Dict, List, Tuple
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
-from torch.optim.lr_scheduler import SequentialLR, LinearLR, CosineAnnealingLR
+from torch.optim.lr_scheduler import (
+    SequentialLR,
+    LinearLR,
+    CosineAnnealingLR,
+    MultiStepLR,
+    StepLR,
+    ExponentialLR,
+)
 
 from config import (
     DOWNSTREAM_CONFIG,
@@ -103,23 +110,54 @@ def setup_training_components(
 
     warmup_start_factor = TRAINING_CONFIG.get("warmup_start_factor", 0.1)
     min_lr = TRAINING_CONFIG.get("min_lr", 0.0)
+    scheduler_type = TRAINING_CONFIG.get("lr_scheduler_type", "cosine")
+
+    # Create warmup scheduler
+    warmup_scheduler = LinearLR(
+        optimizer,
+        start_factor=warmup_start_factor,
+        total_iters=warmup_epochs,
+    )
+
+    # Create main scheduler based on type
+    if scheduler_type == "cosine":
+        main_scheduler = CosineAnnealingLR(
+            optimizer,
+            T_max=total_epochs - warmup_epochs,
+            eta_min=min_lr,
+        )
+    elif scheduler_type == "multi_step":
+        milestones = TRAINING_CONFIG.get("lr_decay_milestones", [30, 60, 90])
+        gamma = TRAINING_CONFIG.get("lr_decay_gamma", 0.1)
+        main_scheduler = MultiStepLR(
+            optimizer,
+            milestones=milestones,
+            gamma=gamma,
+        )
+    elif scheduler_type == "step":
+        step_size = TRAINING_CONFIG.get("lr_step_size", 30)
+        gamma = TRAINING_CONFIG.get("lr_decay_gamma", 0.1)
+        main_scheduler = StepLR(
+            optimizer,
+            step_size=step_size,
+            gamma=gamma,
+        )
+    elif scheduler_type == "exponential":
+        gamma = TRAINING_CONFIG.get("lr_decay_gamma", 0.95)
+        main_scheduler = ExponentialLR(
+            optimizer,
+            gamma=gamma,
+        )
+    else:
+        raise ValueError(f"Unknown scheduler type: {scheduler_type}")
 
     scheduler = SequentialLR(
         optimizer,
-        schedulers=[
-            LinearLR(
-                optimizer,
-                start_factor=warmup_start_factor,
-                total_iters=warmup_epochs,
-            ),
-            CosineAnnealingLR(
-                optimizer,
-                T_max=total_epochs - warmup_epochs,
-                eta_min=min_lr,
-            ),
-        ],
+        schedulers=[warmup_scheduler, main_scheduler],
         milestones=[warmup_epochs],
     )
+
+    logger.info(f"LR Scheduler: {scheduler_type} with {warmup_epochs} warmup epochs")
 
     return criterion, optimizer, scheduler
 

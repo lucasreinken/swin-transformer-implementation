@@ -29,6 +29,7 @@ class SwinTransformerModel(nn.Module):
         use_relative_bias: bool = True,  # Ablation flag: True for learned bias, False for zero bias
         use_absolute_pos_embed: bool = False,  # Ablation flag: True for absolute pos embed (ViT-style), False for relative bias
         use_hierarchical_merge: bool = False,  # Ablation flag: False for hierarchical PatchMerging, True for single-resolution conv
+        use_gradient_checkpointing: bool = False,  # Enable gradient checkpointing for memory efficiency
         **kwargs: Dict[str, Any]
     ):
         super().__init__()

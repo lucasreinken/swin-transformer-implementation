@@ -16,7 +16,7 @@ DATA_CONFIG = {
     "dataset": "CIFAR100",
     "use_batch_for_val": True,
     "val_batch": 5,
-    "batch_size": 128,  # Reduced batch size for 224x224 images
+    "batch_size": 128,  # Keep batch size at 128 as requested
     "num_workers": 0,
     "root": "./datasets",
     "img_size": 224,  # Resized to 224 for ImageNet-pretrained weights compatibility
@@ -74,6 +74,7 @@ TRAINING_CONFIG = {
     "weight_decay": 0.05,  # Higher weight decay for regularization
     "min_lr": 5e-5,  # Higher min LR for shorter training (don't decay too low)
     "lr_scheduler_type": "cosine",  # Pure cosine annealing
+    "use_gradient_checkpointing": True,  # Enable gradient checkpointing to reduce memory usage
     # Early stopping configuration
     "early_stopping": {
         "enabled": False,  # Keep consistent training duration

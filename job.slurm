@@ -9,4 +9,6 @@
 
 mkdir -p logs
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
-apptainer run --nv --overlay /home/space/datasets-sqfs/imagenet2012.sqfs pml.sif python main.py
+# apptainer run --nv --overlay /home/space/datasets-sqfs/imagenet2012.sqfs pml.sif python main.py # for imagenet
+# Remove imagenet overlay and use local datasets
+apptainer run --nv pml.sif python main.py

@@ -67,7 +67,7 @@ DOWNSTREAM_CONFIG = {
 
 # Training configuration
 TRAINING_CONFIG = {
-    "learning_rate": 1.25e-4,  # Scaled for batch_size=128: 5e-4 * (128/512) = 1.25e-4
+    "learning_rate": 3e-4,  # Scaled from 5e-4: batch_size factor (128/512=0.25) * epoch factor (sqrt(300/50)≈2.45) = 5e-4 * 0.25 * 2.45 ≈ 3e-4
     "num_epochs": 50,  # Full training for CIFAR-100 convergence
     "warmup_epochs": 3,  # Scaled from Swin paper: 20 epochs warmup for 300 epochs = 6.7%, so ~3 epochs for 50 epochs
     "warmup_start_factor": 0.01,  # Start from very low LR

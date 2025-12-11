@@ -22,7 +22,7 @@ DATA_CONFIG = {
     "img_size": 224,
     # Subset configuration for faster training
     "n_train": 50000,  # Number of training samples (None for full dataset) - good balance of speed vs representativeness
-    "n_test": 5000,  # Number of validation/test samples (None for full dataset) - using full validation set
+    "n_test": 50000,  # Number of validation/test samples (None for full dataset) - using full validation set
 }
 
 # Swin Transformer configuration
@@ -67,12 +67,12 @@ DOWNSTREAM_CONFIG = {
 
 # Training configuration
 TRAINING_CONFIG = {
-    "learning_rate": 1.25e-4,  # Scaled from 5e-4 for batch_size=128 (5e-4 * 128/512 = 1.25e-4)
+    "learning_rate": 3e-4,  # Scaled from 5e-4: batch_size factor (128/512=0.25) * epoch factor (sqrt(300/50)≈2.45) = 5e-4 * 0.25 * 2.45 ≈ 3e-4
     "num_epochs": 50,  # Full training duration for convergence
     "warmup_epochs": 3,  # Scaled from Swin paper: 6.7% of 50 epochs = ~3 epochs
     "warmup_start_factor": 0.01,  # Start from very low LR
     "weight_decay": 0.05,  # Higher weight decay for regularization
-    "min_lr": 1e-6,  # Lower min LR for 100-epoch training (allow full decay)
+    "min_lr": 1e-6,  # Minimum LR for cosine annealing (same as paper, appropriate for 50-epoch schedule)
     "lr_scheduler_type": "cosine",  # Pure cosine annealing as in Swin paper (no hybrid approaches)
     # Early stopping configuration
     "early_stopping": {

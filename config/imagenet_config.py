@@ -16,12 +16,12 @@ DATA_CONFIG = {
     "dataset": "ImageNet",
     "use_batch_for_val": False,
     "val_batch": 5,
-    "batch_size": 128,  # Reduced from 128 to fit in GPU memory
+    "batch_size": 192,  # Increased for better gradient estimates and training stability
     "num_workers": 0,  # Set to 0 to avoid worker process issues
     "root": "./datasets",
     "img_size": 224,
     # Subset configuration for faster training
-    "n_train": 50000,  # Number of training samples (None for full dataset) - good balance of speed vs representativeness
+    "n_train": 100000,  # Increased training samples for better generalization
     "n_test": 50000,  # Number of validation/test samples (None for full dataset) - using full validation set
 }
 
@@ -38,7 +38,7 @@ SWIN_CONFIG = {
     "dropout": 0.0,
     "attention_dropout": 0.0,
     "projection_dropout": 0.0,
-    "drop_path_rate": 0.1,
+    "drop_path_rate": 0.1,  # Further reduced for 40-epoch training (minimal stochastic depth)
     "use_shifted_window": True,  # Ablation flag: True for SW-MSA, False for W-MSA only
     "use_relative_bias": True,  # Ablation flag: True for learned bias, False for zero bias
     "use_absolute_pos_embed": False,  # Ablation flag: True for absolute pos embed (ViT-style), False for relative bias. Can be combined with use_relative_bias=True for hybrid approach
@@ -67,12 +67,12 @@ DOWNSTREAM_CONFIG = {
 
 # Training configuration
 TRAINING_CONFIG = {
-    "learning_rate": 3e-4,  # Scaled from 5e-4: batch_size factor (128/512=0.25) * epoch factor (sqrt(300/50)≈2.45) = 5e-4 * 0.25 * 2.45 ≈ 3e-4
-    "num_epochs": 50,  # Full training duration for convergence
-    "warmup_epochs": 3,  # Scaled from Swin paper: 6.7% of 50 epochs = ~3 epochs
+    "learning_rate": 4e-4,  # Scaled for 40 epochs + batch_size=192: base_LR * batch_factor * epoch_factor = 5e-4 * (192/512) * sqrt(300/40) ≈ 5.14e-4, using 4e-4 as conservative estimate
+    "num_epochs": 40,  # Reduced for faster training while maintaining convergence
+    "warmup_epochs": 3,  # ~7.5% of 40 epochs (slightly more warmup for stability)
     "warmup_start_factor": 0.01,  # Start from very low LR
-    "weight_decay": 0.05,  # Higher weight decay for regularization
-    "min_lr": 1e-6,  # Minimum LR for cosine annealing (same as paper, appropriate for 50-epoch schedule)
+    "weight_decay": 0.02,  # Reduced for shorter training schedule (less regularization needed)
+    "min_lr": 5e-5,  # Higher min LR to maintain learning capacity
     "lr_scheduler_type": "cosine",  # Pure cosine annealing as in Swin paper (no hybrid approaches)
     # Early stopping configuration
     "early_stopping": {

@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --partition=gpu-teaching-2d    # your long partition
+#SBATCH --partition=gpu-teaching-5h    # your long partition
 #SBATCH --gpus=1
 #SBATCH --exclusive                      # ← NO sharing with other users → fixes node contention
-#SBATCH --time=48:00:00                  # 48 hours for 50-epoch CIFAR-100 training
+#SBATCH --time=05:00:00                  # 5 hours for 50-epoch CIFAR-100 training
 #SBATCH --job-name=cifar100_swin_50         # job name
 #SBATCH --output=logs/%j_%x.out          # includes job name → easier to find
 #SBATCH --error=logs/%j_%x.err

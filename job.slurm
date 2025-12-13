@@ -1,13 +1,13 @@
 #!/bin/bash
-#SBATCH --partition=gpu-teaching-2d    # your long partition
+#SBATCH --partition=gpu-teaching-7d    # your long partition
 #SBATCH --gpus=1
 #SBATCH --exclusive                      # ← NO sharing with other users → fixes node contention
-#SBATCH --time=48:00:00                  # 168 hours for 50-epoch CIFAR-100 training
+#SBATCH --time=168:00:00                  # 168 hours for 50-epoch CIFAR-100 training
 #SBATCH --job-name=cifar100_swin_50         # job name
 #SBATCH --output=logs/%j_%x.out          # includes job name → easier to find
 #SBATCH --error=logs/%j_%x.err
 #SBATCH --chdir=/home/pml04/swin_transformer/Machine-Learning-Project
-#SBATCH --array=1-2                      # Adjust as needed for multiple runs
+#SBATCH --array=1-1                      # Adjust as needed for multiple runs
 
 mkdir -p logs
 

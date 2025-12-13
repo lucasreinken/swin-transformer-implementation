@@ -30,6 +30,7 @@ echo "Allocated GPU(s): $CUDA_VISIBLE_DEVICES"
 
 # === Run your training ===
 apptainer run --nv \
+    --env PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
     pml.sif \
     python main.py
 

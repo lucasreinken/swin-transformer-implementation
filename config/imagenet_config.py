@@ -16,7 +16,7 @@ DATA_CONFIG = {
     "dataset": "ImageNet",
     "use_batch_for_val": False,
     "val_batch": 5,
-    "batch_size": 192,  # Increased for better gradient estimates and training stability
+    "batch_size": 224,  # Increased for better gradient estimates on ImageNet
     "num_workers": 0,  # Set to 0 to avoid worker process issues
     "root": "./datasets",
     "img_size": 224,
@@ -38,7 +38,7 @@ SWIN_CONFIG = {
     "dropout": 0.0,
     "attention_dropout": 0.0,
     "projection_dropout": 0.0,
-    "drop_path_rate": 0.1,  # Further reduced for 40-epoch training (minimal stochastic depth)
+    "drop_path_rate": 0.08,  # Increased for 50-epoch training (more regularization needed)
     "use_shifted_window": True,  # Ablation flag: True for SW-MSA, False for W-MSA only
     "use_relative_bias": True,  # Ablation flag: True for learned bias, False for zero bias
     "use_absolute_pos_embed": False,  # Ablation flag: True for absolute pos embed (ViT-style), False for relative bias. Can be combined with use_relative_bias=True for hybrid approach
@@ -69,11 +69,11 @@ DOWNSTREAM_CONFIG = {
 TRAINING_CONFIG = {
     "seed": 42,  # Random seed for reproducibility
     "deterministic": False,  # Set to True for fully reproducible (but slower) training
-    "learning_rate": 4e-4,  # Scaled for 40 epochs + batch_size=192: base_LR * batch_factor * epoch_factor = 5e-4 * (192/512) * sqrt(300/40) ≈ 5.14e-4, using 4e-4 as conservative estimate
-    "num_epochs": 40,  # Reduced for faster training while maintaining convergence
-    "warmup_epochs": 3,  # ~7.5% of 40 epochs (slightly more warmup for stability)
+    "learning_rate": 5e-4,  # Scaled for 50 epochs + batch_size=224: base_LR * batch_factor * epoch_factor = 5e-4 * (224/512) * sqrt(300/50) ≈ 5.36e-4
+    "num_epochs": 50,  # Full training duration for ImageNet convergence
+    "warmup_epochs": 4,  # ~8% of 50 epochs for stability
     "warmup_start_factor": 0.01,  # Start from very low LR
-    "weight_decay": 0.02,  # Reduced for shorter training schedule (less regularization needed)
+    "weight_decay": 0.02,  # Reduced for training schedule (less regularization needed)
     "min_lr": 5e-5,  # Higher min LR to maintain learning capacity
     "lr_scheduler_type": "cosine",  # Pure cosine annealing as in Swin paper (no hybrid approaches)
     # Early stopping configuration

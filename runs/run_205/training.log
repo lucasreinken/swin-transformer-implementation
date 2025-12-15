@@ -78,3 +78,33 @@
 2025-12-15 07:58:20,527 - INFO - Epoch 22/50: Train Loss: 4.1267, Val Loss: 3.9034, Val Acc: 21.89%
 2025-12-15 08:45:48,142 - INFO - Epoch 23/50: LR: 0.000336
 2025-12-15 08:45:48,195 - INFO - Epoch 23/50: Train Loss: 4.0449, Val Loss: 3.9102, Val Acc: 22.20%
+2025-12-15 09:31:26,362 - INFO - Epoch 24/50: LR: 0.000321
+2025-12-15 09:31:26,390 - INFO - Epoch 24/50: Train Loss: 3.9699, Val Loss: 3.8286, Val Acc: 23.01%
+2025-12-15 10:19:46,214 - INFO - Epoch 25/50: LR: 0.000306
+2025-12-15 10:34:15,923 - INFO - Epoch 25/50: Train Loss: 3.8933, Val Loss: 3.7936, Val Acc: 23.63%, Test Loss: 3.7936, Test Acc: 23.63%
+2025-12-15 11:19:05,746 - INFO - Epoch 26/50: LR: 0.000290
+2025-12-15 11:19:05,779 - INFO - Epoch 26/50: Train Loss: 3.8216, Val Loss: 3.7128, Val Acc: 25.16%
+2025-12-15 12:08:06,505 - INFO - Epoch 27/50: LR: 0.000275
+2025-12-15 12:08:06,547 - INFO - Epoch 27/50: Train Loss: 3.7378, Val Loss: 3.6669, Val Acc: 25.51%
+2025-12-15 12:53:25,053 - INFO - Epoch 28/50: LR: 0.000260
+2025-12-15 12:53:25,092 - INFO - Epoch 28/50: Train Loss: 3.6639, Val Loss: 3.5968, Val Acc: 26.74%
+2025-12-15 13:53:48,833 - INFO - Epoch 29/50: LR: 0.000244
+2025-12-15 13:53:48,930 - INFO - Epoch 29/50: Train Loss: 3.5907, Val Loss: 3.6177, Val Acc: 26.36%
+2025-12-15 14:39:59,206 - INFO - Epoch 30/50: LR: 0.000229
+2025-12-15 14:54:18,504 - INFO - Epoch 30/50: Train Loss: 3.5111, Val Loss: 3.5573, Val Acc: 27.38%, Test Loss: 3.5573, Test Acc: 27.38%
+2025-12-15 14:54:18,543 - INFO - Saving checkpoint for epoch 30...
+2025-12-15 14:54:19,904 - INFO - ✅ Checkpoint saved: runs/run_205/checkpoint_epoch_30.pth
+2025-12-15 15:42:22,504 - INFO - Epoch 31/50: LR: 0.000214
+2025-12-15 15:42:22,571 - INFO - Epoch 31/50: Train Loss: 3.4418, Val Loss: 3.5325, Val Acc: 27.93%
+2025-12-15 16:26:42,530 - INFO - Epoch 32/50: LR: 0.000200
+2025-12-15 16:26:42,579 - INFO - Epoch 32/50: Train Loss: 3.3815, Val Loss: 3.5123, Val Acc: 28.09%
+2025-12-15 17:15:58,253 - INFO - Epoch 33/50: LR: 0.000185
+2025-12-15 17:15:58,276 - INFO - Epoch 33/50: Train Loss: 3.3066, Val Loss: 3.4466, Val Acc: 29.40%
+2025-12-15 18:00:06,373 - INFO - Epoch 34/50: LR: 0.000171
+2025-12-15 18:00:07,472 - INFO - Epoch 34/50: Train Loss: 3.2561, Val Loss: 3.4338, Val Acc: 29.53%
+2025-12-15 18:51:53,265 - INFO - Epoch 35/50: LR: 0.000158
+2025-12-15 19:06:23,407 - INFO - Epoch 35/50: Train Loss: 3.1904, Val Loss: 3.4303, Val Acc: 29.90%, Test Loss: 3.4303, Test Acc: 29.90%
+2025-12-15 19:50:01,154 - INFO - Epoch 36/50: LR: 0.000145
+2025-12-15 19:50:01,182 - INFO - Epoch 36/50: Train Loss: 3.1207, Val Loss: 3.3970, Val Acc: 30.44%
+2025-12-15 20:39:11,598 - INFO - Epoch 37/50: LR: 0.000133
+2025-12-15 20:39:11,638 - INFO - Epoch 37/50: Train Loss: 3.0646, Val Loss: 3.3839, Val Acc: 30.68%

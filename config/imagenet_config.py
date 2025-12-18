@@ -99,12 +99,12 @@ DOWNSTREAM_CONFIG = {
 TRAINING_CONFIG = {
     "seed": 42,  # Random seed for reproducibility
     "deterministic": False,  # Set to True for fully reproducible (but slower) training
-    "learning_rate": 1.5e-3,  # Increased for 15 epochs: ~3x higher than 50-epoch LR for faster convergence
-    "num_epochs": 15,  # Reduced for testing stability
-    "warmup_epochs": 1,  # ~7% of 15 epochs for stability
+    "learning_rate": 5e-4,  # Reduced for 40 epochs (longer training needs lower LR)
+    "num_epochs": 40,  # Increased for more thorough training
+    "warmup_epochs": 3,  # ~7.5% of 40 epochs for stability
     "warmup_start_factor": 0.01,  # Start from very low LR
     "weight_decay": 0.02,  # Reduced for training schedule (less regularization needed)
-    "min_lr": 1e-4,  # Adjusted for shorter training
+    "min_lr": 5e-5,  # Lower minimum LR for longer training
     "lr_scheduler_type": "cosine",  # Pure cosine annealing as in Swin paper (no hybrid approaches)
     # Early stopping configuration
     "early_stopping": {

@@ -29,15 +29,18 @@ TRAINING_CONFIG = {
 ```
 
 **For CIFAR-10** → Edit `config/cifar10_config.py`  
-**For ImageNet** → Edit `config/imagenet_config.py` (currently set to 15 epochs for testing):
+**For ImageNet** → Edit `config/imagenet_config.py` (currently set to 40 epochs for thorough training):
 ```python
 TRAINING_CONFIG = {
-    "learning_rate": 1.5e-3,  # Adjusted for 15 epochs
-    "num_epochs": 15,         # Testing configuration
-    "warmup_epochs": 1,
+    "learning_rate": 5e-4,  # Adjusted for 40 epochs
+    "num_epochs": 40,       # Thorough training configuration
+    "warmup_epochs": 3,
 }
 
 DATA_CONFIG = {
+    "batch_size": 128,      # Optimized batch size with gradient checkpointing
+}
+```
     "batch_size": 224,        # Full batch size with gradient checkpointing
 }
 

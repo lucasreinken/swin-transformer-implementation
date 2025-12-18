@@ -12,10 +12,10 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
+from config.imagenet_config import MODEL_TYPE, MODEL_CONFIGS
 from config import (
     DATA_CONFIG,
     DOWNSTREAM_CONFIG,
-    SWIN_CONFIG,
     TRAINING_CONFIG,
 )
 
@@ -42,7 +42,7 @@ logger = logging.getLogger(__name__)
 
 def create_model_from_scratch(device: torch.device) -> nn.Module:
     """
-    Create a Swin Transformer model with random initialization.
+    Create a model with random initialization based on MODEL_TYPE.
 
     Args:
         device: Device to place the model on
@@ -50,45 +50,20 @@ def create_model_from_scratch(device: torch.device) -> nn.Module:
     Returns:
         ModelWrapper containing the model ready for training
     """
-    logger.info("Initializing model from scratch...")
-    logger.info(f"Model architecture: Swin-{SWIN_CONFIG['variant'].title()}")
-    logger.info(
-        f"Model config: embed_dim={SWIN_CONFIG['embed_dim']}, "
-        f"depths={SWIN_CONFIG['depths']}, num_heads={SWIN_CONFIG['num_heads']}, "
-        f"window_size={SWIN_CONFIG['window_size']}, use_shifted_window={SWIN_CONFIG['use_shifted_window']}, use_relative_bias={SWIN_CONFIG['use_relative_bias']}, use_absolute_pos_embed={SWIN_CONFIG['use_absolute_pos_embed']}, use_hierarchical_merge={SWIN_CONFIG['use_hierarchical_merge']}"
-    )
+    from src.models.model_factory import create_model
 
-    encoder = SwinTransformerModel(
-        img_size=SWIN_CONFIG["img_size"],
-        patch_size=SWIN_CONFIG["patch_size"],
-        embedding_dim=SWIN_CONFIG["embed_dim"],
-        depths=SWIN_CONFIG["depths"],
-        num_heads=SWIN_CONFIG["num_heads"],
-        window_size=SWIN_CONFIG["window_size"],
-        mlp_ratio=SWIN_CONFIG["mlp_ratio"],
-        dropout=SWIN_CONFIG["dropout"],
-        attention_dropout=SWIN_CONFIG["attention_dropout"],
-        projection_dropout=SWIN_CONFIG["projection_dropout"],
-        drop_path_rate=SWIN_CONFIG["drop_path_rate"],
-        use_shifted_window=SWIN_CONFIG["use_shifted_window"],  # Ablation flag
-        use_relative_bias=SWIN_CONFIG["use_relative_bias"],  # Ablation flag
-        use_absolute_pos_embed=SWIN_CONFIG["use_absolute_pos_embed"],  # Ablation flag
-        use_hierarchical_merge=SWIN_CONFIG["use_hierarchical_merge"],  # Ablation flag
-    )
+    logger.info(f"Initializing {MODEL_TYPE.upper()} model from scratch...")
 
-    if DOWNSTREAM_CONFIG["head_type"] == "linear_classification":
-        pred_head = LinearClassificationHead(
-            num_features=encoder.num_features,
-            num_classes=DOWNSTREAM_CONFIG["num_classes"],
-        )
-    else:
-        raise AssertionError(f"Unknown head type: {DOWNSTREAM_CONFIG['head_type']}")
+    # Get model config
+    model_config = MODEL_CONFIGS[MODEL_TYPE].copy()
+    model_config["type"] = MODEL_TYPE
 
-    model = ModelWrapper(
-        encoder=encoder,
-        pred_head=pred_head,
-        freeze=DOWNSTREAM_CONFIG["freeze_encoder"],  # Should be False for from_scratch
-    )
+    # Log model configuration
+    logger.info(f"Model architecture: {MODEL_TYPE.upper()}")
+    logger.info(f"Model config: {model_config}")
+
+    # Create model using factory
+    model = create_model(model_config)
 
     trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     total_params = sum(p.numel() for p in model.parameters())
@@ -215,7 +190,7 @@ def run_from_scratch(
         device: Device to train on
         run_dir: Directory to save results
     """
-    logger.info(f"Training Swin-{SWIN_CONFIG['variant'].title()} from scratch")
+    logger.info(f"Training {MODEL_TYPE.upper()} from scratch")
 
     # Create model with random initialization
     model = create_model_from_scratch(device)

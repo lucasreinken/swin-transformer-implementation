@@ -1,0 +1,12 @@
+{
+  "timestamp": "2025-12-17T13:15:49.522373",
+  "variant": "from_scratch",
+  "config": {
+    "mode": "from_scratch",
+    "head_type": "linear_classification",
+    "num_classes": 1000,
+    "hidden_dim": null,
+    "freeze_encoder": false,
+    "use_pretrained": false
+  }
+}

@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import math
 from typing import Optional, List, Dict, Any
+from torch.utils.checkpoint import checkpoint
 
 from .patch_embedding import PatchEmbed
 from .basic_layer import BasicLayer
@@ -29,6 +30,7 @@ class SwinTransformerModel(nn.Module):
         use_relative_bias: bool = True,  # Ablation flag: True for learned bias, False for zero bias
         use_absolute_pos_embed: bool = False,  # Ablation flag: True for absolute pos embed (ViT-style), False for relative bias
         use_hierarchical_merge: bool = False,  # Ablation flag: False for hierarchical PatchMerging, True for single-resolution conv
+        use_gradient_checkpointing: bool = False,  # Enable gradient checkpointing to save memory
         **kwargs: Dict[str, Any]
     ):
         super().__init__()
@@ -51,6 +53,7 @@ class SwinTransformerModel(nn.Module):
             "use_relative_bias": use_relative_bias,
             "use_absolute_pos_embed": use_absolute_pos_embed,
             "use_hierarchical_merge": use_hierarchical_merge,
+            "use_gradient_checkpointing": use_gradient_checkpointing,
         }
 
         # Validate configuration
@@ -150,8 +153,7 @@ class SwinTransformerModel(nn.Module):
 
             self.layers.append(basic_layer)
 
-        # Initialize weights
-        self.apply(self._init_weights)
+        self.use_gradient_checkpointing = use_gradient_checkpointing
 
     def _init_weights(self, m):
         """Initialize model weights according to swin transformer paper."""
@@ -168,7 +170,10 @@ class SwinTransformerModel(nn.Module):
         x = self.patch_embed(x)
 
         for layer in self.layers:
-            x = layer(x)
+            if self.use_gradient_checkpointing and self.training:
+                x = checkpoint(layer, x, use_reentrant=False)
+            else:
+                x = layer(x)
 
         return x
 

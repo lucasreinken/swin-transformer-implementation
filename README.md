@@ -29,7 +29,34 @@ TRAINING_CONFIG = {
 ```
 
 **For CIFAR-10** → Edit `config/cifar10_config.py`  
-**For ImageNet** → Edit `config/imagenet_config.py`
+**For ImageNet** → Edit `config/imagenet_config.py` (currently set to 40 epochs for thorough training):
+```python
+TRAINING_CONFIG = {
+    "learning_rate": 5e-4,  # Adjusted for 40 epochs
+    "num_epochs": 40,       # Thorough training configuration
+    "warmup_epochs": 3,
+}
+
+DATA_CONFIG = {
+    "batch_size": 128,      # Optimized batch size with gradient checkpointing
+}
+```
+    "batch_size": 224,        # Full batch size with gradient checkpointing
+}
+
+MODEL_CONFIGS = {
+    "swin": { "use_gradient_checkpointing": True },
+    "vit": { "use_gradient_checkpointing": True },
+    "resnet": { "use_gradient_checkpointing": True }
+}
+```
+
+#### Model Comparison on ImageNet
+For comparing Swin Transformer vs ViT vs ResNet, edit `config/imagenet_config.py`:
+```python
+MODEL_TYPE = "swin"  # Options: "swin", "vit", "resnet"
+```
+All models are configured with ~25-30M parameters and identical training settings for fair comparison (currently 15 epochs for testing).
 
 ### 3. Set Data Path
 In `config/__init__.py`:

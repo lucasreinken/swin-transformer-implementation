@@ -13,6 +13,7 @@ from torchvision import datasets
 
 from .datasets import CIFAR10Dataset
 from .transforms import get_default_transforms
+from ..utils.seeds import set_worker_seeds
 
 import logging
 
@@ -227,7 +228,7 @@ def _create_dataloaders(
         num_workers=num_workers,
         pin_memory=True,
         persistent_workers=True if num_workers > 0 else False,
-        worker_init_fn=worker_init_fn,
+        worker_init_fn=set_worker_seeds if num_workers > 0 else None,
     )
 
     val_loader = DataLoader(
@@ -237,7 +238,7 @@ def _create_dataloaders(
         num_workers=num_workers,
         pin_memory=True,
         persistent_workers=True if num_workers > 0 else False,
-        worker_init_fn=worker_init_fn,
+        worker_init_fn=set_worker_seeds if num_workers > 0 else None,
     )
 
     test_loader = DataLoader(
@@ -247,7 +248,7 @@ def _create_dataloaders(
         num_workers=num_workers,
         pin_memory=True,
         persistent_workers=True if num_workers > 0 else False,
-        worker_init_fn=worker_init_fn,
+        worker_init_fn=set_worker_seeds if num_workers > 0 else None,
     )
 
     return train_loader, val_loader, test_loader

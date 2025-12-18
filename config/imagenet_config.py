@@ -11,12 +11,58 @@ from .base_config import (
     get_training_mode_settings,
 )
 
+# Model type selection for comparison experiments
+MODEL_TYPE = "swin"  # Options: "swin", "vit", "resnet"
+
+# Model configurations for all types
+MODEL_CONFIGS = {
+    "swin": {
+        "type": "swin",
+        "variant": "tiny",
+        "patch_size": 4,
+        "embed_dim": None,  # Auto-set from preset
+        "depths": None,  # Auto-set from preset
+        "num_heads": None,  # Auto-set from preset
+        "window_size": 7,
+        "mlp_ratio": 4.0,
+        "dropout": 0.0,
+        "attention_dropout": 0.0,
+        "projection_dropout": 0.0,
+        "drop_path_rate": 0.08,
+        "use_shifted_window": True,
+        "use_relative_bias": True,
+        "use_absolute_pos_embed": False,
+        "use_hierarchical_merge": False,
+        "use_gradient_checkpointing": True,
+    },
+    "vit": {
+        "type": "vit",
+        "img_size": 224,
+        "patch_size": 16,
+        "embed_dim": 448,  # Increased for ~30M parameters (very close to Swin)
+        "depth": 12,
+        "num_heads": 7,  # Increased for better capacity
+        "mlp_ratio": 4.0,
+        "num_classes": 1000,
+        "use_gradient_checkpointing": True,  # Enable for memory efficiency
+    },
+    "resnet": {
+        "type": "resnet",
+        "layers": [3, 4, 6, 3],  # ResNet-50
+        "num_classes": 1000,
+        "use_gradient_checkpointing": True,  # Enable for memory efficiency
+    },
+}
+
+# Selected model configuration
+MODEL_CONFIG = MODEL_CONFIGS[MODEL_TYPE]
+
 # Data configuration
 DATA_CONFIG = {
     "dataset": "ImageNet",
     "use_batch_for_val": False,
     "val_batch": 5,
-    "batch_size": 192,  # Increased for better gradient estimates and training stability
+    "batch_size": 128,  # Increased for better gradient estimates on ImageNet
     "num_workers": 0,  # Set to 0 to avoid worker process issues
     "root": "./datasets",
     "img_size": 224,
@@ -25,28 +71,12 @@ DATA_CONFIG = {
     "n_test": 50000,  # Number of validation/test samples (None for full dataset) - using full validation set
 }
 
-# Swin Transformer configuration
-SWIN_CONFIG = {
-    "img_size": 224,
-    "variant": "tiny",  # Choose: "tiny", "small", "base", "large"
-    "patch_size": 4,
-    "embed_dim": None,  # Auto-set from preset
-    "depths": None,  # Auto-set from preset
-    "num_heads": None,  # Auto-set from preset
-    "window_size": 7,
-    "mlp_ratio": 4.0,
-    "dropout": 0.0,
-    "attention_dropout": 0.0,
-    "projection_dropout": 0.0,
-    "drop_path_rate": 0.1,  # Further reduced for 40-epoch training (minimal stochastic depth)
-    "use_shifted_window": True,  # Ablation flag: True for SW-MSA, False for W-MSA only
-    "use_relative_bias": True,  # Ablation flag: True for learned bias, False for zero bias
-    "use_absolute_pos_embed": False,  # Ablation flag: True for absolute pos embed (ViT-style), False for relative bias. Can be combined with use_relative_bias=True for hybrid approach
-    "use_hierarchical_merge": False,  # Ablation flag: False for hierarchical PatchMerging (normal Swin), True for single-resolution with conv downsampling
-}
+# Swin Transformer configuration (legacy - kept for compatibility)
+SWIN_CONFIG = MODEL_CONFIG if MODEL_TYPE == "swin" else {}
 
-# Apply preset values for None fields
-apply_swin_preset(SWIN_CONFIG, SWIN_PRESETS)
+# Apply preset values for None fields (only for Swin)
+if MODEL_TYPE == "swin":
+    apply_swin_preset(SWIN_CONFIG, SWIN_PRESETS)
 
 # =============================================================================
 # Downstream Task Configuration
@@ -67,12 +97,14 @@ DOWNSTREAM_CONFIG = {
 
 # Training configuration
 TRAINING_CONFIG = {
-    "learning_rate": 4e-4,  # Scaled for 40 epochs + batch_size=192: base_LR * batch_factor * epoch_factor = 5e-4 * (192/512) * sqrt(300/40) ≈ 5.14e-4, using 4e-4 as conservative estimate
-    "num_epochs": 40,  # Reduced for faster training while maintaining convergence
-    "warmup_epochs": 3,  # ~7.5% of 40 epochs (slightly more warmup for stability)
+    "seed": 42,  # Random seed for reproducibility
+    "deterministic": False,  # Set to True for fully reproducible (but slower) training
+    "learning_rate": 5e-4,  # Reduced for 40 epochs (longer training needs lower LR)
+    "num_epochs": 40,  # Increased for more thorough training
+    "warmup_epochs": 3,  # ~7.5% of 40 epochs for stability
     "warmup_start_factor": 0.01,  # Start from very low LR
-    "weight_decay": 0.02,  # Reduced for shorter training schedule (less regularization needed)
-    "min_lr": 5e-5,  # Higher min LR to maintain learning capacity
+    "weight_decay": 0.02,  # Reduced for training schedule (less regularization needed)
+    "min_lr": 5e-5,  # Lower minimum LR for longer training
     "lr_scheduler_type": "cosine",  # Pure cosine annealing as in Swin paper (no hybrid approaches)
     # Early stopping configuration
     "early_stopping": {

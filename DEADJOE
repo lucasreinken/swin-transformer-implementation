@@ -1,0 +1,33 @@
+
+*** These modified files were found in JOE when it aborted on Sat Dec 13 13:30:44 2025
+*** JOE was aborted because the terminal closed
+
+*** File '/home/pml04/swin_transformer/Machine-Learning-Project/.git/MERGE_MSG'
+Merge branch 'Ticket11-Improve-training-cifar100-sanity-check' of github.com:wolnik-georg/Machine-Learning-Project into Ticket11-Improve-training-cifar100-sanity-check
+# Please enter a commit message to explain why this merge is necessary,
+# especially if it merges an updated upstream into a topic branch.
+#
+# Lines starting with '#' will be ignored, and an empty message aborts
+# the commit.
+
+Merge branch.
+
+
+*** File '(Unnamed)'
+:wq
+:wq
+:wq
+
+*** File '(Unnamed)'
+:wq
+
+*** File '(Unnamed)'
+/home/pml04/.gitconfig
+* Build Log *
+/home/pml04/swin_transformer/Machine-Learning-Project/.git/MERGE_MSG
+
+*** File '* Startup Log *'
+Processing '/etc/joe/editorrc'...
+Processing '/etc/joe/ftyperc'...
+Finished processing /etc/joe/ftyperc
+Finished processing /etc/joe/editorrc

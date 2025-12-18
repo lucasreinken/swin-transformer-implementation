@@ -1,0 +1,87 @@
+2025-12-16 23:25:49,849 - INFO - Logging initialized. Log file: runs/run_221/training.log
+2025-12-16 23:25:49,874 - INFO - Experiment directory: runs/run_221
+2025-12-16 23:25:49,876 - INFO - Setting random seeds for reproducibility (seed: 42)...
+2025-12-16 23:25:49,975 - INFO - ✅ All seeds set to 42 (deterministic=False)
+2025-12-16 23:25:50,419 - INFO - GPU memory cleared at startup. Available: 23.6GB
+2025-12-16 23:25:50,422 - INFO - Using device: cuda
+2025-12-16 23:25:50,423 - INFO - Training configuration: epochs=15, warmup=1, lr=0.0015
+2025-12-16 23:25:50,426 - INFO - VIT configuration: {'type': 'vit', 'img_size': 224, 'patch_size': 16, 'embed_dim': 448, 'depth': 12, 'num_heads': 7, 'mlp_ratio': 4.0, 'num_classes': 1000, 'use_gradient_checkpointing': True}
+2025-12-16 23:25:50,427 - INFO - Loading dataset...
+2025-12-16 23:25:50,431 - INFO - Starting ImageNet data loading from root: /
+2025-12-16 23:25:50,433 - INFO - Resolved root path: /
+2025-12-16 23:25:50,434 - INFO - Root path exists: True
+2025-12-16 23:25:50,436 - INFO - Root path is dir: True
+2025-12-16 23:25:50,447 - INFO - Contents of /: ['/.exec', '/.run', '/.shell', '/.singularity.d', '/.test', '/bin', '/boot', '/dev', '/environment', '/etc', '/home', '/lib', '/lib64', '/media', '/mnt', '/opt', '/proc', '/requirements.txt', '/root', '/run', '/sbin', '/singularity', '/srv', '/sys', '/tmp', '/usr', '/var', '/meta', '/train_set', '/train_set_small', '/val_set', '/val_set_unlabeled']
+2025-12-16 23:25:50,449 - INFO - Expected train_dir: /train_set, exists: True
+2025-12-16 23:25:50,451 - INFO - Expected val_dir: /val_set, exists: True
+2025-12-16 23:26:04,791 - INFO - Loaded ImageNet data from /: train=1281167, val=50000
+2025-12-16 23:26:05,134 - INFO - Dataset loaded: train=100000 samples (782 batches), val=50000 samples (391 batches), test=50000 samples (391 batches)
+2025-12-16 23:26:13,181 - INFO - Training VIT from scratch
+2025-12-16 23:26:13,209 - INFO - Initializing VIT model from scratch...
+2025-12-16 23:26:13,211 - INFO - Model architecture: VIT
+2025-12-16 23:26:13,213 - INFO - Model config: {'type': 'vit', 'img_size': 224, 'patch_size': 16, 'embed_dim': 448, 'depth': 12, 'num_heads': 7, 'mlp_ratio': 4.0, 'num_classes': 1000, 'use_gradient_checkpointing': True}
+2025-12-16 23:26:14,550 - INFO - Model created with random initialization
+2025-12-16 23:26:14,552 - INFO - Total parameters: 29,854,376
+2025-12-16 23:26:14,554 - INFO - Trainable parameters: 29,854,376
+2025-12-16 23:26:14,648 - INFO - Starting from-scratch training...
+2025-12-16 23:26:14,650 - INFO - Optimizer: training all model parameters
+2025-12-16 23:26:14,654 - INFO - LR Scheduler: cosine with 1 warmup epochs
+2025-12-16 23:26:14,657 - INFO - Starting training...
+2025-12-17 00:18:03,626 - INFO - Epoch 1/15: LR: 0.001500
+2025-12-17 00:18:03,653 - INFO - Epoch 1/15: Train Loss: 6.8510, Val Loss: 6.7194, Val Acc: 0.79%
+2025-12-17 01:03:21,509 - INFO - Epoch 2/15: LR: 0.001482
+2025-12-17 01:03:21,533 - INFO - Epoch 2/15: Train Loss: 6.8795, Val Loss: 6.7604, Val Acc: 0.43%
+2025-12-17 01:47:45,087 - INFO - Epoch 3/15: LR: 0.001431
+2025-12-17 01:47:45,090 - INFO - Epoch 3/15: Train Loss: 6.8061, Val Loss: 6.8042, Val Acc: 0.34%
+2025-12-17 02:30:07,380 - INFO - Epoch 4/15: LR: 0.001347
+2025-12-17 02:30:07,406 - INFO - Epoch 4/15: Train Loss: 6.8016, Val Loss: 6.7963, Val Acc: 0.42%
+2025-12-17 03:13:47,519 - INFO - Epoch 5/15: LR: 0.001236
+2025-12-17 03:27:50,433 - INFO - Epoch 5/15: Train Loss: 6.8645, Val Loss: 6.8508, Val Acc: 0.28%, Test Loss: 6.8508, Test Acc: 0.28%
+2025-12-17 04:11:31,984 - INFO - Epoch 6/15: LR: 0.001104
+2025-12-17 04:11:32,016 - INFO - Epoch 6/15: Train Loss: 6.8342, Val Loss: 6.8099, Val Acc: 0.39%
+2025-12-17 04:53:54,143 - INFO - Epoch 7/15: LR: 0.000956
+2025-12-17 04:53:54,157 - INFO - Epoch 7/15: Train Loss: 6.8115, Val Loss: 6.7548, Val Acc: 0.55%
+2025-12-17 05:36:41,556 - INFO - Epoch 8/15: LR: 0.000800
+2025-12-17 05:36:41,558 - INFO - Epoch 8/15: Train Loss: 6.7919, Val Loss: 6.7314, Val Acc: 0.42%
+2025-12-17 06:19:23,738 - INFO - Epoch 9/15: LR: 0.000644
+2025-12-17 06:19:23,741 - INFO - Epoch 9/15: Train Loss: 6.7704, Val Loss: 6.6764, Val Acc: 0.55%
+2025-12-17 07:02:18,784 - INFO - Epoch 10/15: LR: 0.000496
+2025-12-17 07:16:12,842 - INFO - Epoch 10/15: Train Loss: 6.7414, Val Loss: 6.6677, Val Acc: 0.73%, Test Loss: 6.6677, Test Acc: 0.73%
+2025-12-17 07:16:12,845 - INFO - Saving checkpoint for epoch 10...
+2025-12-17 07:16:14,264 - INFO - ✅ Checkpoint saved: runs/run_221/checkpoint_epoch_10.pth
+2025-12-17 07:58:53,618 - INFO - Epoch 11/15: LR: 0.000364
+2025-12-17 07:58:53,667 - INFO - Epoch 11/15: Train Loss: 6.7069, Val Loss: 6.6051, Val Acc: 0.89%
+2025-12-17 08:41:05,948 - INFO - Epoch 12/15: LR: 0.000253
+2025-12-17 08:41:05,956 - INFO - Epoch 12/15: Train Loss: 6.6987, Val Loss: 6.6090, Val Acc: 0.90%
+2025-12-17 09:24:00,676 - INFO - Epoch 13/15: LR: 0.000169
+2025-12-17 09:24:00,707 - INFO - Epoch 13/15: Train Loss: 6.6681, Val Loss: 6.5735, Val Acc: 1.06%
+2025-12-17 10:06:08,460 - INFO - Epoch 14/15: LR: 0.000118
+2025-12-17 10:06:08,463 - INFO - Epoch 14/15: Train Loss: 6.6411, Val Loss: 6.5343, Val Acc: 1.07%
+2025-12-17 10:48:24,359 - INFO - Epoch 15/15: LR: 0.000100
+2025-12-17 11:02:15,704 - INFO - Epoch 15/15: Train Loss: 6.6289, Val Loss: 6.5244, Val Acc: 1.14%, Test Loss: 6.5244, Test Acc: 1.14%
+2025-12-17 11:02:15,706 - INFO - Training completed!
+2025-12-17 11:02:15,717 - INFO - Training completed!
+2025-12-17 11:02:15,718 - INFO - Generating training curves...
+2025-12-17 11:02:19,775 - INFO - Too many classes (1000) for per-class plotting, skipping
+2025-12-17 11:02:19,776 - INFO - Training curves saved as separate images with base name 'runs/run_221/training_curves_from_scratch'
+2025-12-17 11:02:19,777 - INFO - Generating confusion matrix on test set...
+2025-12-17 12:06:16,939 - INFO - Performing final evaluation of from_scratch model on test set...
+2025-12-17 12:21:56,008 - INFO - Final Test Results of from_scratch model: Loss: 6.5244, Accuracy: 1.14%
+2025-12-17 12:21:56,010 - INFO - Generating LR schedule plot of from_scratch model...
+2025-12-17 12:21:56,731 - INFO - LR schedule plot saved to 'runs/run_221/lr_schedule_from_scratch.png'
+2025-12-17 12:21:56,733 - INFO - 
+Final Test Results:
+2025-12-17 12:21:56,735 - INFO - Loss: 6.5244
+2025-12-17 12:21:56,737 - INFO - Accuracy: 1.14%
+2025-12-17 12:21:56,739 - INFO - Precision: 0.38%
+2025-12-17 12:21:56,741 - INFO - Recall: 1.14%
+2025-12-17 12:21:56,742 - INFO - F1 Score: 0.38%
+2025-12-17 12:21:57,025 - INFO - Experiment completed. Results saved to runs/run_221/results_from_scratch.json
+2025-12-17 12:21:57,062 - INFO - Experiment completed. Metadata saved to runs/run_221/metadata_from_scratch.json
+2025-12-17 12:21:57,568 - INFO - ✅ Model weights saved: runs/run_221/final_model_from_scratch_weights.pth
+2025-12-17 12:21:57,574 - INFO - Final model saved: runs/run_221/final_model_from_scratch_weights.pth
+2025-12-17 12:21:57,576 - INFO - Final model metadata saved: runs/run_221/final_model_from_scratch_metadata.json
+2025-12-17 12:21:57,578 - INFO - === FROM-SCRATCH RESULTS (IMAGENET) ===
+2025-12-17 12:21:57,579 - INFO - Final Accuracy: 1.14%
+2025-12-17 12:21:57,581 - INFO - Final F1 Score: 0.38%
+2025-12-17 12:21:57,585 - INFO - from_scratch experiment completed successfully!

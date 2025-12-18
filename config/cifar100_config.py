@@ -16,7 +16,7 @@ DATA_CONFIG = {
     "dataset": "CIFAR100",
     "use_batch_for_val": True,
     "val_batch": 5,
-    "batch_size": 128,  # Reduced batch size for 224x224 images
+    "batch_size": 196,  # Increased from 64 - should work with gradient checkpointing
     "num_workers": 0,
     "root": "./datasets",
     "img_size": 224,  # Resized to 224 for ImageNet-pretrained weights compatibility
@@ -38,11 +38,12 @@ SWIN_CONFIG = {
     "dropout": 0.0,
     "attention_dropout": 0.0,
     "projection_dropout": 0.0,
-    "drop_path_rate": 0.1,
+    "drop_path_rate": 0.08,  # Increased for 100-epoch training (more regularization needed)
     "use_shifted_window": True,  # Ablation flag: True for SW-MSA, False for W-MSA only
     "use_relative_bias": True,  # Ablation flag: True for learned bias, False for zero bias
     "use_absolute_pos_embed": False,  # Ablation flag: True for absolute pos embed (ViT-style), False for relative bias. Can be combined with use_relative_bias=True for hybrid approach
     "use_hierarchical_merge": False,  # Ablation flag: False for hierarchical PatchMerging (normal Swin), True for single-resolution with conv downsampling
+    "use_gradient_checkpointing": True,  # Enable gradient checkpointing to save memory
 }
 
 # Apply preset values for None fields
@@ -67,12 +68,14 @@ DOWNSTREAM_CONFIG = {
 
 # Training configuration
 TRAINING_CONFIG = {
-    "learning_rate": 3e-4,  # Scaled from 5e-4: batch_size factor (128/512=0.25) * epoch factor (sqrt(300/50)≈2.45) = 5e-4 * 0.25 * 2.45 ≈ 3e-4
-    "num_epochs": 50,  # Full training for CIFAR-100 convergence
-    "warmup_epochs": 3,  # Scaled from Swin paper: 20 epochs warmup for 300 epochs = 6.7%, so ~3 epochs for 50 epochs
+    "seed": 42,  # Random seed for reproducibility
+    "deterministic": False,  # Set to True for fully reproducible (but slower) training
+    "learning_rate": 2e-4,  # Scaled for 100 epochs + batch_size=128: base_LR * batch_factor * epoch_factor = 5e-4 * (128/512) * sqrt(300/100) ≈ 2.17e-4
+    "num_epochs": 100,  # Extended training for CIFAR-100 convergence to ~80% accuracy
+    "warmup_epochs": 6,  # ~6% of 100 epochs for stability
     "warmup_start_factor": 0.01,  # Start from very low LR
-    "weight_decay": 0.05,  # Higher weight decay for regularization
-    "min_lr": 5e-5,  # Higher min LR for shorter training (don't decay too low)
+    "weight_decay": 0.04,  # Increased for longer training to prevent overfitting
+    "min_lr": 1e-5,  # Lower min LR for extended training (allow full decay)
     "lr_scheduler_type": "cosine",  # Pure cosine annealing
     # Early stopping configuration
     "early_stopping": {

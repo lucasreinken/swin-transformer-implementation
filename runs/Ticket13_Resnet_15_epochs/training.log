@@ -1,0 +1,87 @@
+2025-12-16 09:45:09,282 - INFO - Logging initialized. Log file: runs/run_220/training.log
+2025-12-16 09:45:09,284 - INFO - Experiment directory: runs/run_220
+2025-12-16 09:45:09,286 - INFO - Setting random seeds for reproducibility (seed: 42)...
+2025-12-16 09:45:09,311 - INFO - ✅ All seeds set to 42 (deterministic=False)
+2025-12-16 09:45:09,742 - INFO - GPU memory cleared at startup. Available: 23.6GB
+2025-12-16 09:45:09,744 - INFO - Using device: cuda
+2025-12-16 09:45:09,745 - INFO - Training configuration: epochs=15, warmup=1, lr=0.0015
+2025-12-16 09:45:09,746 - INFO - RESNET configuration: {'type': 'resnet', 'layers': [3, 4, 6, 3], 'num_classes': 1000, 'use_gradient_checkpointing': True}
+2025-12-16 09:45:09,748 - INFO - Loading dataset...
+2025-12-16 09:45:09,751 - INFO - Starting ImageNet data loading from root: /
+2025-12-16 09:45:09,752 - INFO - Resolved root path: /
+2025-12-16 09:45:09,754 - INFO - Root path exists: True
+2025-12-16 09:45:09,755 - INFO - Root path is dir: True
+2025-12-16 09:45:09,766 - INFO - Contents of /: ['/.exec', '/.run', '/.shell', '/.singularity.d', '/.test', '/bin', '/boot', '/dev', '/environment', '/etc', '/home', '/lib', '/lib64', '/media', '/mnt', '/opt', '/proc', '/requirements.txt', '/root', '/run', '/sbin', '/singularity', '/srv', '/sys', '/tmp', '/usr', '/var', '/meta', '/train_set', '/train_set_small', '/val_set', '/val_set_unlabeled']
+2025-12-16 09:45:09,767 - INFO - Expected train_dir: /train_set, exists: True
+2025-12-16 09:45:09,769 - INFO - Expected val_dir: /val_set, exists: True
+2025-12-16 09:45:24,005 - INFO - Loaded ImageNet data from /: train=1281167, val=50000
+2025-12-16 09:45:24,346 - INFO - Dataset loaded: train=100000 samples (782 batches), val=50000 samples (391 batches), test=50000 samples (391 batches)
+2025-12-16 09:45:28,512 - INFO - Training RESNET from scratch
+2025-12-16 09:45:28,517 - INFO - Initializing RESNET model from scratch...
+2025-12-16 09:45:28,519 - INFO - Model architecture: RESNET
+2025-12-16 09:45:28,520 - INFO - Model config: {'type': 'resnet', 'layers': [3, 4, 6, 3], 'num_classes': 1000, 'use_gradient_checkpointing': True}
+2025-12-16 09:45:29,765 - INFO - Model created with random initialization
+2025-12-16 09:45:29,767 - INFO - Total parameters: 25,557,032
+2025-12-16 09:45:29,769 - INFO - Trainable parameters: 25,557,032
+2025-12-16 09:45:29,862 - INFO - Starting from-scratch training...
+2025-12-16 09:45:29,864 - INFO - Optimizer: training all model parameters
+2025-12-16 09:45:29,868 - INFO - LR Scheduler: cosine with 1 warmup epochs
+2025-12-16 09:45:29,870 - INFO - Starting training...
+2025-12-16 10:33:09,328 - INFO - Epoch 1/15: LR: 0.001500
+2025-12-16 10:33:09,343 - INFO - Epoch 1/15: Train Loss: 6.9264, Val Loss: 6.8766, Val Acc: 0.23%
+2025-12-16 11:15:59,239 - INFO - Epoch 2/15: LR: 0.001482
+2025-12-16 11:15:59,290 - INFO - Epoch 2/15: Train Loss: 6.8634, Val Loss: 6.6604, Val Acc: 0.44%
+2025-12-16 11:58:32,364 - INFO - Epoch 3/15: LR: 0.001431
+2025-12-16 11:58:32,398 - INFO - Epoch 3/15: Train Loss: 6.5092, Val Loss: 6.4477, Val Acc: 1.05%
+2025-12-16 12:38:58,243 - INFO - Epoch 4/15: LR: 0.001347
+2025-12-16 12:38:58,333 - INFO - Epoch 4/15: Train Loss: 6.1662, Val Loss: 5.8644, Val Acc: 2.69%
+2025-12-16 13:20:05,391 - INFO - Epoch 5/15: LR: 0.001236
+2025-12-16 13:33:35,773 - INFO - Epoch 5/15: Train Loss: 5.8770, Val Loss: 5.5212, Val Acc: 4.82%, Test Loss: 5.5212, Test Acc: 4.82%
+2025-12-16 14:13:56,792 - INFO - Epoch 6/15: LR: 0.001104
+2025-12-16 14:13:56,887 - INFO - Epoch 6/15: Train Loss: 5.6368, Val Loss: 5.3080, Val Acc: 6.33%
+2025-12-16 14:57:26,673 - INFO - Epoch 7/15: LR: 0.000956
+2025-12-16 14:57:26,796 - INFO - Epoch 7/15: Train Loss: 5.4074, Val Loss: 5.1450, Val Acc: 7.75%
+2025-12-16 15:44:49,401 - INFO - Epoch 8/15: LR: 0.000800
+2025-12-16 15:44:49,580 - INFO - Epoch 8/15: Train Loss: 5.1618, Val Loss: 4.8351, Val Acc: 10.59%
+2025-12-16 16:39:54,119 - INFO - Epoch 9/15: LR: 0.000644
+2025-12-16 16:39:54,198 - INFO - Epoch 9/15: Train Loss: 4.9178, Val Loss: 4.6181, Val Acc: 13.11%
+2025-12-16 17:34:57,159 - INFO - Epoch 10/15: LR: 0.000496
+2025-12-16 17:48:27,993 - INFO - Epoch 10/15: Train Loss: 4.6710, Val Loss: 4.3629, Val Acc: 16.31%, Test Loss: 4.3629, Test Acc: 16.31%
+2025-12-16 17:48:28,043 - INFO - Saving checkpoint for epoch 10...
+2025-12-16 17:48:30,565 - INFO - ✅ Checkpoint saved: runs/run_220/checkpoint_epoch_10.pth
+2025-12-16 18:38:46,972 - INFO - Epoch 11/15: LR: 0.000364
+2025-12-16 18:38:47,085 - INFO - Epoch 11/15: Train Loss: 4.4201, Val Loss: 4.2092, Val Acc: 18.08%
+2025-12-16 19:23:13,197 - INFO - Epoch 12/15: LR: 0.000253
+2025-12-16 19:23:13,264 - INFO - Epoch 12/15: Train Loss: 4.1905, Val Loss: 3.9129, Val Acc: 21.82%
+2025-12-16 20:04:52,133 - INFO - Epoch 13/15: LR: 0.000169
+2025-12-16 20:04:52,178 - INFO - Epoch 13/15: Train Loss: 3.9821, Val Loss: 3.6938, Val Acc: 24.91%
+2025-12-16 20:46:20,868 - INFO - Epoch 14/15: LR: 0.000118
+2025-12-16 20:46:21,071 - INFO - Epoch 14/15: Train Loss: 3.8045, Val Loss: 3.5695, Val Acc: 27.09%
+2025-12-16 21:27:50,577 - INFO - Epoch 15/15: LR: 0.000100
+2025-12-16 21:41:34,520 - INFO - Epoch 15/15: Train Loss: 3.6754, Val Loss: 3.4936, Val Acc: 28.58%, Test Loss: 3.4936, Test Acc: 28.58%
+2025-12-16 21:41:34,555 - INFO - Training completed!
+2025-12-16 21:41:34,568 - INFO - Training completed!
+2025-12-16 21:41:34,569 - INFO - Generating training curves...
+2025-12-16 21:41:38,099 - INFO - Too many classes (1000) for per-class plotting, skipping
+2025-12-16 21:41:38,100 - INFO - Training curves saved as separate images with base name 'runs/run_220/training_curves_from_scratch'
+2025-12-16 21:41:38,101 - INFO - Generating confusion matrix on test set...
+2025-12-16 22:44:05,981 - INFO - Performing final evaluation of from_scratch model on test set...
+2025-12-16 22:59:32,017 - INFO - Final Test Results of from_scratch model: Loss: 3.4936, Accuracy: 28.58%
+2025-12-16 22:59:32,050 - INFO - Generating LR schedule plot of from_scratch model...
+2025-12-16 22:59:32,887 - INFO - LR schedule plot saved to 'runs/run_220/lr_schedule_from_scratch.png'
+2025-12-16 22:59:32,889 - INFO - 
+Final Test Results:
+2025-12-16 22:59:32,890 - INFO - Loss: 3.4936
+2025-12-16 22:59:32,892 - INFO - Accuracy: 28.58%
+2025-12-16 22:59:32,893 - INFO - Precision: 28.74%
+2025-12-16 22:59:32,895 - INFO - Recall: 28.58%
+2025-12-16 22:59:32,896 - INFO - F1 Score: 27.05%
+2025-12-16 22:59:33,213 - INFO - Experiment completed. Results saved to runs/run_220/results_from_scratch.json
+2025-12-16 22:59:33,266 - INFO - Experiment completed. Metadata saved to runs/run_220/metadata_from_scratch.json
+2025-12-16 22:59:33,773 - INFO - ✅ Model weights saved: runs/run_220/final_model_from_scratch_weights.pth
+2025-12-16 22:59:33,778 - INFO - Final model saved: runs/run_220/final_model_from_scratch_weights.pth
+2025-12-16 22:59:33,780 - INFO - Final model metadata saved: runs/run_220/final_model_from_scratch_metadata.json
+2025-12-16 22:59:33,781 - INFO - === FROM-SCRATCH RESULTS (IMAGENET) ===
+2025-12-16 22:59:33,783 - INFO - Final Accuracy: 28.58%
+2025-12-16 22:59:33,784 - INFO - Final F1 Score: 27.05%
+2025-12-16 22:59:33,786 - INFO - from_scratch experiment completed successfully!

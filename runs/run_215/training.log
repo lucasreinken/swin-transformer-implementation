@@ -1,0 +1,45 @@
+2025-12-15 08:54:10,758 - INFO - Logging initialized. Log file: runs/run_215/training.log
+2025-12-15 08:54:10,760 - INFO - Experiment directory: runs/run_215
+2025-12-15 08:54:10,762 - INFO - Setting random seeds for reproducibility (seed: 42)...
+2025-12-15 08:54:10,784 - INFO - ✅ All seeds set to 42 (deterministic=False)
+2025-12-15 08:54:11,197 - INFO - GPU memory cleared at startup. Available: 23.5GB
+2025-12-15 08:54:11,199 - INFO - Using device: cuda
+2025-12-15 08:54:11,200 - INFO - Training configuration: epochs=15, warmup=1, lr=0.0015
+2025-12-15 08:54:11,202 - INFO - VIT configuration: {'type': 'vit', 'img_size': 224, 'patch_size': 16, 'embed_dim': 448, 'depth': 12, 'num_heads': 7, 'mlp_ratio': 4.0, 'num_classes': 1000, 'use_gradient_checkpointing': True}
+2025-12-15 08:54:11,203 - INFO - Loading dataset...
+2025-12-15 08:54:11,206 - INFO - Starting ImageNet data loading from root: /
+2025-12-15 08:54:11,208 - INFO - Resolved root path: /
+2025-12-15 08:54:11,210 - INFO - Root path exists: True
+2025-12-15 08:54:11,211 - INFO - Root path is dir: True
+2025-12-15 08:54:11,219 - INFO - Contents of /: ['/.exec', '/.run', '/.shell', '/.singularity.d', '/.test', '/bin', '/boot', '/dev', '/environment', '/etc', '/home', '/lib', '/lib64', '/media', '/mnt', '/opt', '/proc', '/requirements.txt', '/root', '/run', '/sbin', '/singularity', '/srv', '/sys', '/tmp', '/usr', '/var', '/meta', '/train_set', '/train_set_small', '/val_set', '/val_set_unlabeled']
+2025-12-15 08:54:11,221 - INFO - Expected train_dir: /train_set, exists: True
+2025-12-15 08:54:11,223 - INFO - Expected val_dir: /val_set, exists: True
+2025-12-15 08:54:24,225 - INFO - Loaded ImageNet data from /: train=1281167, val=50000
+2025-12-15 08:54:24,442 - INFO - Dataset loaded: train=100000 samples (782 batches), val=50000 samples (391 batches), test=50000 samples (391 batches)
+2025-12-15 08:54:28,462 - INFO - Training VIT from scratch
+2025-12-15 08:54:28,474 - INFO - Initializing VIT model from scratch...
+2025-12-15 08:54:28,476 - INFO - Model architecture: VIT
+2025-12-15 08:54:28,478 - INFO - Model config: {'type': 'vit', 'img_size': 224, 'patch_size': 16, 'embed_dim': 448, 'depth': 12, 'num_heads': 7, 'mlp_ratio': 4.0, 'num_classes': 1000, 'use_gradient_checkpointing': True}
+2025-12-15 08:54:29,120 - INFO - Model created with random initialization
+2025-12-15 08:54:29,122 - INFO - Total parameters: 29,854,376
+2025-12-15 08:54:29,123 - INFO - Trainable parameters: 29,854,376
+2025-12-15 08:54:29,193 - INFO - Starting from-scratch training...
+2025-12-15 08:54:29,195 - INFO - Optimizer: training all model parameters
+2025-12-15 08:54:29,197 - INFO - LR Scheduler: cosine with 1 warmup epochs
+2025-12-15 08:54:29,199 - INFO - Starting training...
+2025-12-15 09:31:26,426 - INFO - Epoch 1/15: LR: 0.001500
+2025-12-15 09:31:26,443 - INFO - Epoch 1/15: Train Loss: 6.8510, Val Loss: 6.7194, Val Acc: 0.79%
+2025-12-15 10:05:35,029 - INFO - Epoch 2/15: LR: 0.001482
+2025-12-15 10:05:35,074 - INFO - Epoch 2/15: Train Loss: 6.8723, Val Loss: 6.7469, Val Acc: 0.47%
+2025-12-15 10:39:47,330 - INFO - Epoch 3/15: LR: 0.001431
+2025-12-15 10:39:47,331 - INFO - Epoch 3/15: Train Loss: 6.8192, Val Loss: 6.8480, Val Acc: 0.31%
+2025-12-15 11:13:28,562 - INFO - Epoch 4/15: LR: 0.001347
+2025-12-15 11:13:28,585 - INFO - Epoch 4/15: Train Loss: 6.8096, Val Loss: 6.6912, Val Acc: 0.66%
+2025-12-15 11:47:00,054 - INFO - Epoch 5/15: LR: 0.001236
+2025-12-15 11:57:08,700 - INFO - Epoch 5/15: Train Loss: 6.7862, Val Loss: 6.7604, Val Acc: 0.45%, Test Loss: 6.7604, Test Acc: 0.45%
+2025-12-15 12:32:53,104 - INFO - Epoch 6/15: LR: 0.001104
+2025-12-15 12:32:53,140 - INFO - Epoch 6/15: Train Loss: 6.8395, Val Loss: 6.7365, Val Acc: 0.48%
+2025-12-15 13:12:00,491 - INFO - Epoch 7/15: LR: 0.000956
+2025-12-15 13:12:00,565 - INFO - Epoch 7/15: Train Loss: 6.8234, Val Loss: 6.8514, Val Acc: 0.23%
+2025-12-15 13:49:05,368 - INFO - Epoch 8/15: LR: 0.000800
+2025-12-15 13:49:06,094 - INFO - Epoch 8/15: Train Loss: 6.8435, Val Loss: 6.7805, Val Acc: 0.33%

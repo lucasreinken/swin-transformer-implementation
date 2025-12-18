@@ -14,16 +14,20 @@ import torch
 
 from src.data import load_data
 from src.data.transforms import get_default_transforms
-from src.utils.seeds import set_random_seeds, get_worker_init_fn
+from src.utils.seeds import set_all_seeds, get_worker_init_fn
 from src.utils.experiment import setup_run_directory, setup_logging
 
+from config.imagenet_config import (
+    MODEL_TYPE,
+    MODEL_CONFIGS,
+    TRAINING_CONFIG,
+    SEED_CONFIG,
+)
 from config import (
     DATA_CONFIG,
     SWIN_CONFIG,
     SWIN_PRESETS,
     DOWNSTREAM_CONFIG,
-    TRAINING_CONFIG,
-    SEED_CONFIG,
     TrainingMode,
 )
 
@@ -143,7 +147,7 @@ def main():
         logger.info(
             f"Setting random seeds for reproducibility (seed: {SEED_CONFIG['seed']})..."
         )
-        set_random_seeds(
+        set_all_seeds(
             seed=SEED_CONFIG["seed"], deterministic=SEED_CONFIG["deterministic"]
         )
 
@@ -160,13 +164,18 @@ def main():
             f"Training configuration: epochs={total_epochs}, warmup={warmup_epochs}, lr={learning_rate}"
         )
 
-        # Log SWIN configuration for ablation tracking
-        logger.info(
-            f"SWIN configuration: variant={SWIN_CONFIG['variant']}, use_shifted_window={SWIN_CONFIG['use_shifted_window']}, use_relative_bias={SWIN_CONFIG['use_relative_bias']}, use_absolute_pos_embed={SWIN_CONFIG['use_absolute_pos_embed']}, use_hierarchical_merge={SWIN_CONFIG['use_hierarchical_merge']}"
-        )
-        logger.info(
-            f"SWIN details: embed_dim={SWIN_CONFIG['embed_dim']}, depths={SWIN_CONFIG['depths']}, num_heads={SWIN_CONFIG['num_heads']}, window_size={SWIN_CONFIG['window_size']}"
-        )
+        # Log model configuration for ablation tracking
+        if MODEL_TYPE == "swin":
+            logger.info(
+                f"SWIN configuration: variant={MODEL_CONFIGS['swin']['variant']}, use_shifted_window={MODEL_CONFIGS['swin']['use_shifted_window']}, use_relative_bias={MODEL_CONFIGS['swin']['use_relative_bias']}, use_absolute_pos_embed={MODEL_CONFIGS['swin']['use_absolute_pos_embed']}, use_hierarchical_merge={MODEL_CONFIGS['swin']['use_hierarchical_merge']}, use_gradient_checkpointing={MODEL_CONFIGS['swin'].get('use_gradient_checkpointing', False)}"
+            )
+            logger.info(
+                f"SWIN details: embed_dim={MODEL_CONFIGS['swin']['embed_dim']}, depths={MODEL_CONFIGS['swin']['depths']}, num_heads={MODEL_CONFIGS['swin']['num_heads']}, window_size={MODEL_CONFIGS['swin']['window_size']}"
+            )
+        else:
+            logger.info(
+                f"{MODEL_TYPE.upper()} configuration: {MODEL_CONFIGS[MODEL_TYPE]}"
+            )
 
         # Load dataset
         logger.info("Loading dataset...")

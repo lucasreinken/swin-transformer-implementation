@@ -65,7 +65,6 @@ class BasicLayer(nn.Module):
     def __init__(
         self,
         dim: int,
-        input_resolution: tuple,
         depth: int,
         num_heads: int,
         window_size: int = 7,
@@ -120,31 +119,13 @@ class BasicLayer(nn.Module):
         super().__init__()
 
         self.dim = dim
-        self.input_resolution = input_resolution
         self.depth = depth
-
-        # Determine the input resolution for blocks
-        # If downsampling exists, blocks work at the downsampled resolution (for PatchMerging)
-        # or same resolution (for ConvDownsample in single-resolution ablation)
-        if downsample is not None:
-            if downsample.__name__ == "ConvDownsample":
-                # ConvDownsample maintains resolution
-                block_input_resolution = input_resolution
-            else:
-                # PatchMerging reduces resolution
-                block_input_resolution = [
-                    input_resolution[0] // 2,
-                    input_resolution[1] // 2,
-                ]
-        else:
-            block_input_resolution = input_resolution
 
         # Build Swin Transformer blocks
         self.blocks = nn.ModuleList(
             [
                 SwinTransformerBlock(
                     dim=dim,
-                    input_resolution=block_input_resolution,
                     num_heads=num_heads,
                     window_size=window_size,
                     shift_size=(
@@ -171,13 +152,11 @@ class BasicLayer(nn.Module):
             downsample_dim = (
                 downsample_input_dim if downsample_input_dim is not None else dim
             )
-            self.downsample = downsample(
-                input_resolution=input_resolution, dim=downsample_dim
-            )
+            self.downsample = downsample(dim=downsample_dim)
         else:
             self.downsample = None
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, H, W) -> torch.Tensor:
         """
         Forward pass through Basic Layer.
 
@@ -192,12 +171,14 @@ class BasicLayer(nn.Module):
         2. Pass through each Swin block sequentially
         3. Blocks alternate between W-MSA and SW-MSA
         """
+
         # Optional downsampling first (timm-compatible)
         if self.downsample is not None:
-            x = self.downsample(x)
+            x = self.downsample(x, H, W)
+            H, W = (H + 1) // 2, (W + 1) // 2
 
         # Pass through all Swin Transformer blocks
         for block in self.blocks:
             x = block(x)
 
-        return x
+        return x, H, W

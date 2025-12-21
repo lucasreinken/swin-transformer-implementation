@@ -14,7 +14,7 @@ from .window_utils import generate_drop_path_rates
 class SwinTransformerModel(nn.Module):
     def __init__(
         self,
-        img_size: int = 224,
+        img_size: int | None = 224,
         patch_size: int = 4,
         in_channels: int = 3,
         embedding_dim: int = 96,
@@ -26,6 +26,8 @@ class SwinTransformerModel(nn.Module):
         attention_dropout_rate: float = 0.0,
         projection_dropout_rate: float = 0.0,
         drop_path_rate: float = 0.1,
+        pretrain_img_size: int = 224,
+        out_indices: tuple | None = None, # which Swin stages should output features (0, 1, 2, 3)
         use_shifted_window: bool = True,  # Ablation flag: True for SW-MSA, False for W-MSA only
         use_relative_bias: bool = True,  # Ablation flag: True for learned bias, False for zero bias
         use_absolute_pos_embed: bool = False,  # Ablation flag: True for absolute pos embed (ViT-style), False for relative bias
@@ -60,20 +62,29 @@ class SwinTransformerModel(nn.Module):
         assert len(depths) == len(
             num_heads
         ), "Depths and num_heads must have the same length"
-        assert img_size % patch_size == 0, "Image size must be divisible by patch size"
+        if img_size is not None:
+            assert img_size % patch_size == 0, "Image size must be divisible by patch size"
 
         self.num_layers = len(depths)
+
+        self.num_features_list = [
+            embedding_dim << i for i in range(self.num_layers)
+        ]
+
         self.num_features = (
             embedding_dim
             if use_hierarchical_merge
-            else int(embedding_dim * 2 ** (self.num_layers - 1))
+            else self.num_features_list[-1]
         )
+
+        self.out_indices = out_indices
 
         self.patch_embed = PatchEmbed(
             img_size=img_size,
             patch_size=patch_size,
             in_channels=in_channels,
             embedding_dim=embedding_dim,
+            pretrain_img_size=pretrain_img_size,
             use_absolute_pos_embed=use_absolute_pos_embed,
         )
 
@@ -89,24 +100,10 @@ class SwinTransformerModel(nn.Module):
             if use_hierarchical_merge:
                 stage_dimension = embedding_dim  # All stages: 96 dims
                 stage_num_heads = num_heads[0]  # All stages: same num heads as stage 1
-                # All stages: 56×56 resolution (no downsampling)
-                input_resolution = [patches_resolution[0], patches_resolution[1]]
             else:
                 # Normal hierarchical Swin: dimensions double each stage
                 stage_dimension = int(embedding_dim * (2**i))  # 96, 192, 384, 768
                 stage_num_heads = num_heads[i]
-
-                # Calculate input resolution for stage (hierarchical downsampling)
-                if i == 0:
-                    input_resolution = [
-                        patches_resolution[0],
-                        patches_resolution[1],
-                    ]  # 56x56
-                else:
-                    input_resolution = [
-                        patches_resolution[0] // (2 ** (i - 1)),
-                        patches_resolution[1] // (2 ** (i - 1)),
-                    ]
 
             state_depth = depths[i]
 
@@ -135,7 +132,6 @@ class SwinTransformerModel(nn.Module):
 
             basic_layer = BasicLayer(
                 dim=stage_dimension,
-                input_resolution=input_resolution,
                 depth=state_depth,
                 num_heads=stage_num_heads,
                 window_size=window_size,
@@ -153,7 +149,17 @@ class SwinTransformerModel(nn.Module):
 
             self.layers.append(basic_layer)
 
+            if out_indices is not None:
+                # create a separate LayerNorm for each selected output stage
+                for i in out_indices:
+                    layer = nn.LayerNorm(self.num_features_list[i])
+                    layer_name = f'norm{i}'
+                    self.add_module(layer_name, layer)
+
         self.use_gradient_checkpointing = use_gradient_checkpointing
+
+        # Initialize weights
+        self.apply(self._init_weights)
 
     def _init_weights(self, m):
         """Initialize model weights according to swin transformer paper."""
@@ -167,14 +173,19 @@ class SwinTransformerModel(nn.Module):
 
     def forward_features(self, x: torch.Tensor) -> torch.Tensor:
         """Extract features through transformer stages"""
-        x = self.patch_embed(x)
-
-        for layer in self.layers:
-            if self.use_gradient_checkpointing and self.training:
-                x = checkpoint(layer, x, use_reentrant=False)
-            else:
-                x = layer(x)
-
+        x, (H, W) = self.patch_embed(x)
+        if self.out_indices is not None:
+            outs = []
+            for i, layer in enumerate(self.layers):
+                x, H, W = layer(x, H, W)
+                if i in self.out_indices:
+                    x_out = getattr(self, f"norm{i}")(x)
+                    out = x_out.view(-1, H, W, self.num_features_list[i]).permute(0, 3, 1, 2).contiguous()
+                    outs.append(out)
+            x = tuple(outs)
+        else:
+            for layer in self.layers:
+                x, H, W = layer(x, H, W)
         return x
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import logging
 
 from .mlp import MLP
@@ -72,7 +73,6 @@ class SwinTransformerBlock(nn.Module):
     def __init__(
         self,
         dim: int,
-        input_resolution: tuple,
         num_heads: int,
         window_size: int = 7,
         shift_size: int = 0,
@@ -107,25 +107,10 @@ class SwinTransformerBlock(nn.Module):
         super().__init__()
 
         self.dim = dim
-        self.input_resolution = input_resolution
         self.num_heads = num_heads
         self.window_size = window_size
         self.shift_size = shift_size
         self.mlp_ratio = mlp_ratio
-
-        # Validate parameters
-        if (
-            self.input_resolution[0] % self.window_size != 0
-            or self.input_resolution[1] % self.window_size != 0
-        ):
-            # If window size doesn't divide input resolution evenly, adjust
-            new_window_size = min(self.input_resolution[0], self.input_resolution[1])
-            logger.warning(
-                f"Window size {self.window_size} doesn't divide input resolution {self.input_resolution} evenly. "
-                f"Adjusting window_size to {new_window_size} and shift_size to 0."
-            )
-            self.window_size = new_window_size
-            self.shift_size = 0
 
         assert (
             0 <= self.shift_size < self.window_size
@@ -155,7 +140,7 @@ class SwinTransformerBlock(nn.Module):
 
         self.drop_path2 = DropPath(drop_path) if drop_path > 0.0 else nn.Identity()
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, H, W) -> torch.Tensor:
         """
         Forward pass through Swin Transformer Block.
 
@@ -178,7 +163,6 @@ class SwinTransformerBlock(nn.Module):
         10. Add residual with DropPath
         11. Apply MLP block with residual connection
         """
-        H, W = self.input_resolution
         B, L, C = x.shape
 
         assert L == H * W, f"Input feature has wrong size: {L} vs {H*W}"
@@ -193,6 +177,13 @@ class SwinTransformerBlock(nn.Module):
         x = self.norm1(x)
         x = x.view(B, H, W, C)
 
+        # padding
+        pW = (self.window_size - W % self.window_size) % self.window_size
+        pH = (self.window_size - H % self.window_size) % self.window_size
+        if pH > 0 or pW > 0:
+            x = F.pad(x, (0, 0, 0, pW, 0, pH))
+        _, nH, nW, _ = x.shape
+
         # Cyclic shift for SW-MSA
         if self.shift_size > 0:
             shifted_x = torch.roll(
@@ -200,7 +191,7 @@ class SwinTransformerBlock(nn.Module):
             )
             # Create attention mask dynamically for SW-MSA
             image_mask = create_image_mask(
-                self.input_resolution,
+                (nH, nW),
                 self.window_size,
                 self.shift_size,
                 device=x.device,
@@ -224,7 +215,7 @@ class SwinTransformerBlock(nn.Module):
 
         # Merge windows back: [B*num_windows, window_size*window_size, C] → [B, H, W, C]
         attn_windows = attn_windows.view(-1, self.window_size, self.window_size, C)
-        shifted_x = window_reverse(attn_windows, self.window_size, H, W)
+        shifted_x = window_reverse(attn_windows, self.window_size, nH, nW)
 
         # Reverse cyclic shift for SW-MSA
         if self.shift_size > 0:
@@ -233,6 +224,9 @@ class SwinTransformerBlock(nn.Module):
             )
         else:
             x = shifted_x
+
+        if pW > 0 or pH > 0:
+            x = x[:, :H, :W, :].contiguous()
 
         x = x.view(B, H * W, C)
 

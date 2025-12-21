@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-
+import torch.nn.functional as F
 
 class PatchMerging(nn.Module):
     """
@@ -75,7 +75,7 @@ class PatchMerging(nn.Module):
     Stage 4: 7x7 patches, 768 dims    → Global features (scene understanding)
     """
 
-    def __init__(self, input_resolution: tuple, dim: int):
+    def __init__(self, dim: int):
         """
         Initialize Patch Merging layer.
 
@@ -97,7 +97,6 @@ class PatchMerging(nn.Module):
             - Memory: 4x reduction in spatial tokens
         """
         super().__init__()
-        self.input_resolution = input_resolution  # (H, W) in patches
         self.dim = dim
 
         # Dimension reduction: 4xdim → 2xdim (preserves total information)
@@ -108,7 +107,7 @@ class PatchMerging(nn.Module):
         # Applied to the concatenated 4xdim features
         self.norm = nn.LayerNorm(4 * dim)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, H, W) -> torch.Tensor:
         """
         Perform hierarchical patch merging.
 
@@ -129,21 +128,21 @@ class PatchMerging(nn.Module):
         - Output: O((H/2)x(W/2)x(2C)) = O(HxWxC/2)
         - Next attention: O((HxW/4)²) vs O((HxW)²) → 16x speedup!
         """
-        H, W = self.input_resolution
         B, L, C = x.shape
 
         # Validate input dimensions
         assert (
             L == H * W
         ), f"Input sequence length {L} doesn't match resolution {H}x{W}={H*W}"
-        assert (
-            H % 2 == 0 and W % 2 == 0
-        ), f"Spatial dimensions ({H}, {W}) must be even for 2x2 grouping"
 
         # Step 1: Reshape to spatial format for 2x2 grouping
         # [B, HxW, C] → [B, H, W, C]
         # This restores the 2D spatial structure needed for neighbor grouping
         x = x.view(B, H, W, C)
+
+        # padding
+        if (H % 2 == 1) or (W % 2 == 1):
+            x = F.pad(x, (0, 0, 0, W % 2, 0, H % 2))
 
         # Step 2: Extract 2x2 neighborhoods using advanced indexing
         # Each variable selects one corner of every 2x2 group

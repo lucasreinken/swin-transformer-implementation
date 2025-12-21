@@ -71,7 +71,14 @@ def create_model_from_scratch(device: torch.device) -> nn.Module:
     logger.info(f"Total parameters: {total_params:,}")
     logger.info(f"Trainable parameters: {trainable_params:,}")
 
-    return model.to(device)
+    model = model.to(device)
+
+    # GPU model compilation for performance
+    if TRAINING_CONFIG.get("compile", False) and device.type == "cuda":
+        logger.info("Compiling model with torch.compile()")
+        model = torch.compile(model)
+
+    return model
 
 
 def _train_single_model(

@@ -1,0 +1,143 @@
+2025-12-18 13:02:47,374 - INFO - Logging initialized. Log file: runs/run_228/training.log
+2025-12-18 13:02:47,433 - INFO - Experiment directory: runs/run_228
+2025-12-18 13:02:47,434 - INFO - Setting random seeds for reproducibility (seed: 42)...
+2025-12-18 13:02:47,454 - INFO - ✅ All seeds set to 42 (deterministic=False)
+2025-12-18 13:02:47,900 - INFO - GPU memory cleared at startup. Available: 23.5GB
+2025-12-18 13:02:47,901 - INFO - Using device: cuda
+2025-12-18 13:02:47,902 - INFO - Training configuration: epochs=40, warmup=3, lr=0.0005
+2025-12-18 13:02:47,902 - INFO - VIT configuration: {'type': 'vit', 'img_size': 224, 'patch_size': 16, 'embed_dim': 448, 'depth': 12, 'num_heads': 7, 'mlp_ratio': 4.0, 'num_classes': 1000, 'use_gradient_checkpointing': True}
+2025-12-18 13:02:47,903 - INFO - Loading dataset...
+2025-12-18 13:02:47,905 - INFO - Starting ImageNet data loading from root: /
+2025-12-18 13:02:47,906 - INFO - Resolved root path: /
+2025-12-18 13:02:47,907 - INFO - Root path exists: True
+2025-12-18 13:02:47,908 - INFO - Root path is dir: True
+2025-12-18 13:02:47,916 - INFO - Contents of /: ['/.exec', '/.run', '/.shell', '/.singularity.d', '/.test', '/bin', '/boot', '/dev', '/environment', '/etc', '/home', '/lib', '/lib64', '/media', '/mnt', '/opt', '/proc', '/requirements.txt', '/root', '/run', '/sbin', '/singularity', '/srv', '/sys', '/tmp', '/usr', '/var', '/meta', '/train_set', '/train_set_small', '/val_set', '/val_set_unlabeled']
+2025-12-18 13:02:47,917 - INFO - Expected train_dir: /train_set, exists: True
+2025-12-18 13:02:47,917 - INFO - Expected val_dir: /val_set, exists: True
+2025-12-18 13:03:00,096 - INFO - Loaded ImageNet data from /: train=1281167, val=50000
+2025-12-18 13:03:00,324 - INFO - Dataset loaded: train=100000 samples (782 batches), val=50000 samples (391 batches), test=50000 samples (391 batches)
+2025-12-18 13:03:03,897 - INFO - Training VIT from scratch
+2025-12-18 13:03:03,900 - INFO - Initializing VIT model from scratch...
+2025-12-18 13:03:03,901 - INFO - Model architecture: VIT
+2025-12-18 13:03:03,901 - INFO - Model config: {'type': 'vit', 'img_size': 224, 'patch_size': 16, 'embed_dim': 448, 'depth': 12, 'num_heads': 7, 'mlp_ratio': 4.0, 'num_classes': 1000, 'use_gradient_checkpointing': True}
+2025-12-18 13:03:04,568 - INFO - Model created with random initialization
+2025-12-18 13:03:04,569 - INFO - Total parameters: 29,854,376
+2025-12-18 13:03:04,570 - INFO - Trainable parameters: 29,854,376
+2025-12-18 13:03:04,642 - INFO - Starting from-scratch training...
+2025-12-18 13:03:04,643 - INFO - Optimizer: training all model parameters
+2025-12-18 13:03:04,645 - INFO - LR Scheduler: cosine with 3 warmup epochs
+2025-12-18 13:03:04,646 - INFO - Starting training...
+2025-12-18 13:46:46,382 - INFO - Epoch 1/40: LR: 0.000170
+2025-12-18 13:46:46,426 - INFO - Epoch 1/40: Train Loss: 6.8936, Val Loss: 6.8025, Val Acc: 0.47%
+2025-12-18 14:23:11,934 - INFO - Epoch 2/40: LR: 0.000335
+2025-12-18 14:23:12,002 - INFO - Epoch 2/40: Train Loss: 6.7229, Val Loss: 6.4320, Val Acc: 1.36%
+2025-12-18 14:57:29,110 - INFO - Epoch 3/40: LR: 0.000500
+2025-12-18 14:57:29,164 - INFO - Epoch 3/40: Train Loss: 6.4496, Val Loss: 6.1345, Val Acc: 2.11%
+2025-12-18 15:31:34,050 - INFO - Epoch 4/40: LR: 0.000499
+2025-12-18 15:31:34,077 - INFO - Epoch 4/40: Train Loss: 6.3018, Val Loss: 6.0255, Val Acc: 2.75%
+2025-12-18 16:05:41,768 - INFO - Epoch 5/40: LR: 0.000497
+2025-12-18 16:16:01,952 - INFO - Epoch 5/40: Train Loss: 6.2097, Val Loss: 6.0189, Val Acc: 2.98%, Test Loss: 6.0189, Test Acc: 2.98%
+2025-12-18 16:49:41,168 - INFO - Epoch 6/40: LR: 0.000493
+2025-12-18 16:49:41,227 - INFO - Epoch 6/40: Train Loss: 6.1471, Val Loss: 5.8707, Val Acc: 3.68%
+2025-12-18 17:23:23,807 - INFO - Epoch 7/40: LR: 0.000487
+2025-12-18 17:23:23,836 - INFO - Epoch 7/40: Train Loss: 6.0836, Val Loss: 5.8250, Val Acc: 4.21%
+2025-12-18 18:01:37,410 - INFO - Epoch 8/40: LR: 0.000480
+2025-12-18 18:01:37,510 - INFO - Epoch 8/40: Train Loss: 6.0136, Val Loss: 5.7290, Val Acc: 4.79%
+2025-12-18 18:43:57,942 - INFO - Epoch 9/40: LR: 0.000471
+2025-12-18 18:43:58,029 - INFO - Epoch 9/40: Train Loss: 5.9403, Val Loss: 5.6414, Val Acc: 5.13%
+2025-12-18 19:25:47,413 - INFO - Epoch 10/40: LR: 0.000461
+2025-12-18 19:35:53,783 - INFO - Epoch 10/40: Train Loss: 5.8508, Val Loss: 5.5672, Val Acc: 5.77%, Test Loss: 5.5672, Test Acc: 5.77%
+2025-12-18 19:35:53,812 - INFO - Saving checkpoint for epoch 10...
+2025-12-18 19:35:55,234 - INFO - ✅ Checkpoint saved: runs/run_228/checkpoint_epoch_10.pth
+2025-12-18 20:17:32,956 - INFO - Epoch 11/40: LR: 0.000450
+2025-12-18 20:17:33,078 - INFO - Epoch 11/40: Train Loss: 5.7790, Val Loss: 5.5122, Val Acc: 6.22%
+2025-12-18 20:57:24,599 - INFO - Epoch 12/40: LR: 0.000437
+2025-12-18 20:57:24,661 - INFO - Epoch 12/40: Train Loss: 5.7052, Val Loss: 5.4808, Val Acc: 6.30%
+2025-12-18 21:34:34,464 - INFO - Epoch 13/40: LR: 0.000424
+2025-12-18 21:34:34,476 - INFO - Epoch 13/40: Train Loss: 5.6291, Val Loss: 5.3548, Val Acc: 7.30%
+2025-12-18 22:10:12,319 - INFO - Epoch 14/40: LR: 0.000409
+2025-12-18 22:10:13,652 - INFO - Epoch 14/40: Train Loss: 5.5533, Val Loss: 5.2707, Val Acc: 7.85%
+2025-12-18 22:45:53,567 - INFO - Epoch 15/40: LR: 0.000393
+2025-12-18 22:56:05,643 - INFO - Epoch 15/40: Train Loss: 5.4720, Val Loss: 5.2147, Val Acc: 8.56%, Test Loss: 5.2147, Test Acc: 8.56%
+2025-12-18 23:34:44,698 - INFO - Epoch 16/40: LR: 0.000376
+2025-12-18 23:34:44,733 - INFO - Epoch 16/40: Train Loss: 5.3998, Val Loss: 5.2046, Val Acc: 8.56%
+2025-12-19 00:14:56,909 - INFO - Epoch 17/40: LR: 0.000359
+2025-12-19 00:14:56,962 - INFO - Epoch 17/40: Train Loss: 5.3326, Val Loss: 5.1084, Val Acc: 9.51%
+2025-12-19 00:55:34,997 - INFO - Epoch 18/40: LR: 0.000341
+2025-12-19 00:55:35,018 - INFO - Epoch 18/40: Train Loss: 5.2654, Val Loss: 5.0992, Val Acc: 9.56%
+2025-12-19 01:36:19,112 - INFO - Epoch 19/40: LR: 0.000322
+2025-12-19 01:36:19,171 - INFO - Epoch 19/40: Train Loss: 5.1822, Val Loss: 5.0111, Val Acc: 10.43%
+2025-12-19 02:18:23,565 - INFO - Epoch 20/40: LR: 0.000304
+2025-12-19 02:28:49,010 - INFO - Epoch 20/40: Train Loss: 5.1151, Val Loss: 5.0023, Val Acc: 10.71%, Test Loss: 5.0023, Test Acc: 10.71%
+2025-12-19 02:28:49,038 - INFO - Saving checkpoint for epoch 20...
+2025-12-19 02:28:50,196 - INFO - ✅ Checkpoint saved: runs/run_228/checkpoint_epoch_20.pth
+2025-12-19 03:09:57,810 - INFO - Epoch 21/40: LR: 0.000285
+2025-12-19 03:09:57,870 - INFO - Epoch 21/40: Train Loss: 5.0375, Val Loss: 4.9092, Val Acc: 11.64%
+2025-12-19 03:50:50,976 - INFO - Epoch 22/40: LR: 0.000265
+2025-12-19 03:50:51,578 - INFO - Epoch 22/40: Train Loss: 4.9620, Val Loss: 4.8874, Val Acc: 11.68%
+2025-12-19 04:30:59,491 - INFO - Epoch 23/40: LR: 0.000246
+2025-12-19 04:30:59,516 - INFO - Epoch 23/40: Train Loss: 4.8820, Val Loss: 4.8466, Val Acc: 12.39%
+2025-12-19 05:11:29,330 - INFO - Epoch 24/40: LR: 0.000228
+2025-12-19 05:11:29,382 - INFO - Epoch 24/40: Train Loss: 4.8169, Val Loss: 4.7717, Val Acc: 13.32%
+2025-12-19 05:50:45,027 - INFO - Epoch 25/40: LR: 0.000209
+2025-12-19 06:01:04,678 - INFO - Epoch 25/40: Train Loss: 4.7325, Val Loss: 4.7451, Val Acc: 13.41%, Test Loss: 4.7451, Test Acc: 13.41%
+2025-12-19 06:39:37,548 - INFO - Epoch 26/40: LR: 0.000191
+2025-12-19 06:39:37,587 - INFO - Epoch 26/40: Train Loss: 4.6596, Val Loss: 4.6992, Val Acc: 14.07%
+2025-12-19 07:17:27,016 - INFO - Epoch 27/40: LR: 0.000174
+2025-12-19 07:17:27,061 - INFO - Epoch 27/40: Train Loss: 4.5868, Val Loss: 4.6641, Val Acc: 14.60%
+2025-12-19 07:57:03,251 - INFO - Epoch 28/40: LR: 0.000157
+2025-12-19 07:57:03,307 - INFO - Epoch 28/40: Train Loss: 4.5094, Val Loss: 4.6462, Val Acc: 14.83%
+2025-12-19 08:34:30,245 - INFO - Epoch 29/40: LR: 0.000141
+2025-12-19 08:34:30,283 - INFO - Epoch 29/40: Train Loss: 4.4368, Val Loss: 4.6084, Val Acc: 15.29%
+2025-12-19 09:11:01,396 - INFO - Epoch 30/40: LR: 0.000126
+2025-12-19 09:21:19,225 - INFO - Epoch 30/40: Train Loss: 4.3615, Val Loss: 4.6029, Val Acc: 15.52%, Test Loss: 4.6029, Test Acc: 15.52%
+2025-12-19 09:21:19,226 - INFO - Saving checkpoint for epoch 30...
+2025-12-19 09:21:20,247 - INFO - ✅ Checkpoint saved: runs/run_228/checkpoint_epoch_30.pth
+2025-12-19 09:57:51,943 - INFO - Epoch 31/40: LR: 0.000113
+2025-12-19 09:57:51,990 - INFO - Epoch 31/40: Train Loss: 4.3075, Val Loss: 4.5682, Val Acc: 15.90%
+2025-12-19 10:34:07,459 - INFO - Epoch 32/40: LR: 0.000100
+2025-12-19 10:34:07,504 - INFO - Epoch 32/40: Train Loss: 4.2431, Val Loss: 4.5530, Val Acc: 16.12%
+2025-12-19 11:10:15,211 - INFO - Epoch 33/40: LR: 0.000089
+2025-12-19 11:10:15,240 - INFO - Epoch 33/40: Train Loss: 4.1809, Val Loss: 4.5222, Val Acc: 16.64%
+2025-12-19 11:48:38,611 - INFO - Epoch 34/40: LR: 0.000079
+2025-12-19 11:48:39,322 - INFO - Epoch 34/40: Train Loss: 4.1201, Val Loss: 4.5253, Val Acc: 16.60%
+2025-12-19 12:29:35,069 - INFO - Epoch 35/40: LR: 0.000070
+2025-12-19 12:39:50,803 - INFO - Epoch 35/40: Train Loss: 4.0791, Val Loss: 4.5091, Val Acc: 16.82%, Test Loss: 4.5091, Test Acc: 16.82%
+2025-12-19 13:21:01,586 - INFO - Epoch 36/40: LR: 0.000063
+2025-12-19 13:21:01,602 - INFO - Epoch 36/40: Train Loss: 4.0327, Val Loss: 4.4895, Val Acc: 17.20%
+2025-12-19 13:58:09,997 - INFO - Epoch 37/40: LR: 0.000057
+2025-12-19 13:58:10,047 - INFO - Epoch 37/40: Train Loss: 3.9849, Val Loss: 4.4908, Val Acc: 17.22%
+2025-12-19 14:37:28,744 - INFO - Epoch 38/40: LR: 0.000053
+2025-12-19 14:37:28,805 - INFO - Epoch 38/40: Train Loss: 3.9397, Val Loss: 4.4735, Val Acc: 17.47%
+2025-12-19 15:18:36,407 - INFO - Epoch 39/40: LR: 0.000051
+2025-12-19 15:18:36,458 - INFO - Epoch 39/40: Train Loss: 3.9137, Val Loss: 4.4744, Val Acc: 17.39%
+2025-12-19 15:55:02,978 - INFO - Epoch 40/40: LR: 0.000050
+2025-12-19 16:05:19,711 - INFO - Epoch 40/40: Train Loss: 3.8834, Val Loss: 4.4644, Val Acc: 17.62%, Test Loss: 4.4644, Test Acc: 17.62%
+2025-12-19 16:05:19,777 - INFO - Saving checkpoint for epoch 40...
+2025-12-19 16:05:20,673 - INFO - ✅ Checkpoint saved: runs/run_228/checkpoint_epoch_40.pth
+2025-12-19 16:05:20,674 - INFO - Training completed!
+2025-12-19 16:05:20,680 - INFO - Training completed!
+2025-12-19 16:05:20,681 - INFO - Generating training curves...
+2025-12-19 16:05:22,932 - INFO - Too many classes (1000) for per-class plotting, skipping
+2025-12-19 16:05:22,933 - INFO - Training curves saved as separate images with base name 'runs/run_228/training_curves_from_scratch'
+2025-12-19 16:05:22,934 - INFO - Generating confusion matrix on test set...
+2025-12-19 16:34:59,118 - INFO - Performing final evaluation of from_scratch model on test set...
+2025-12-19 16:46:42,964 - INFO - Final Test Results of from_scratch model: Loss: 4.4644, Accuracy: 17.62%
+2025-12-19 16:46:42,965 - INFO - Generating LR schedule plot of from_scratch model...
+2025-12-19 16:46:43,364 - INFO - LR schedule plot saved to 'runs/run_228/lr_schedule_from_scratch.png'
+2025-12-19 16:46:43,365 - INFO - 
+Final Test Results:
+2025-12-19 16:46:43,366 - INFO - Loss: 4.4644
+2025-12-19 16:46:43,367 - INFO - Accuracy: 17.62%
+2025-12-19 16:46:43,368 - INFO - Precision: 16.12%
+2025-12-19 16:46:43,369 - INFO - Recall: 17.62%
+2025-12-19 16:46:43,370 - INFO - F1 Score: 16.11%
+2025-12-19 16:46:43,541 - INFO - Experiment completed. Results saved to runs/run_228/results_from_scratch.json
+2025-12-19 16:46:43,545 - INFO - Experiment completed. Metadata saved to runs/run_228/metadata_from_scratch.json
+2025-12-19 16:46:43,829 - INFO - ✅ Model weights saved: runs/run_228/final_model_from_scratch_weights.pth
+2025-12-19 16:46:43,833 - INFO - Final model saved: runs/run_228/final_model_from_scratch_weights.pth
+2025-12-19 16:46:43,834 - INFO - Final model metadata saved: runs/run_228/final_model_from_scratch_metadata.json
+2025-12-19 16:46:43,835 - INFO - === FROM-SCRATCH RESULTS (IMAGENET) ===
+2025-12-19 16:46:43,836 - INFO - Final Accuracy: 17.62%
+2025-12-19 16:46:43,837 - INFO - Final F1 Score: 16.11%
+2025-12-19 16:46:43,841 - INFO - from_scratch experiment completed successfully!

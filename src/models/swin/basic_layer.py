@@ -179,6 +179,6 @@ class BasicLayer(nn.Module):
 
         # Pass through all Swin Transformer blocks
         for block in self.blocks:
-            x = block(x)
+            x = block(x, H, W)
 
         return x, H, W

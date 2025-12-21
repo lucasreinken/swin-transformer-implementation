@@ -26,7 +26,7 @@ class SwinTransformerModel(nn.Module):
         attention_dropout_rate: float = 0.0,
         projection_dropout_rate: float = 0.0,
         drop_path_rate: float = 0.1,
-        pretrain_img_size: int = 224,
+        pretrain_img_size: int = 224, # image size the model was pretrained on
         out_indices: tuple | None = None, # which Swin stages should output features (0, 1, 2, 3)
         use_shifted_window: bool = True,  # Ablation flag: True for SW-MSA, False for W-MSA only
         use_relative_bias: bool = True,  # Ablation flag: True for learned bias, False for zero bias

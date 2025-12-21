@@ -137,14 +137,14 @@ class PatchEmbed(nn.Module):
             if pH != 0 or pW != 0:
                 x = F.pad(x, (0, self.patch_size - pW, 0, self.patch_size - pH))
 
-        # store shape values
-        _, _, pH, pW = x.shape
-
         # Step 1: Project patches using efficient convolution
         # Input:  [B, 3, 224, 224]
         # Output: [B, 96, 56, 56]
         # Each spatial position (i,j) contains features for patch at (4*i, 4*j)
         x = self.proj(x)
+
+        # store shape values
+        _, _, pH, pW = x.shape
 
         # Step 2: Reshape to sequence format for attention processing
         # Flatten spatial dimensions: [B, 96, 56, 56] → [B, 96, 3136]

@@ -154,6 +154,10 @@ def main():
         # Setup device
         device = setup_device()
 
+        # Enable CuDNN benchmarking for faster convolution algorithms
+        if bool(DATA_CONFIG.get("img_size", False)) and device.type == "cuda":
+            torch.backends.cudnn.benchmark = True
+
         # Get training parameters from config
         total_epochs = TRAINING_CONFIG.get("num_epochs", 50)
         warmup_epochs = TRAINING_CONFIG.get("warmup_epochs", 2)

@@ -63,7 +63,7 @@ DATA_CONFIG = {
     "use_batch_for_val": False,
     "val_batch": 5,
     "batch_size": 128,  # Increased for better gradient estimates on ImageNet
-    "num_workers": 0,  # Set to 0 to avoid worker process issues
+    "num_workers": 8,  # Set to 0 to avoid worker process issues
     "root": "./datasets",
     "img_size": 224,
     # Subset configuration for faster training
@@ -100,13 +100,15 @@ DOWNSTREAM_CONFIG = {
 TRAINING_CONFIG = {
     "seed": 42,  # Random seed for reproducibility
     "deterministic": False,  # Set to True for fully reproducible (but slower) training
-    "learning_rate": 5e-4,  # Reduced for 40 epochs (longer training needs lower LR)
-    "num_epochs": 40,  # Increased for more thorough training
-    "warmup_epochs": 3,  # ~7.5% of 40 epochs for stability
+    "learning_rate": 3e-4,  # Reduced for 40 epochs (longer training needs lower LR)
+    "num_epochs": 2,  # Increased for more thorough training
+    "warmup_epochs": 1,  # ~7.5% of 40 epochs for stability
     "warmup_start_factor": 0.01,  # Start from very low LR
     "weight_decay": 0.02,  # Reduced for training schedule (less regularization needed)
-    "min_lr": 5e-5,  # Lower minimum LR for longer training
+    "min_lr": 1e-4,  # Lower minimum LR for longer training
     "lr_scheduler_type": "cosine",  # Pure cosine annealing as in Swin paper (no hybrid approaches)
+    "mixed_precision": True,
+    "compile": True,
     # Early stopping configuration
     "early_stopping": {
         "enabled": False,  # Disabled for ablation studies to ensure consistent training duration

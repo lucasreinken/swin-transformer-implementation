@@ -1,6 +1,7 @@
 #!/bin/bash
 #SBATCH --partition=gpu-teaching-2d
 #SBATCH --gpus=1
+#SBATCH --mem=32G
 #SBATCH --time=01:00:00
 #SBATCH --job-name=test_upernet
 #SBATCH --output=logs/%j_%x.out

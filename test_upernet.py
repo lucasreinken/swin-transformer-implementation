@@ -1,121 +1,84 @@
 """
-Test script for UperNet segmentation model.
-
-Verifies that:
-1. Swin-T encoder returns multi-scale features correctly
-2. UperNet head processes features correctly
-3. SegmentationModelWrapper integrates encoder + head
-4. Output dimensions are correct for ADE20K
+Simple test for UperNet segmentation model.
+Tests model creation, forward pass, and multi-scale features.
 """
 
 import torch
 from config.ade20k_config import SWIN_CONFIG, DOWNSTREAM_CONFIG
 from src.models import create_segmentation_model
 
-def test_upernet_segmentation():
-    """Test complete segmentation pipeline."""
-    
-    print("="*70)
+
+def main():
+    print("=" * 70)
     print("Testing UperNet Segmentation Model")
-    print("="*70)
+    print("=" * 70)
     
-    # Create model
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(f"\nUsing device: {device}")
+    
+    # Test 1: Create model
     print("\n1. Creating segmentation model...")
     model = create_segmentation_model(SWIN_CONFIG, DOWNSTREAM_CONFIG)
-    print(f"✓ Model created successfully")
-    
-    # Print model info
-    params = model.get_num_params()
-    print(f"\nModel Parameters:")
-    print(f"  Encoder: {params['encoder']:,}")
-    print(f"  Head:    {params['head']:,}")
-    print(f"  Total:   {params['total']:,}")
-    print(f"  Trainable: {params['trainable']:,}")
-    
-    # Test forward pass with conservative memory usage
-    print("\n2. Testing forward pass...")
-    
-    test_cases = [
-        (1, 512, 512),   # Single image only for GPU memory safety
-    ]
-    
-    model.eval()
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = model.to(device)
+    model.eval()
     
+    params = model.get_num_params()
+    print(f"   Total parameters: {params['total']:,}")
+    print(f"   Trainable: {params['trainable']:,}")
+    
+    # Test 2: Forward pass
+    print("\n2. Testing forward pass (batch=1, 512x512)...")
     with torch.no_grad():
-        for batch_size, h, w in test_cases:
-            # Create dummy input
-            x = torch.randn(batch_size, 3, h, w, device=device)
-            
-            # Forward pass
-            output = model(x)
-            
-            # Check output shape
-            expected_shape = (batch_size, DOWNSTREAM_CONFIG["num_classes"], h, w)
-            assert output.shape == expected_shape, \
-                f"Expected shape {expected_shape}, got {output.shape}"
-            
-            print(f"✓ Batch {batch_size}, Input: {tuple(x.shape)} → Output: {tuple(output.shape)}")
-            
-            # Clean up
-            del x, output
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
+        x = torch.randn(1, 3, 512, 512, device=device)
+        output = model(x)
+        
+        expected_shape = (1, 150, 512, 512)
+        assert output.shape == expected_shape, f"Expected {expected_shape}, got {output.shape}"
+        print(f"   ✓ Input: {tuple(x.shape)} → Output: {tuple(output.shape)}")
+        
+        del x, output
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
     
-    # Test multi-scale feature extraction
-    print("\n3. Testing multi-scale feature extraction...")
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model.encoder.eval()
+    # Test 3: Multi-scale features
+    print("\n3. Testing multi-scale features...")
     with torch.no_grad():
         x = torch.randn(1, 3, 512, 512, device=device)
         features = model.encoder(x, return_multi_scale=True)
         
-        print(f"Number of feature scales: {len(features)}")
+        assert len(features) == 4, f"Expected 4 scales, got {len(features)}"
+        print(f"   ✓ Feature scales: {len(features)}")
         for i, feat in enumerate(features):
-            # Features are in [B, H*W, C] format
-            B, N, C = feat.shape
-            H = W = int(N ** 0.5)
-            print(f"  Stage {i+1}: [{B}, {N}, {C}] → [{B}, {C}, {H}, {H}]")
-    # Test encoder freezing
+            print(f"     Stage {i+1}: {tuple(feat.shape)}")
+        
+        del x, features
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    
+    # Test 4: Encoder freezing
     print("\n4. Testing encoder freezing...")
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     frozen_model = create_segmentation_model(
         SWIN_CONFIG,
         {**DOWNSTREAM_CONFIG, "freeze_encoder": True}
     )
     frozen_model = frozen_model.to(device)
     
-    frozen_model.train()
-    encoder_trainable = sum(p.requires_grad for p in frozen_model.encoder.parameters())
-    head_trainable = sum(p.requires_grad for p in frozen_model.seg_head.parameters())
+    encoder_frozen = all(not p.requires_grad for p in frozen_model.encoder.parameters())
+    head_trainable = any(p.requires_grad for p in frozen_model.seg_head.parameters())
     
-    print(f"✓ Encoder trainable params: {encoder_trainable} (should be 0)")
-    print(f"✓ Head trainable params: {head_trainable} (should be > 0)")
+    assert encoder_frozen, "Encoder should be frozen"
+    assert head_trainable, "Head should be trainable"
+    print(f"   ✓ Encoder frozen: {encoder_frozen}")
+    print(f"   ✓ Head trainable: {head_trainable}")
     
-    assert encoder_trainable == 0, "Encoder should be frozen"
-    assert head_trainable > 0, "Head should be trainable"
-    
-    # Clean up
     del frozen_model
     if torch.cuda.is_available():
-        torch.cuda.empty_cache()model.seg_head.parameters())
+        torch.cuda.empty_cache()
     
-    print(f"✓ Encoder trainable params: {encoder_trainable} (should be 0)")
-    print(f"✓ Head trainable params: {head_trainable} (should be > 0)")
-    
-    assert encoder_trainable == 0, "Encoder should be frozen"
-    assert head_trainable > 0, "Head should be trainable"
-    
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("✅ All tests passed!")
-    print("="*70)
-    print("\nModel is ready for:")
-    print("  - ImageNet pretrained weight loading")
-    print("  - Fine-tuning on ADE20K")
-    print("  - Semantic segmentation training")
-    print("="*70)
+    print("=" * 70)
 
 
 if __name__ == "__main__":
-    test_upernet_segmentation()
+    main()

@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --partition=gpu-teaching-7d     # Using 7-day partition (more availability)
-#SBATCH --gres=gpu:1                    # Request 1 GPU
+#SBATCH --partition=gpu-teaching-2d     # Using 2-day partition
+#SBATCH --gpus=1                        # Request 1 GPU (matching your existing scripts)
 #SBATCH --time=01:00:00                 # 1 hour for testing
 #SBATCH --job-name=test_upernet
 #SBATCH --output=logs/%j_%x.out         # Same format as your existing jobs

@@ -61,6 +61,7 @@ def main():
             num_classes=150,
             channels=512
         ).to(device)
+        head.eval()  # Set to eval mode to avoid BatchNorm issues with batch_size=1
         
         # Create dummy multi-scale features
         batch_size = 1

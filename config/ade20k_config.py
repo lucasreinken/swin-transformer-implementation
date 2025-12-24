@@ -19,7 +19,7 @@ DATA_CONFIG = {
     "batch_size": 16,  # Smaller batch size for segmentation (higher memory)
     "num_workers": 8,
     "root": "./datasets",  # Will check shared storage first, then download if needed
-    "img_size": 512,  # Standard ADE20K resolution (can use 640 for larger models)
+    "img_size": 512,  # ADE20K resolution (512 is standard despite window_size mismatch)
     # Subset configuration (optional, set to None to use full dataset)
     "n_train": None,  # 20,210 training images total
     "n_test": None,   # 2,000 validation images total
@@ -34,7 +34,7 @@ SWIN_CONFIG = {
     "embed_dim": None,  # Auto-set from preset
     "depths": None,  # Auto-set from preset
     "num_heads": None,  # Auto-set from preset
-    "window_size": 7,
+    "window_size": 7,  # Keep at 7 to match ImageNet pretrained weights
     "mlp_ratio": 4.0,
     "dropout": 0.0,
     "attention_dropout": 0.0,
@@ -92,7 +92,7 @@ AUGMENTATION_CONFIG = {
 # Model Validation Configuration
 VALIDATION_CONFIG = {
     "enable_validation": False,
-    "pretrained_model": "swin_tiny_patch4_window7_224",  # ImageNet pretrained Swin-T
-    "transfer_weights": True,  # Load ImageNet weights into encoder before training
+    "pretrained_model": "swin_tiny_patch4_window7_224",  # ImageNet pretrained (224×224, window=7)
+    "transfer_weights": True,  # Load ImageNet weights, window size will auto-adjust for 512×512
     "validation_samples": 100,
 }

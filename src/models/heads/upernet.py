@@ -191,8 +191,11 @@ class UperNetHead(nn.Module):
         Returns:
             Segmentation logits [B, num_classes, H, W] at original resolution
         """
-        # Get target size from first feature (highest resolution)
-        target_size = features[0].shape[2:]  # (H, W) from C1
+        # Target size should be 4x the first feature map (to match input resolution)
+        # Swin-T patch_size=4 means first feature is H/4 x W/4
+        # So we need to upsample to 4x that size to get back to input resolution
+        first_feature_size = features[0].shape[2:]  # (H/4, W/4)
+        target_size = (first_feature_size[0] * 4, first_feature_size[1] * 4)  # (H, W)
         
         # =================================================================
         # Step 1: Apply PPM to deepest feature (C4)

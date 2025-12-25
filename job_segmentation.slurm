@@ -38,9 +38,9 @@ echo ""
 
 # Set PyTorch CUDA memory allocation config for better memory management
 # Segmentation with 512x512 requires more memory than classification
-export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+export PYTORCH_ALLOC_CONF=max_split_size_mb:512
 
-echo "PYTORCH_CUDA_ALLOC_CONF: $PYTORCH_CUDA_ALLOC_CONF"
+echo "PYTORCH_ALLOC_CONF: $PYTORCH_ALLOC_CONF"
 echo ""
 
 echo "GPU Memory before training:"

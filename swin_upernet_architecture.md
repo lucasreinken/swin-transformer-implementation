@@ -186,6 +186,62 @@ def _reshape_features(features_list):
 | UperNet Head | 31,497,366 (~32M) |
 | **Total** | **59,015,184 (~60M)** |
 
+## Configuration Compliance Summary
+
+### 1. Swin-T Encoder
+| Parameter | Value |
+|-----------|-------|
+| embed_dim | 96 |
+| depths | [2, 2, 6, 2] |
+| num_heads | [3, 6, 12, 24] |
+| window_size | 7 |
+| patch_size | 4 |
+| drop_path_rate | 0.2 |
+
+### 2. UperNet Decoder
+| Parameter | Value |
+|-----------|-------|
+| in_channels | [96, 192, 384, 768] |
+| channels | 512 |
+| pool_scales | (1, 2, 3, 6) |
+| dropout | 0.1 |
+| num_classes | 150 |
+| FPN fusion resolution | H/4 × W/4 |
+
+### 3. Training Configuration
+| Parameter | Value |
+|-----------|-------|
+| Optimizer | AdamW |
+| Learning rate | 6e-5 |
+| Weight decay | 0.01 |
+| Betas | (0.9, 0.999) |
+| Batch size | 16 |
+| Epochs | 160 |
+| Warmup | LinearLR (2 epochs) |
+| Scheduler | CosineAnnealingLR |
+
+### 4. Data Augmentation
+| Transform | Value |
+|-----------|-------|
+| Resize | 512×512 |
+| RandomHorizontalFlip | p=0.5 |
+| Normalize | ImageNet mean/std |
+| Label adjustment | mask-1, void→255 |
+
+### 5. Loss & Metrics
+| Parameter | Value |
+|-----------|-------|
+| Loss | CrossEntropyLoss |
+| ignore_index | 255 |
+| Metric | mIoU (mean over present classes) |
+
+### 6. Forward Pass
+| Aspect | Value |
+|--------|-------|
+| FPN fusion | H/4 × W/4 resolution |
+| Final upsample | 4× bilinear |
+| Output shape | [B, 150, H, W] |
+
 ## References
 
 - Swin Transformer: [arXiv:2103.14030](https://arxiv.org/abs/2103.14030)

@@ -165,22 +165,52 @@ class SwinTransformerModel(nn.Module):
             nn.init.constant_(m.bias, 0)
             nn.init.constant_(m.weight, 1.0)
 
-    def forward_features(self, x: torch.Tensor) -> torch.Tensor:
-        """Extract features through transformer stages"""
+    def forward_features(self, x: torch.Tensor, return_multi_scale: bool = False) -> torch.Tensor:
+        """
+        Extract features through transformer stages.
+        
+        Args:
+            x: Input tensor [B, C, H, W]
+            return_multi_scale: If True, return features from all stages (for segmentation)
+                               If False, return only final features (for classification)
+        
+        Returns:
+            If return_multi_scale=False: Final features [B, H*W, C]
+            If return_multi_scale=True: List of features from all stages
+        """
         x = self.patch_embed(x)
+        
+        if return_multi_scale:
+            # Store features from each stage for segmentation
+            features = []
+            for layer in self.layers:
+                if self.use_gradient_checkpointing and self.training:
+                    x = checkpoint(layer, x, use_reentrant=False)
+                else:
+                    x = layer(x)
+                features.append(x)
+            return features
+        else:
+            # Classification: only return final features
+            for layer in self.layers:
+                if self.use_gradient_checkpointing and self.training:
+                    x = checkpoint(layer, x, use_reentrant=False)
+                else:
+                    x = layer(x)
+            return x
 
-        for layer in self.layers:
-            if self.use_gradient_checkpointing and self.training:
-                x = checkpoint(layer, x, use_reentrant=False)
-            else:
-                x = layer(x)
-
-        return x
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Complete forward pass through Swin Transformer."""
-        x = self.forward_features(x)
-        return x
+    def forward(self, x: torch.Tensor, return_multi_scale: bool = False) -> torch.Tensor:
+        """
+        Complete forward pass through Swin Transformer.
+        
+        Args:
+            x: Input tensor [B, C, H, W]
+            return_multi_scale: If True, return multi-scale features for segmentation
+        
+        Returns:
+            Features (single tensor for classification, list for segmentation)
+        """
+        return self.forward_features(x, return_multi_scale=return_multi_scale)
 
     def get_model_info(self) -> Dict[str, Any]:
         """Get model configuration information."""

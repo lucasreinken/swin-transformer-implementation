@@ -8,7 +8,8 @@ import timm
 import torchvision.models as models
 from .swin.swin_transformer_model import SwinTransformerModel
 from .model_wrapper import ModelWrapper
-from .heads import LinearClassificationHead
+from .segmentation_wrapper import SegmentationModelWrapper
+from .heads import LinearClassificationHead, UperNetHead
 
 
 def create_model(config):
@@ -162,4 +163,83 @@ def create_resnet_model(config):
             model.layer3.forward = checkpointed_layer3
             model.layer4.forward = checkpointed_layer4
 
+    return model
+
+
+def create_segmentation_model(swin_config, downstream_config, load_pretrained=True):
+    """
+    Create segmentation model with Swin encoder + UperNet head.
+    
+    Args:
+        swin_config: SWIN_CONFIG dictionary from config
+        downstream_config: DOWNSTREAM_CONFIG dictionary from config
+        load_pretrained: If True, load ImageNet pretrained weights for encoder
+    
+    Returns:
+        SegmentationModelWrapper containing encoder + segmentation head
+    """
+    from src.utils.load_weights import load_pretrained_reference, transfer_weights
+    
+    # Create Swin Transformer encoder
+    encoder = SwinTransformerModel(
+        img_size=swin_config["img_size"],  # 512 for ADE20K
+        patch_size=swin_config["patch_size"],
+        embedding_dim=swin_config["embed_dim"],
+        depths=swin_config["depths"],
+        num_heads=swin_config["num_heads"],
+        window_size=swin_config["window_size"],
+        mlp_ratio=swin_config["mlp_ratio"],
+        dropout_rate=swin_config["dropout"],
+        attention_dropout_rate=swin_config["attention_dropout"],
+        projection_dropout_rate=swin_config["projection_dropout"],
+        drop_path_rate=swin_config["drop_path_rate"],
+        use_shifted_window=swin_config.get("use_shifted_window", True),
+        use_relative_bias=swin_config.get("use_relative_bias", True),
+        use_absolute_pos_embed=swin_config.get("use_absolute_pos_embed", False),
+        use_hierarchical_merge=swin_config.get("use_hierarchical_merge", False),
+        use_gradient_checkpointing=swin_config.get("use_gradient_checkpointing", False),
+    )
+    
+    # Calculate in_channels for each stage
+    # Swin-T: [96, 192, 384, 768]
+    embed_dim = swin_config["embed_dim"]
+    in_channels = [int(embed_dim * (2 ** i)) for i in range(len(swin_config["depths"]))]
+    
+    # Create UperNet segmentation head
+    seg_head = UperNetHead(
+        in_channels=in_channels,
+        num_classes=downstream_config["num_classes"],
+        channels=512,  # FPN channels (standard for UperNet)
+        pool_scales=(1, 2, 3, 6),  # PPM scales from paper
+        dropout=0.1,  # Dropout before classifier
+    )
+    
+    # Combine encoder + head
+    model = SegmentationModelWrapper(
+        encoder=encoder,
+        seg_head=seg_head,
+        freeze_encoder=downstream_config.get("freeze_encoder", False),
+    )
+    
+    # Load pretrained ImageNet weights for encoder
+    if load_pretrained and downstream_config.get("use_pretrained", True):
+        pretrained_model_name = "swin_tiny_patch4_window7_224"  # TIMM model name
+        print(f"Loading pretrained weights from TIMM: {pretrained_model_name}")
+        
+        pretrained_model = load_pretrained_reference(
+            model_name=pretrained_model_name,
+            device="cpu",  # Load to CPU first, then move to device
+        )
+        
+        if pretrained_model is not None:
+            stats = transfer_weights(
+                custom_model=model,
+                pretrained_model=pretrained_model,
+                encoder_only=True,  # Only transfer encoder weights
+            )
+            print(f"Weight transfer complete: {stats['transferred']} layers transferred, "
+                  f"{stats['missing']} missing, {stats['size_mismatches']} size mismatches")
+        else:
+            print("Warning: Could not load pretrained weights. Training from scratch.")
+    
     return model

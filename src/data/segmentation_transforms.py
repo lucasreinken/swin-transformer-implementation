@@ -5,6 +5,7 @@ For semantic segmentation, we need to apply the same transformations
 to both images and their corresponding masks (labels).
 """
 
+import numpy as np
 import torch
 import torchvision.transforms.functional as TF
 from torchvision import transforms
@@ -65,6 +66,11 @@ class SegmentationTransform:
         # Keep spatial dimensions, don't normalize
         mask = torch.from_numpy(np.array(mask, dtype=np.int64))
         
+        # ADE20K specific label adjustment:
+        # Original: 0 = unlabeled/void, 1-150 = classes
+        # Required: 0-149 = classes, 255 = ignore
+        # This is handled in ADE20KTransform, not here for base class
+        
         return image, mask
 
 
@@ -76,10 +82,16 @@ class ADE20KTransform(SegmentationTransform):
     - Resize to img_size x img_size
     - Random horizontal flip
     - Normalize image
+    - Adjust labels: subtract 1 (classes become 0-149), void (0) becomes 255
     
     Validation:
     - Resize to img_size x img_size
     - Normalize image
+    - Adjust labels: subtract 1 (classes become 0-149), void (0) becomes 255
+    
+    Label adjustment:
+    - ADE20K original: 0 = unlabeled, 1-150 = classes
+    - After adjustment: 0-149 = classes, 255 = ignore_index for CrossEntropyLoss
     """
     
     def __init__(
@@ -90,7 +102,36 @@ class ADE20KTransform(SegmentationTransform):
         std: Tuple[float, float, float] = (0.229, 0.224, 0.225),
     ):
         super().__init__(img_size, is_training, mean, std)
-
-
-# Import numpy for mask conversion
-import numpy as np
+    
+    def __call__(self, image: Image.Image, mask: Image.Image) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Apply synchronized transforms with ADE20K label adjustment.
+        """
+        # Resize both image and mask to same size
+        image = TF.resize(image, (self.img_size, self.img_size), interpolation=Image.BILINEAR)
+        mask = TF.resize(mask, (self.img_size, self.img_size), interpolation=Image.NEAREST)
+        
+        if self.is_training:
+            # Random horizontal flip
+            if random.random() > 0.5:
+                image = TF.hflip(image)
+                mask = TF.hflip(mask)
+        
+        # Convert image to tensor and normalize
+        image = TF.to_tensor(image)
+        image = TF.normalize(image, mean=self.mean, std=self.std)
+        
+        # Convert mask to numpy array
+        mask = np.array(mask, dtype=np.int64)
+        
+        # ADE20K label adjustment:
+        # Original labels: 0 = void/unlabeled, 1-150 = semantic classes
+        # Target labels: 0-149 = semantic classes, 255 = ignore
+        # Step 1: Subtract 1 from all labels (void becomes -1, classes become 0-149)
+        mask = mask - 1
+        # Step 2: Set void pixels (-1) to 255 (ignore_index for CrossEntropyLoss)
+        mask[mask == -1] = 255
+        
+        mask = torch.from_numpy(mask)
+        
+        return image, mask

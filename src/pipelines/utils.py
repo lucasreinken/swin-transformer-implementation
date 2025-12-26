@@ -261,3 +261,178 @@ def save_final_model(model, variant, run_dir=None, config=None):
 
     logger.info(f"Final model saved: {weights_path}")
     logger.info(f"Final model metadata saved: {metadata_path}")
+
+
+# =============================================================================
+# Segmentation-Specific Functions
+# =============================================================================
+
+
+def setup_segmentation_training_components(
+    model: nn.Module,
+    total_epochs: int,
+    warmup_epochs: int,
+    learning_rate: float,
+    weight_decay: float = 0.01,
+    freeze_encoder: bool = False,
+    ignore_index: int = 255,
+):
+    """
+    Setup optimizer, scheduler, and loss criterion for segmentation.
+    
+    Similar to setup_training_components but:
+    - Uses CrossEntropyLoss with ignore_index for segmentation
+    - Supports encoder freezing for fine-tuning scenarios
+    
+    Args:
+        model: Segmentation model (SegmentationModelWrapper)
+        total_epochs: Total number of training epochs
+        warmup_epochs: Number of warmup epochs
+        learning_rate: Initial learning rate
+        weight_decay: Weight decay for AdamW
+        freeze_encoder: If True, only train segmentation head
+        ignore_index: Label index to ignore in loss (255 for ADE20K)
+    
+    Returns:
+        Tuple of (criterion, optimizer, scheduler)
+    """
+    # Segmentation loss with ignore_index for unlabeled pixels
+    criterion = nn.CrossEntropyLoss(ignore_index=ignore_index)
+    
+    # Select parameters to train
+    if freeze_encoder:
+        # Fine-tuning: only train the segmentation head
+        params_to_train = model.seg_head.parameters()
+        logger.info("Optimizer: training segmentation head only (encoder frozen)")
+    else:
+        # Full training: train encoder + head
+        params_to_train = model.parameters()
+        logger.info("Optimizer: training all model parameters (encoder + head)")
+    
+    optimizer = torch.optim.AdamW(
+        params_to_train,
+        lr=learning_rate,
+        weight_decay=weight_decay,
+    )
+    
+    # Warmup + cosine annealing (standard for segmentation)
+    warmup_start_factor = 0.1
+    min_lr = learning_rate * 0.01  # 1% of initial LR
+    
+    warmup_scheduler = LinearLR(
+        optimizer,
+        start_factor=warmup_start_factor,
+        total_iters=warmup_epochs,
+    )
+    
+    main_scheduler = CosineAnnealingLR(
+        optimizer,
+        T_max=total_epochs - warmup_epochs,
+        eta_min=min_lr,
+    )
+    
+    scheduler = SequentialLR(
+        optimizer,
+        schedulers=[warmup_scheduler, main_scheduler],
+        milestones=[warmup_epochs],
+    )
+    
+    logger.info(f"LR Scheduler: cosine with {warmup_epochs} warmup epochs")
+    logger.info(f"Learning rate: {learning_rate}, min_lr: {min_lr}")
+    
+    return criterion, optimizer, scheduler
+
+
+def generate_segmentation_reports(
+    model,
+    variant: str,
+    val_loader,
+    criterion,
+    lr_history: List[float],
+    metrics_history: Dict[str, List],
+    device,
+    amp_dtype,
+    run_dir,
+    num_classes: int = 150,
+    ignore_index: int = 255,
+):
+    """
+    Generate segmentation training reports and visualizations.
+    
+    Args:
+        model: Trained segmentation model
+        variant: Model variant name (e.g., "swin_upernet")
+        val_loader: Validation data loader
+        criterion: Loss function
+        lr_history: Learning rate history
+        metrics_history: Training metrics history
+        device: Device
+        amp_dtype: Mixed precision dtype
+        run_dir: Directory to save reports
+        num_classes: Number of segmentation classes
+        ignore_index: Label to ignore
+    
+    Returns:
+        Final validation metrics dict
+    """
+    from src.training import (
+        evaluate_segmentation,
+        plot_segmentation_training_curves,
+        plot_iou_per_class,
+        plot_lr_schedule,
+    )
+    
+    logger.info("Generating segmentation training curves...")
+    plot_segmentation_training_curves(
+        metrics_history,
+        save_path=str(run_dir / f"segmentation_curves_{variant}"),
+    )
+    
+    logger.info("Performing final evaluation on validation set...")
+    final_loss, final_miou, final_metrics = evaluate_segmentation(
+        model=model,
+        dataloader=val_loader,
+        criterion=criterion,
+        device=device,
+        num_classes=num_classes,
+        ignore_index=ignore_index,
+        amp_dtype=amp_dtype,
+    )
+    
+    logger.info("Generating per-class IoU plot...")
+    plot_iou_per_class(
+        iou_per_class=final_metrics["iou_per_class"],
+        save_path=str(run_dir / f"iou_per_class_{variant}.png"),
+    )
+    
+    if lr_history:
+        logger.info("Generating LR schedule plot...")
+        plot_lr_schedule(
+            lr_history,
+            save_path=str(run_dir / f"lr_schedule_{variant}.png"),
+        )
+    
+    # Log final results
+    logger.info(f"\n{'='*50}")
+    logger.info(f"Final Segmentation Results ({variant})")
+    logger.info(f"{'='*50}")
+    logger.info(f"Loss: {final_loss:.4f}")
+    logger.info(f"mIoU: {final_miou:.2f}%")
+    logger.info(f"Pixel Accuracy: {final_metrics['pixel_accuracy']:.2f}%")
+    logger.info(f"Classes Present: {final_metrics['num_classes_present']}/{num_classes}")
+    
+    # Save metrics to JSON
+    metrics_json = {
+        "loss": float(final_loss),
+        "mean_iou": float(final_miou),
+        "pixel_accuracy": float(final_metrics["pixel_accuracy"]),
+        "num_classes_present": int(final_metrics["num_classes_present"]),
+        "iou_per_class": final_metrics["iou_per_class"].tolist(),
+    }
+    
+    metrics_path = run_dir / f"final_metrics_{variant}.json"
+    with open(metrics_path, "w") as f:
+        json.dump(metrics_json, f, indent=2)
+    logger.info(f"Final metrics saved to {metrics_path}")
+    
+    return final_metrics

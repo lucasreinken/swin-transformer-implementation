@@ -191,11 +191,11 @@ class UperNetHead(nn.Module):
         Returns:
             Segmentation logits [B, num_classes, H, W] at original resolution
         """
-        # Target size should be 4x the first feature map (to match input resolution)
-        # Swin-T patch_size=4 means first feature is H/4 x W/4
-        # So we need to upsample to 4x that size to get back to input resolution
-        first_feature_size = features[0].shape[2:]  # (H/4, W/4)
-        target_size = (first_feature_size[0] * 4, first_feature_size[1] * 4)  # (H, W)
+        # Fusion happens at first feature level resolution (H/4, W/4)
+        # This avoids memory issues with large tensors at full resolution
+        # Final upsampling to input resolution happens after bottleneck fusion
+        first_feature_size = features[0].shape[2:]  # (H/4, W/4) - fusion resolution
+        input_size = (first_feature_size[0] * 4, first_feature_size[1] * 4)  # (H, W) - final output
         
         # =================================================================
         # Step 1: Apply PPM to deepest feature (C4)
@@ -244,29 +244,40 @@ class UperNetHead(nn.Module):
         fpn_outs.append(laterals[-1])
         
         # =================================================================
-        # Step 5: Upsample all FPN outputs to target size and concatenate
+        # Step 5: Upsample all FPN outputs to fusion size (H/4 x W/4) and concatenate
         # =================================================================
+        # Important: We fuse at first_feature_size to avoid memory issues
+        # Upsampling 512 channels to 512x512 would create tensors exceeding INT_MAX
         upsampled_fpn_outs = []
         for fpn_out in fpn_outs:
             upsampled = F.interpolate(
                 fpn_out,
-                size=target_size,
+                size=first_feature_size,  # Fuse at H/4 x W/4
                 mode='bilinear',
                 align_corners=False
             )
             upsampled_fpn_outs.append(upsampled)
         
         # Concatenate all upsampled FPN features
-        fpn_concat = torch.cat(upsampled_fpn_outs, dim=1)  # [B, 4*512, H, W]
+        fpn_concat = torch.cat(upsampled_fpn_outs, dim=1)  # [B, 4*512, H/4, W/4]
         
-        # Final fusion
-        fused = self.fpn_bottleneck(fpn_concat)  # [B, 512, H, W]
+        # Final fusion - reduces channels from 2048 to 512
+        fused = self.fpn_bottleneck(fpn_concat)  # [B, 512, H/4, W/4]
         
         # =================================================================
         # Step 6: Segmentation prediction
         # =================================================================
         fused = self.dropout(fused)
-        output = self.classifier(fused)  # [B, num_classes, H, W]
+        output = self.classifier(fused)  # [B, num_classes, H/4, W/4]
+        
+        # Upsample segmentation output to input resolution
+        # Now we only upsample num_classes channels (150 for ADE20K), not 512
+        output = F.interpolate(
+            output,
+            size=input_size,  # Upsample to full resolution (H, W)
+            mode='bilinear',
+            align_corners=False
+        )
         
         return output
     

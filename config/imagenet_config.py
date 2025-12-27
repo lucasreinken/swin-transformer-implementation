@@ -67,7 +67,7 @@ DATA_CONFIG = {
     "root": "./datasets",
     "img_size": 224,
     # Subset configuration for faster training
-    "n_train": 100000,  # Increased training samples for better generalization
+    "n_train": 500000,  # Increased training samples for better generalization
     "n_test": 50000,  # Number of validation/test samples (None for full dataset) - using full validation set
     "stratified": True  # Maintain class distribution in train/test split for balanced sampling
 }
@@ -101,11 +101,11 @@ TRAINING_CONFIG = {
     "seed": 42,  # Random seed for reproducibility
     "deterministic": False,  # Set to True for fully reproducible (but slower) training
     "learning_rate": 3e-4,  # Reduced for 40 epochs (longer training needs lower LR)
-    "num_epochs": 2,  # Increased for more thorough training
-    "warmup_epochs": 1,  # ~7.5% of 40 epochs for stability
+    "num_epochs": 100,  # Increased for more thorough training
+    "warmup_epochs": 5,  # ~7.5% of 40 epochs for stability
     "warmup_start_factor": 0.01,  # Start from very low LR
-    "weight_decay": 0.02,  # Reduced for training schedule (less regularization needed)
-    "min_lr": 1e-4,  # Lower minimum LR for longer training
+    "weight_decay": 0.05,  # Reduced for training schedule (less regularization needed)
+    "min_lr": 1e-5,  # Lower minimum LR for longer training
     "lr_scheduler_type": "cosine",  # Pure cosine annealing as in Swin paper (no hybrid approaches)
     "mixed_precision": True,
     "compile": True,

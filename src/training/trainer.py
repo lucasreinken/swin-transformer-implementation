@@ -170,16 +170,6 @@ def run_training_loop(
     checkpoint_frequency=10,
 ):
     """Run the main training loop."""
-    # Early stopping setup - configurable for different experiments
-    early_stopping_config = TRAINING_CONFIG.get("early_stopping", {})
-    if early_stopping_config.get("enabled", False):
-        early_stopper = EarlyStopping(
-            patience=early_stopping_config.get("patience", 5),
-            min_delta=early_stopping_config.get("min_delta", 0.01),
-            mode=early_stopping_config.get("mode", "min"),
-        )
-    else:
-        early_stopper = None
 
     # Training loop
     logger.info("Starting training...")
@@ -196,26 +186,19 @@ def run_training_loop(
         )
 
         # Validate every epoch
-        val_loss, val_accuracy, val_metrics = evaluate_model(
+        val_loss, val_accuracy = evaluate_model(
             model,
             val_generator,
             criterion,
             device,
-            amp_dtype=amp_dtype
+            amp_dtype=amp_dtype,
+            detailed_metrics=False
         )
 
         # Store metrics
         metrics_history["train_loss"].append(train_loss)
         metrics_history["val_loss"].append(val_loss)
         metrics_history["val_accuracy"].append(val_accuracy)
-        if "f1_score" in val_metrics:
-            metrics_history["val_f1"].append(val_metrics["f1_score"])
-        if "precision" in val_metrics:
-            metrics_history["val_precision"].append(val_metrics["precision"])
-        if "recall" in val_metrics:
-            metrics_history["val_recall"].append(val_metrics["recall"])
-        if "f1_per_class" in val_metrics:
-            metrics_history["val_f1_per_class"].append(val_metrics["f1_per_class"])
 
         if scheduler:
             scheduler.step()
@@ -225,30 +208,11 @@ def run_training_loop(
         else:
             lr_history.append(learning_rate)
 
-        # Early stopping check
-        if early_stopper and early_stopper(val_loss):
-            logger.info(f"Early stopping triggered at epoch {epoch+1}.")
-            break
 
-        # Test periodically (every 5 epochs)
-        if (epoch + 1) % 5 == 0:
-            test_loss, test_accuracy, test_metrics = evaluate_model(
-                model, test_generator, criterion, device, amp_dtype=amp_dtype
-            )
-
-            metrics_history["test_loss"].append(test_loss)
-            metrics_history["test_accuracy"].append(test_accuracy)
-
-            logger.info(
-                f"Epoch {epoch+1}/{num_epochs}: "
-                f"Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Val Acc: {val_accuracy:.2f}%, "
-                f"Test Loss: {test_loss:.4f}, Test Acc: {test_accuracy:.2f}%"
-            )
-        else:
-            logger.info(
-                f"Epoch {epoch+1}/{num_epochs}: "
-                f"Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Val Acc: {val_accuracy:.2f}%"
-            )
+        logger.info(
+            f"Epoch {epoch+1}/{num_epochs}: "
+            f"Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Val Acc: {val_accuracy:.2f}%"
+        )
 
         if run_dir and (epoch + 1) % checkpoint_frequency == 0:
             checkpoint_path = run_dir / f"checkpoint_epoch_{epoch+1}.pth"

@@ -196,7 +196,8 @@ def main():
         val_transformation = get_default_transforms(
             DATA_CONFIG["dataset"], DATA_CONFIG["img_size"], is_training=False
         )
-        train_generator, val_generator, test_generator = load_data(
+        test_generator = None
+        train_generator, val_generator = load_data(
             dataset=DATA_CONFIG["dataset"],
             transformation=train_transformation,
             val_transformation=val_transformation,
@@ -214,7 +215,6 @@ def main():
         logger.info(
             f"Dataset loaded: train={len(train_generator.dataset)} samples ({len(train_generator)} batches), "
             f"val={len(val_generator.dataset)} samples ({len(val_generator)} batches), "
-            f"test={len(test_generator.dataset)} samples ({len(test_generator)} batches)"
         )
 
         # Run mode-specific training pipeline

@@ -245,18 +245,9 @@ def run_from_scratch(
     model = create_model_from_scratch(device)
 
     start_epoch = 0
-    resume_checkpoint = TRAINING_CONFIG.get("resume_from_checkpoint")
-    if resume_checkpoint:
-        logger.info(f"Resuming from checkpoint: {resume_checkpoint}")
-        model, _, start_epoch, _, _ = load_checkpoint(
-            model, None, resume_checkpoint, device
-        )
-        logger.info(f"Resumed training from epoch {start_epoch}")
 
     amp_dtype, scaler = setup_mixed_precision(device)
 
-    # Train
-    tracker = ExperimentTracker(run_dir)
     logger.info("Starting from-scratch training...")
     criterion, lr_history, metrics_history = _train_single_model(
         model,
@@ -273,23 +264,5 @@ def run_from_scratch(
         run_dir,
         TRAINING_CONFIG.get("checkpoint_frequency", 10),
     )
+    save_final_model(model, "from_scratch", run_dir, config=DOWNSTREAM_CONFIG)
     logger.info("Training completed!")
-
-    # Finalize
-    final_metrics = _finalize_training(
-        model,
-        "from_scratch",
-        test_generator,
-        criterion,
-        lr_history,
-        metrics_history,
-        device,
-        amp_dtype,
-        run_dir,
-        tracker,
-    )
-
-    dataset = DATA_CONFIG.get("dataset", "dataset")
-    logger.info(f"=== FROM-SCRATCH RESULTS ({dataset.upper()}) ===")
-    logger.info(f"Final Accuracy: {final_metrics['accuracy']:.2f}%")
-    logger.info(f"Final F1 Score: {final_metrics['f1_score']:.2f}%")

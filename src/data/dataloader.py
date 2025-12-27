@@ -207,10 +207,7 @@ def _load_imagenet_data(
             generator=torch.Generator().manual_seed(42),
         )
 
-    # Use the official ImageNet validation set as our test set
-    test_dataset = val_dataset
-
-    return train_dataset, val_dataset, test_dataset
+    return train_dataset, val_dataset
 
 
 # ... existing code ...
@@ -219,7 +216,6 @@ def _load_imagenet_data(
 def _create_dataloaders(
     train_dataset: torch.utils.data.Dataset,
     val_dataset: torch.utils.data.Dataset,
-    test_dataset: torch.utils.data.Dataset,
     batch_size: int,
     num_workers: int,
     worker_init_fn,
@@ -245,17 +241,7 @@ def _create_dataloaders(
         worker_init_fn=set_worker_seeds if num_workers > 0 else None,
     )
 
-    test_loader = DataLoader(
-        test_dataset,
-        batch_size=batch_size,
-        shuffle=False,
-        num_workers=num_workers,
-        pin_memory=True,
-        persistent_workers=True if num_workers > 0 else False,
-        worker_init_fn=set_worker_seeds if num_workers > 0 else None,
-    )
-
-    return train_loader, val_loader, test_loader
+    return train_loader, val_loader
 
 
 def _subset(dataset, n, stratified, seed=42):
@@ -288,7 +274,6 @@ def _subset(dataset, n, stratified, seed=42):
 def _apply_dataset_limits(
     train_dataset: torch.utils.data.Dataset,
     val_dataset: torch.utils.data.Dataset,
-    test_dataset: torch.utils.data.Dataset,
     n_train: Optional[int],
     n_test: Optional[int],
     stratified: bool
@@ -302,15 +287,12 @@ def _apply_dataset_limits(
     if n_test is not None and n_test < len(val_dataset):
         val_dataset = _subset(val_dataset, n_test, stratified)
 
-    if n_test is not None and n_test < len(test_dataset):
-        test_dataset = _subset(test_dataset, n_test, stratified)
-
     if stratified:
         logger.info("Dataset limits applied (stratified sampling enabled)")
     else:
         logger.info("Dataset limits applied")
 
-    return train_dataset, val_dataset, test_dataset
+    return train_dataset, val_dataset
 
 
 def load_data(
@@ -368,22 +350,21 @@ def load_data(
             transformation, val_transformation
         )
     elif dataset == "ImageNet":
-        train_dataset, val_dataset, test_dataset = _load_imagenet_data(
+        train_dataset, val_dataset = _load_imagenet_data(
             transformation, val_transformation, root
         )
     else:
         raise ValueError(f"Dataset {dataset} not supported.")
 
     # Apply dataset size limits if specified
-    train_dataset, val_dataset, test_dataset = _apply_dataset_limits(
-        train_dataset, val_dataset, test_dataset, n_train, n_test, stratified
+    train_dataset, val_dataset = _apply_dataset_limits(
+        train_dataset, val_dataset, n_train, n_test, stratified
     )
 
     # Create DataLoaders
     return _create_dataloaders(
         train_dataset,
         val_dataset,
-        test_dataset,
         batch_size,
         num_workers,
         worker_init_fn,

@@ -106,3 +106,39 @@
 2025-12-23 10:03:56,958 - INFO - Epoch 35/40: Train Loss: 3.6552, Val Loss: 3.6674, Val Acc: 25.92%, Test Loss: 3.6674, Test Acc: 25.92%
 2025-12-23 10:47:51,574 - INFO - Epoch 36/40: LR: 0.000063
 2025-12-23 10:47:51,608 - INFO - Epoch 36/40: Train Loss: 3.6160, Val Loss: 3.6529, Val Acc: 26.08%
+2025-12-23 11:32:14,137 - INFO - Epoch 37/40: LR: 0.000057
+2025-12-23 11:32:14,165 - INFO - Epoch 37/40: Train Loss: 3.5822, Val Loss: 3.6385, Val Acc: 26.33%
+2025-12-23 12:16:14,210 - INFO - Epoch 38/40: LR: 0.000053
+2025-12-23 12:16:14,241 - INFO - Epoch 38/40: Train Loss: 3.5553, Val Loss: 3.6205, Val Acc: 26.48%
+2025-12-23 13:01:22,029 - INFO - Epoch 39/40: LR: 0.000051
+2025-12-23 13:01:22,056 - INFO - Epoch 39/40: Train Loss: 3.5380, Val Loss: 3.6130, Val Acc: 26.95%
+2025-12-23 13:45:02,959 - INFO - Epoch 40/40: LR: 0.000050
+2025-12-23 13:59:30,237 - INFO - Epoch 40/40: Train Loss: 3.5061, Val Loss: 3.6157, Val Acc: 26.73%, Test Loss: 3.6157, Test Acc: 26.73%
+2025-12-23 13:59:30,971 - INFO - Saving checkpoint for epoch 40...
+2025-12-23 13:59:32,543 - INFO - ✅ Checkpoint saved: runs/run_233/checkpoint_epoch_40.pth
+2025-12-23 13:59:32,545 - INFO - Training completed!
+2025-12-23 13:59:32,548 - INFO - Training completed!
+2025-12-23 13:59:32,550 - INFO - Generating training curves...
+2025-12-23 13:59:36,873 - INFO - Too many classes (1000) for per-class plotting, skipping
+2025-12-23 13:59:36,875 - INFO - Training curves saved as separate images with base name 'runs/run_233/training_curves_from_scratch'
+2025-12-23 13:59:36,876 - INFO - Generating confusion matrix on test set...
+2025-12-23 15:02:54,489 - INFO - Performing final evaluation of from_scratch model on test set...
+2025-12-23 15:19:16,768 - INFO - Final Test Results of from_scratch model: Loss: 3.6157, Accuracy: 26.73%
+2025-12-23 15:19:16,798 - INFO - Generating LR schedule plot of from_scratch model...
+2025-12-23 15:19:17,632 - INFO - LR schedule plot saved to 'runs/run_233/lr_schedule_from_scratch.png'
+2025-12-23 15:19:17,634 - INFO - 
+Final Test Results:
+2025-12-23 15:19:17,637 - INFO - Loss: 3.6157
+2025-12-23 15:19:17,639 - INFO - Accuracy: 26.73%
+2025-12-23 15:19:17,641 - INFO - Precision: 26.20%
+2025-12-23 15:19:17,643 - INFO - Recall: 26.73%
+2025-12-23 15:19:17,645 - INFO - F1 Score: 25.31%
+2025-12-23 15:19:18,415 - INFO - Experiment completed. Results saved to runs/run_233/results_from_scratch.json
+2025-12-23 15:19:18,437 - INFO - Experiment completed. Metadata saved to runs/run_233/metadata_from_scratch.json
+2025-12-23 15:19:19,048 - INFO - ✅ Model weights saved: runs/run_233/final_model_from_scratch_weights.pth
+2025-12-23 15:19:19,053 - INFO - Final model saved: runs/run_233/final_model_from_scratch_weights.pth
+2025-12-23 15:19:19,055 - INFO - Final model metadata saved: runs/run_233/final_model_from_scratch_metadata.json
+2025-12-23 15:19:19,057 - INFO - === FROM-SCRATCH RESULTS (IMAGENET) ===
+2025-12-23 15:19:19,058 - INFO - Final Accuracy: 26.73%
+2025-12-23 15:19:19,060 - INFO - Final F1 Score: 25.31%
+2025-12-23 15:19:19,066 - INFO - from_scratch experiment completed successfully!

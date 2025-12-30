@@ -12,7 +12,7 @@ from .base_config import (
 )
 
 # Model type selection for comparison experiments
-MODEL_TYPE = "swin"  # Options: "swin", "vit", "resnet"
+MODEL_TYPE = "vit"  # Options: "swin", "vit", "resnet"
 
 # Model configurations for all types
 MODEL_CONFIGS = {

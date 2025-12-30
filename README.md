@@ -1,6 +1,6 @@
 # Linear Probing with Swin Transformers
 
-Compare custom Swin Transformer implementations against TIMM reference models on CIFAR-10, CIFAR-100, and ImageNet.
+Compare custom Swin Transformer implementations against TIMM reference models on CIFAR-10, CIFAR-100, ImageNet, and ADE20K.
 
 ## 🚀 Quick Setup
 
@@ -8,8 +8,9 @@ Compare custom Swin Transformer implementations against TIMM reference models on
 Edit `config/__init__.py`:
 ```python
 # DATASET = "cifar10"    
-DATASET = "cifar100"     # ← Change this line
-# DATASET = "imagenet"   
+# DATASET = "cifar100"
+# DATASET = "ade20k"      # Semantic segmentation
+DATASET = "imagenet"     # ← Change this line
 ```
 
 ### 2. Choose Model & Training Settings
@@ -29,7 +30,8 @@ TRAINING_CONFIG = {
 ```
 
 **For CIFAR-10** → Edit `config/cifar10_config.py`  
-**For ImageNet** → Edit `config/imagenet_config.py` (currently set to 40 epochs for thorough training):
+**For ImageNet** → Edit `config/imagenet_config.py` (currently set to 40 epochs for thorough training)
+**For ADE20K** → Edit `config/ade20k_config.py` (semantic segmentation with 150 classes)
 ```python
 TRAINING_CONFIG = {
     "learning_rate": 5e-4,  # Adjusted for 40 epochs

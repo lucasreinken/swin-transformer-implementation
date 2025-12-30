@@ -71,7 +71,50 @@ def create_model_from_scratch(device: torch.device) -> nn.Module:
     logger.info(f"Total parameters: {total_params:,}")
     logger.info(f"Trainable parameters: {trainable_params:,}")
 
-    return model.to(device)
+    # Improve CUDA tensor memory access with mixed precision
+    if TRAINING_CONFIG.get("mixed_precision", False) and device.type == "cuda":
+        model = model.to(memory_format=torch.channels_last)
+
+    model = model.to(device)
+
+    # GPU model compilation for performance
+    if TRAINING_CONFIG.get("compile", False) and device.type == "cuda":
+        logger.info("Compiling model with torch.compile()")
+        model = torch.compile(model)
+
+    return model
+
+def setup_mixed_precision(device) -> tuple[torch.amp.GradScaler | None, torch.dtype | None]:
+    """
+    Configure mixed-precision settings for the current training device.
+
+    Args:
+        device: Target device on which the model will run.
+
+    Returns:
+        amp_dtype: selected mixed-precision dtype (bf16/float16) or None for fp32.
+        scaler: GradScaler when float16 is used, otherwise None.
+    """
+    use_mp = TRAINING_CONFIG.get("mixed_precision", False)
+
+    if not use_mp:
+        logger.info("Mixed precision disabled → training in float32 precision")
+        return None, None
+
+    if device.type == "cuda":
+        if torch.cuda.is_bf16_supported():
+            logger.info("Mixed precision enabled → CUDA bf16 selected (hardware supported)")
+            return torch.bfloat16, None
+
+        logger.info("Mixed precision enabled → CUDA float16 selected (bf16 unsupported)")
+        return torch.float16, torch.amp.GradScaler(device.type)
+
+    if device.type == "cpu":
+        logger.info("Mixed precision enabled → CPU bf16 selected")
+        return torch.bfloat16, None
+
+    logger.info("Mixed precision requested, but device unsupported → falling back to float32")
+    return None, None
 
 
 def _train_single_model(
@@ -83,6 +126,8 @@ def _train_single_model(
     warmup_epochs: int,
     learning_rate: float,
     device: torch.device,
+    amp_dtype: torch.dtype,
+    scaler: torch.amp.GradScaler,
     start_epoch: int = 0,
     run_dir: Path = None,
     checkpoint_frequency: int = 10,
@@ -121,6 +166,8 @@ def _train_single_model(
         lr_history,
         mixup,
         device,
+        amp_dtype,
+        scaler,
         start_epoch,
         run_dir,
         checkpoint_frequency,
@@ -137,6 +184,7 @@ def _finalize_training(
     lr_history,
     metrics_history,
     device,
+    amp_dtype,
     run_dir,
     tracker,
 ):
@@ -149,6 +197,7 @@ def _finalize_training(
         lr_history,
         metrics_history,
         device,
+        amp_dtype,
         run_dir,
         None,
     )
@@ -204,6 +253,8 @@ def run_from_scratch(
         )
         logger.info(f"Resumed training from epoch {start_epoch}")
 
+    amp_dtype, scaler = setup_mixed_precision(device)
+
     # Train
     tracker = ExperimentTracker(run_dir)
     logger.info("Starting from-scratch training...")
@@ -216,6 +267,8 @@ def run_from_scratch(
         warmup_epochs,
         learning_rate,
         device,
+        amp_dtype,
+        scaler,
         start_epoch,
         run_dir,
         TRAINING_CONFIG.get("checkpoint_frequency", 10),
@@ -231,6 +284,7 @@ def run_from_scratch(
         lr_history,
         metrics_history,
         device,
+        amp_dtype,
         run_dir,
         tracker,
     )

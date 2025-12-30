@@ -1,13 +1,11 @@
 import torch
 import torch.nn as nn
-import logging
+import torch.nn.functional as F
 
 from .mlp import MLP
 from .window_attention import WindowAttention
 from .drop_path import DropPath
 from .window_utils import create_image_mask, window_partition, window_reverse
-
-logger = logging.getLogger(__name__)
 
 
 class SwinTransformerBlock(nn.Module):
@@ -113,18 +111,11 @@ class SwinTransformerBlock(nn.Module):
         self.shift_size = shift_size
         self.mlp_ratio = mlp_ratio
 
-        # Validate parameters
-        if (
-            self.input_resolution[0] % self.window_size != 0
-            or self.input_resolution[1] % self.window_size != 0
-        ):
-            # If window size doesn't divide input resolution evenly, adjust
-            new_window_size = min(self.input_resolution[0], self.input_resolution[1])
-            logger.warning(
-                f"Window size {self.window_size} doesn't divide input resolution {self.input_resolution} evenly. "
-                f"Adjusting window_size to {new_window_size} and shift_size to 0."
-            )
-            self.window_size = new_window_size
+        # MMSegmentation approach: Use padding instead of falling back to global attention
+        # If window size is larger than input resolution, use input resolution as window size
+        # (this only happens at very small resolutions like 7x7 in stage 4)
+        if min(self.input_resolution) <= self.window_size:
+            self.window_size = min(self.input_resolution)
             self.shift_size = 0
 
         assert (
@@ -165,18 +156,20 @@ class SwinTransformerBlock(nn.Module):
         Returns:
             Output tensor [B, H*W, C]
 
-        Processing Flow:
+        Processing Flow (MMSegmentation-style with padding):
         1. Save input for residual connection
         2. Apply LayerNorm
         3. Reshape to 2D: [B, H*W, C] → [B, H, W, C]
-        4. Apply cyclic shift (if SW-MSA)
-        5. Partition into windows
-        6. Apply window attention
-        7. Merge windows back
-        8. Reverse cyclic shift (if SW-MSA)
-        9. Reshape to sequence: [B, H, W, C] → [B, H*W, C]
-        10. Add residual with DropPath
-        11. Apply MLP block with residual connection
+        4. Pad feature maps to multiples of window_size (if needed)
+        5. Apply cyclic shift (if SW-MSA)
+        6. Partition into windows
+        7. Apply window attention
+        8. Merge windows back
+        9. Reverse cyclic shift (if SW-MSA)
+        10. Remove padding (if added)
+        11. Reshape to sequence: [B, H, W, C] → [B, H*W, C]
+        12. Add residual with DropPath
+        13. Apply MLP block with residual connection
         """
         H, W = self.input_resolution
         B, L, C = x.shape
@@ -193,14 +186,22 @@ class SwinTransformerBlock(nn.Module):
         x = self.norm1(x)
         x = x.view(B, H, W, C)
 
+        # Pad feature maps to multiples of window_size (MMSegmentation approach)
+        # This ensures window_partition works correctly even when H/W are not divisible by window_size
+        pad_l = pad_t = 0
+        pad_r = (self.window_size - W % self.window_size) % self.window_size
+        pad_b = (self.window_size - H % self.window_size) % self.window_size
+        x = F.pad(x, (0, 0, pad_l, pad_r, pad_t, pad_b))  # Pad (C, W, H) dimensions: (0, 0, left, right, top, bottom)
+        _, Hp, Wp, _ = x.shape
+
         # Cyclic shift for SW-MSA
         if self.shift_size > 0:
             shifted_x = torch.roll(
                 x, shifts=(-self.shift_size, -self.shift_size), dims=(1, 2)
             )
-            # Create attention mask dynamically for SW-MSA
+            # Create attention mask dynamically for SW-MSA (using padded resolution)
             image_mask = create_image_mask(
-                self.input_resolution,
+                (Hp, Wp),  # Use padded resolution for mask
                 self.window_size,
                 self.shift_size,
                 device=x.device,
@@ -215,16 +216,16 @@ class SwinTransformerBlock(nn.Module):
             shifted_x = x
             attn_mask = None
 
-        # Partition windows: [B, H, W, C] → [B*num_windows, window_size, window_size, C]
+        # Partition windows: [B, Hp, Wp, C] → [B*num_windows, window_size, window_size, C]
         x_windows = window_partition(shifted_x, self.window_size)
         x_windows = x_windows.view(-1, self.window_size * self.window_size, C)
 
         # Apply window attention
         attn_windows = self.attn(x_windows, attn_mask)
 
-        # Merge windows back: [B*num_windows, window_size*window_size, C] → [B, H, W, C]
+        # Merge windows back: [B*num_windows, window_size*window_size, C] → [B, Hp, Wp, C]
         attn_windows = attn_windows.view(-1, self.window_size, self.window_size, C)
-        shifted_x = window_reverse(attn_windows, self.window_size, H, W)
+        shifted_x = window_reverse(attn_windows, self.window_size, Hp, Wp)
 
         # Reverse cyclic shift for SW-MSA
         if self.shift_size > 0:
@@ -233,6 +234,10 @@ class SwinTransformerBlock(nn.Module):
             )
         else:
             x = shifted_x
+
+        # Remove padding (crop back to original resolution)
+        if pad_r > 0 or pad_b > 0:
+            x = x[:, :H, :W, :].contiguous()
 
         x = x.view(B, H * W, C)
 

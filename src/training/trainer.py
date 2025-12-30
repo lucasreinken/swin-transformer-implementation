@@ -37,6 +37,8 @@ def train_one_epoch(
     optimizer: torch.optim.Optimizer,
     device: torch.device,
     mixup: Optional[Mixup] = None,
+    scaler: Optional[torch.amp.GradScaler] = None,
+    amp_dtype: Optional[torch.dtype] = None,
 ) -> float:
     """
     Train the model for one epoch.
@@ -55,23 +57,34 @@ def train_one_epoch(
     running_loss = 0.0
 
     for batch_idx, (inputs, labels) in enumerate(train_loader):
-        inputs, labels = inputs.to(device), labels.to(device)
+        inputs = inputs.to(device, non_blocking=True)
+        labels = labels.to(device, non_blocking=True)
 
         if mixup:
             inputs, labels_a, labels_b, lam = mixup(inputs, labels)
 
         optimizer.zero_grad()
-        outputs = model(inputs)
+        with torch.autocast(
+            device_type=device.type,
+            dtype=amp_dtype,
+            enabled=bool(amp_dtype),
+        ):
+            outputs = model(inputs)
 
-        if mixup:
-            loss = lam * criterion(outputs, labels_a) + (1 - lam) * criterion(
-                outputs, labels_b
-            )
+            if mixup:
+                loss = lam * criterion(outputs, labels_a) + (1 - lam) * criterion(
+                    outputs, labels_b
+                )
+            else:
+                loss = criterion(outputs, labels)
+
+        if scaler is not None and scaler.is_enabled():
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
         else:
-            loss = criterion(outputs, labels)
-
-        loss.backward()
-        optimizer.step()
+            loss.backward()
+            optimizer.step()
 
         running_loss += loss.item()
 
@@ -85,6 +98,7 @@ def evaluate_model(
     device: torch.device,
     num_classes: int = 10,
     detailed_metrics: bool = True,
+    amp_dtype: Optional[torch.dtype] = None
 ) -> Union[Tuple[float, float], Tuple[float, float, Dict]]:
     """
     Evaluate the model on data.
@@ -108,9 +122,15 @@ def evaluate_model(
 
     with torch.no_grad():
         for inputs, labels in dataloader:
-            inputs, labels = inputs.to(device), labels.to(device)
-            outputs = model(inputs)
-            loss = criterion(outputs, labels)
+            inputs = inputs.to(device, non_blocking=True)
+            labels = labels.to(device, non_blocking=True)
+            with torch.autocast(
+                device_type=device.type,
+                dtype=amp_dtype,
+                enabled=bool(amp_dtype),
+            ):
+                outputs = model(inputs)
+                loss = criterion(outputs, labels)
             test_loss += loss.item()
 
             _, predicted = torch.max(outputs.data, 1)
@@ -122,7 +142,7 @@ def evaluate_model(
 
     if detailed_metrics:
         metrics = calculate_classification_metrics(
-            model, dataloader, device, num_classes=num_classes
+            model, dataloader, device, num_classes=num_classes, amp_dtype=amp_dtype
         )
         return test_loss, accuracy, metrics
     else:
@@ -143,6 +163,8 @@ def run_training_loop(
     lr_history,
     mixup,
     device,
+    amp_dtype,
+    scaler,
     start_epoch=0,
     run_dir=None,
     checkpoint_frequency=10,
@@ -163,7 +185,14 @@ def run_training_loop(
     logger.info("Starting training...")
     for epoch in range(start_epoch, num_epochs):
         train_loss = train_one_epoch(
-            model, train_generator, criterion, optimizer, device, mixup=mixup
+            model,
+            train_generator,
+            criterion,
+            optimizer,
+            device,
+            mixup=mixup,
+            scaler=scaler,
+            amp_dtype=amp_dtype
         )
 
         # Validate every epoch
@@ -172,6 +201,7 @@ def run_training_loop(
             val_generator,
             criterion,
             device,
+            amp_dtype=amp_dtype
         )
 
         # Store metrics
@@ -203,7 +233,7 @@ def run_training_loop(
         # Test periodically (every 5 epochs)
         if (epoch + 1) % 5 == 0:
             test_loss, test_accuracy, test_metrics = evaluate_model(
-                model, test_generator, criterion, device
+                model, test_generator, criterion, device, amp_dtype=amp_dtype
             )
 
             metrics_history["test_loss"].append(test_loss)
@@ -230,5 +260,3 @@ def run_training_loop(
                 train_loss,
                 str(checkpoint_path),
             )
-
-    logger.info("Training completed!")

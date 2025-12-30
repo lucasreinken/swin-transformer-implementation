@@ -10,8 +10,12 @@ import os
 from typing import Optional, Tuple, Callable
 from pathlib import Path
 from torchvision import datasets
+from torch.utils.data import Subset
+from sklearn.model_selection import train_test_split
 
-from .datasets import CIFAR10Dataset
+from config import DATA_CONFIG
+
+from .datasets import CIFAR10Dataset, ADE20KDataset
 from .transforms import get_default_transforms
 from ..utils.seeds import set_worker_seeds
 
@@ -151,6 +155,141 @@ def _load_cifar100_data(
     return train_dataset, val_dataset, test_dataset
 
 
+def _download_ade20k(data_dir: Path) -> None:
+    """
+    Download and extract ADE20K dataset.
+    
+    Args:
+        data_dir: Directory to download and extract dataset to
+    """
+    import urllib.request
+    import zipfile
+    import shutil
+    
+    logger.info(f"Downloading ADE20K dataset to {data_dir}...")
+    data_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Official ADE20K download URL
+    url = "http://data.csail.mit.edu/places/ADEchallenge/ADEChallengeData2016.zip"
+    zip_path = data_dir / "ADEChallengeData2016.zip"
+    
+    try:
+        # Download with progress
+        def _progress_hook(count, block_size, total_size):
+            percent = int(count * block_size * 100 / total_size)
+            if count % 50 == 0:  # Print every 50 blocks
+                logger.info(f"Download progress: {percent}%")
+        
+        urllib.request.urlretrieve(url, zip_path, _progress_hook)
+        logger.info("Download completed. Extracting...")
+        
+        # Extract zip file
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(data_dir)
+        
+        # ADE20K extracts to ADEChallengeData2016/
+        extracted_dir = data_dir / "ADEChallengeData2016"
+        if extracted_dir.exists():
+            # Move contents to data_dir
+            for item in extracted_dir.iterdir():
+                shutil.move(str(item), str(data_dir / item.name))
+            extracted_dir.rmdir()
+        
+        # Clean up zip file
+        zip_path.unlink()
+        logger.info(f"ADE20K dataset successfully downloaded and extracted to {data_dir}")
+        
+    except Exception as e:
+        logger.error(f"Failed to download ADE20K: {e}")
+        # Clean up partial downloads
+        if zip_path.exists():
+            zip_path.unlink()
+        raise
+
+
+def _load_ade20k_data(
+    train_transformation: Callable,
+    val_transformation: Callable,
+    root: str,
+) -> Tuple[
+    torch.utils.data.Dataset, torch.utils.data.Dataset, torch.utils.data.Dataset
+]:
+    """
+    Load ADE20K dataset with automatic download fallback.
+    
+    Checks in order:
+    1. Shared storage: /home/space/datasets/ade20k
+    2. User directory: ~/datasets/ade20k
+    3. Auto-download to user directory if not found
+    
+    Args:
+        train_transformation: Transform for training data (should handle image+mask)
+        val_transformation: Transform for validation data (should handle image+mask)
+        root: Root directory hint (not strictly used, we check multiple locations)
+    
+    Returns:
+        Tuple of (train_dataset, val_dataset, test_dataset)
+    
+    Note:
+        For ADE20K segmentation, transformations must be synchronized transforms
+        that process both image and mask together to maintain spatial correspondence.
+    """
+    # Check multiple possible locations
+    shared_path = Path("/home/space/datasets/ade20k")
+    user_path = Path.home() / "datasets" / "ade20k"
+    local_path = Path(root) / "ade20k"
+    
+    data_root = None
+    
+    # Check shared storage first (no download needed)
+    if shared_path.exists() and (shared_path / "images").exists():
+        data_root = shared_path
+        logger.info(f"Using shared ADE20K dataset from {data_root}")
+    
+    # Check user directory
+    elif user_path.exists() and (user_path / "images").exists():
+        data_root = user_path
+        logger.info(f"Using user ADE20K dataset from {data_root}")
+    
+    # Check local path (for local development)
+    elif local_path.exists() and (local_path / "images").exists():
+        data_root = local_path
+        logger.info(f"Using local ADE20K dataset from {data_root}")
+    
+    # Download to user directory if not found anywhere
+    else:
+        data_root = user_path
+        logger.info(f"ADE20K dataset not found. Downloading to {data_root}...")
+        _download_ade20k(data_root)
+    
+    # Create datasets with synchronized transforms
+    train_dataset = ADE20KDataset(
+        root=data_root,
+        split='training',
+        transform=train_transformation,
+    )
+    
+    val_dataset = ADE20KDataset(
+        root=data_root,
+        split='validation',
+        transform=val_transformation,
+    )
+    
+    # For ADE20K, use validation set as test set (standard practice)
+    test_dataset = ADE20KDataset(
+        root=data_root,
+        split='validation',
+        transform=val_transformation,
+    )
+    
+    logger.info(
+        f"Loaded ADE20K data from {data_root}: "
+        f"train={len(train_dataset)}, val={len(val_dataset)}, test={len(test_dataset)}"
+    )
+    
+    return train_dataset, val_dataset, test_dataset
+
+
 # src/data/dataloader.py
 # ... existing code ...
 
@@ -254,36 +393,57 @@ def _create_dataloaders(
     return train_loader, val_loader, test_loader
 
 
+def _subset(dataset, n, stratified, seed=42):
+    """
+    Return a subset of size n from a dataset,
+    optionally preserving class distribution when stratified.
+    """
+    if not stratified:
+        subset, _ = torch.utils.data.random_split(
+            dataset,
+            [n, len(dataset) - n],
+            generator=torch.Generator().manual_seed(seed),
+        )
+        return subset
+
+    targets = getattr(dataset, "targets", None)
+    if targets is None:
+        raise ValueError("Stratified split requires dataset.targets")
+
+    idx = list(range(len(dataset)))
+    idx_sub, _ = train_test_split(
+        idx,
+        train_size=n,
+        stratify=targets,
+        random_state=seed,
+    )
+    return Subset(dataset, idx_sub)
+
+
 def _apply_dataset_limits(
     train_dataset: torch.utils.data.Dataset,
     val_dataset: torch.utils.data.Dataset,
     test_dataset: torch.utils.data.Dataset,
     n_train: Optional[int],
     n_test: Optional[int],
+    stratified: bool
 ) -> Tuple[
     torch.utils.data.Dataset, torch.utils.data.Dataset, torch.utils.data.Dataset
 ]:
     """Apply size limits to datasets if specified."""
     if n_train is not None and n_train < len(train_dataset):
-        train_dataset, _ = torch.utils.data.random_split(
-            train_dataset,
-            [n_train, len(train_dataset) - n_train],
-            generator=torch.Generator().manual_seed(42),
-        )
+        train_dataset = _subset(train_dataset, n_train, stratified)
 
     if n_test is not None and n_test < len(val_dataset):
-        val_dataset, _ = torch.utils.data.random_split(
-            val_dataset,
-            [n_test, len(val_dataset) - n_test],
-            generator=torch.Generator().manual_seed(42),
-        )
+        val_dataset = _subset(val_dataset, n_test, stratified)
 
     if n_test is not None and n_test < len(test_dataset):
-        test_dataset, _ = torch.utils.data.random_split(
-            test_dataset,
-            [n_test, len(test_dataset) - n_test],
-            generator=torch.Generator().manual_seed(42),
-        )
+        test_dataset = _subset(test_dataset, n_test, stratified)
+
+    if stratified:
+        logger.info("Dataset limits applied (stratified sampling enabled)")
+    else:
+        logger.info("Dataset limits applied")
 
     return train_dataset, val_dataset, test_dataset
 
@@ -294,6 +454,7 @@ def load_data(
     val_transformation: Optional[callable] = None,
     n_train: Optional[int] = None,
     n_test: Optional[int] = None,
+    stratified: bool = False,
     use_batch_for_val: bool = False,
     val_batch: int = 5,
     batch_size: int = 32,
@@ -345,12 +506,16 @@ def load_data(
         train_dataset, val_dataset, test_dataset = _load_imagenet_data(
             transformation, val_transformation, root
         )
+    elif dataset == "ADE20K":
+        train_dataset, val_dataset, test_dataset = _load_ade20k_data(
+            transformation, val_transformation, root
+        )
     else:
         raise ValueError(f"Dataset {dataset} not supported.")
 
     # Apply dataset size limits if specified
     train_dataset, val_dataset, test_dataset = _apply_dataset_limits(
-        train_dataset, val_dataset, test_dataset, n_train, n_test
+        train_dataset, val_dataset, test_dataset, n_train, n_test, stratified
     )
 
     # Create DataLoaders

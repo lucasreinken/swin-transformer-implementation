@@ -77,30 +77,36 @@ def transfer_weights(
 
     pretrained_state = pretrained_model.state_dict()
 
+    # Get the target module (encoder only or full model)
     if encoder_only:
-        custom_state = custom_model.encoder.state_dict()
+        target_module = custom_model.encoder
     else:
-        custom_state = {
-            **custom_model.encoder.state_dict(),
-            **custom_model.pred_head.state_dict(),
-        }
+        target_module = custom_model
+    
+    custom_state = target_module.state_dict()
 
     transferred = 0
     missing = []
     size_mismatches = []
+    new_state_dict = {}
 
     for name, param in custom_state.items():
         if name in pretrained_state:
             pretrained_param = pretrained_state[name]
             if param.shape == pretrained_param.shape:
-                param.data.copy_(pretrained_param.data)
+                new_state_dict[name] = pretrained_param.clone()
                 transferred += 1
             else:
                 size_mismatches.append(
                     f"{name}: {param.shape} vs {pretrained_param.shape}"
                 )
+                new_state_dict[name] = param  # Keep original
         else:
             missing.append(name)
+            new_state_dict[name] = param  # Keep original
+
+    # Load the updated state dict into the target module
+    target_module.load_state_dict(new_state_dict)
 
     logger.info(f"Weight transfer: {transferred} layers transferred.")
     if missing:
@@ -111,8 +117,6 @@ def transfer_weights(
         logger.warning(
             f"Size mismatches: {size_mismatches[:3]}{'...' if len(size_mismatches) > 3 else ''}"
         )
-
-    custom_model = custom_model.to(device)
 
     return {
         "transferred": transferred,

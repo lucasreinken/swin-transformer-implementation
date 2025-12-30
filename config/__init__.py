@@ -13,6 +13,7 @@ from .base_config import (
 # Dataset selection - choose one dataset
 # DATASET = "cifar10"
 # DATASET = "cifar100"
+# DATASET = "ade20k"
 DATASET = "imagenet"
 
 # Data root configuration - choose one based on environment
@@ -54,14 +55,25 @@ def _load_config():
             VALIDATION_CONFIG,
             SWIN_CONFIG,
         )
+    elif DATASET == "ade20k":
+        from .ade20k_config import (
+            AUGMENTATION_CONFIG,
+            DATA_CONFIG,
+            DOWNSTREAM_CONFIG,
+            TRAINING_CONFIG,
+            VALIDATION_CONFIG,
+            SWIN_CONFIG,
+        )
     else:
         raise ValueError(
-            f"Unknown dataset: {DATASET}. Choose from: cifar10, cifar100, imagenet"
+            f"Unknown dataset: {DATASET}. Choose from: cifar10, cifar100, imagenet, ade20k"
         )
 
     # Override data root based on environment
     if DATASET == "imagenet":
         DATA_CONFIG["root"] = "/"
+    elif DATASET == "ade20k":
+        DATA_CONFIG["root"] = DATA_ROOT
     else:
         DATA_CONFIG["root"] = DATA_ROOT
 

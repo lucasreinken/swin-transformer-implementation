@@ -30,7 +30,7 @@ MODEL_CONFIGS = {
         "projection_dropout": 0.0,
         "drop_path_rate": 0.08,
         "use_shifted_window": True,
-        "use_relative_bias": False,
+        "use_relative_bias": True,
         "use_absolute_pos_embed": True,
         "use_hierarchical_merge": False,
         "use_gradient_checkpointing": False,

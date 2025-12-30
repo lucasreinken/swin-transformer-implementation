@@ -1,6 +1,6 @@
-# Linear Probing with Swin Transformers
+# Swin Transformer Ablation Studies & Model Comparison
 
-Compare custom Swin Transformer implementations against TIMM reference models on CIFAR-10, CIFAR-100, ImageNet, and ADE20K.
+Train and compare Swin Transformers, Vision Transformers (ViT), and ResNet models from scratch on CIFAR-10, CIFAR-100, ImageNet, and ADE20K. Includes comprehensive ablation studies for Swin Transformer architectural components.
 
 ## 🚀 Quick Setup
 
@@ -30,35 +30,74 @@ TRAINING_CONFIG = {
 ```
 
 **For CIFAR-10** → Edit `config/cifar10_config.py`  
-**For ImageNet** → Edit `config/imagenet_config.py` (currently set to 40 epochs for thorough training)
-**For ADE20K** → Edit `config/ade20k_config.py` (semantic segmentation with 150 classes)
-```python
-TRAINING_CONFIG = {
-    "learning_rate": 5e-4,  # Adjusted for 40 epochs
-    "num_epochs": 40,       # Thorough training configuration
-    "warmup_epochs": 3,
-}
+**For ImageNet** → Edit `config/imagenet_config.py`:
 
-DATA_CONFIG = {
-    "batch_size": 128,      # Optimized batch size with gradient checkpointing
-}
-```
-    "batch_size": 224,        # Full batch size with gradient checkpointing
-}
-
-MODEL_CONFIGS = {
-    "swin": { "use_gradient_checkpointing": True },
-    "vit": { "use_gradient_checkpointing": True },
-    "resnet": { "use_gradient_checkpointing": True }
-}
-```
-
-#### Model Comparison on ImageNet
-For comparing Swin Transformer vs ViT vs ResNet, edit `config/imagenet_config.py`:
+#### Model Selection
+Choose which model to train from scratch:
 ```python
 MODEL_TYPE = "swin"  # Options: "swin", "vit", "resnet"
 ```
-All models are configured with ~25-30M parameters and identical training settings for fair comparison (currently 15 epochs for testing).
+
+#### Ablation Studies (Swin Transformer Only)
+Enable/disable architectural components for ablation experiments:
+```python
+MODEL_CONFIGS = {
+    "swin": {
+        "variant": "tiny",
+        # Core Swin components
+        "use_shifted_window": True,        # Enable shifted window attention
+        "use_relative_bias": True,         # Use relative position bias
+        "use_absolute_pos_embed": False,   # Use absolute position embedding
+        "use_hierarchical_merge": False,   # Use hierarchical feature merging
+        
+        # Memory optimization
+        "use_gradient_checkpointing": True,  # Trade compute for memory (recommended)
+    }
+}
+```
+
+#### Training Configuration
+```python
+TRAINING_CONFIG = {
+    "learning_rate": 3e-4,    # Scaled for batch_size=128, 50 epochs
+    "num_epochs": 50,         # Full training duration
+    "warmup_epochs": 3,       # Learning rate warmup
+    "batch_size": 128,        # Optimized with gradient checkpointing
+}
+```
+
+#### Common Ablation Configurations
+
+**Baseline Swin (all features enabled):**
+```python
+"use_shifted_window": True,
+"use_relative_bias": True,
+"use_absolute_pos_embed": False,
+"use_hierarchical_merge": False,
+```
+
+**Ablate shifted windows:**
+```python
+"use_shifted_window": False,  # Standard self-attention
+"use_relative_bias": True,
+```
+
+**Ablate relative position bias:**
+```python
+"use_shifted_window": True,
+"use_relative_bias": False,   # Absolute position bias only
+```
+
+**Test absolute position embedding:**
+```python
+"use_absolute_pos_embed": True,  # Enable absolute pos embedding
+"use_relative_bias": False,       # Disable relative bias
+```
+
+**Memory optimization:**
+```python
+"use_gradient_checkpointing": True,  # Enable for large batches/low memory
+```
 
 ### 3. Set Data Path
 In `config/__init__.py`:
@@ -81,7 +120,6 @@ python main.py
 ```bash
 sbatch job.slurm
 squeue -u $USER  # Check status
-apptainer run --nv pml.sif python main.py
 ```
 
 ## 🎯 Model Variants
@@ -95,15 +133,17 @@ apptainer run --nv pml.sif python main.py
 
 **To switch models**: Just change `"variant": "tiny"` to `"variant": "base"` etc. in your config file.
 
-## 📊 What You Get
+## 🔬 Ablation Studies
 
-The system automatically:
-- Downloads TIMM pretrained models
-- Creates matching custom Swin architecture  
-- Transfers weights between models
-- Trains both models with linear probing
-- Compares final accuracies
+The ImageNet configuration supports systematic ablation of Swin Transformer components:
 
+| Component | Description | Default | Ablation Impact |
+|-----------|-------------|---------|-----------------|
+| `use_shifted_window` | Shifted window attention | `True` | Compare vs standard self-attention |
+| `use_relative_bias` | Relative position bias | `True` | Test absolute-only positioning |
+| `use_absolute_pos_embed` | Absolute position embedding | `False` | Enable for ViT-style positioning |
+| `use_hierarchical_merge` | Hierarchical feature merging | `False` | Test different merge strategies |
+| `use_gradient_checkpointing` | Memory optimization | `True` | Trade compute for memory |
 
 ## 📁 Output
 

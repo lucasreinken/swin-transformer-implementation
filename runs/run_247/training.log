@@ -1,0 +1,66 @@
+2025-12-30 18:55:41,484 - INFO - Logging initialized. Log file: runs/run_247/training.log
+2025-12-30 18:55:41,500 - INFO - Experiment directory: runs/run_247
+2025-12-30 18:55:41,502 - INFO - Setting random seeds for reproducibility (seed: 42)...
+2025-12-30 18:55:41,545 - INFO - ✅ All seeds set to 42 (deterministic=False)
+2025-12-30 18:55:42,050 - INFO - GPU memory cleared at startup. Available: 23.6GB
+2025-12-30 18:55:42,051 - INFO - Using device: cuda
+2025-12-30 18:55:42,053 - INFO - Training configuration: epochs=50, warmup=3, lr=0.0003
+2025-12-30 18:55:42,054 - INFO - RESNET configuration: {'type': 'resnet', 'layers': [3, 4, 6, 3], 'num_classes': 1000, 'use_gradient_checkpointing': False}
+2025-12-30 18:55:42,056 - INFO - Loading dataset...
+2025-12-30 18:55:42,059 - INFO - Starting ImageNet data loading from root: /
+2025-12-30 18:55:42,061 - INFO - Resolved root path: /
+2025-12-30 18:55:42,062 - INFO - Root path exists: True
+2025-12-30 18:55:42,064 - INFO - Root path is dir: True
+2025-12-30 18:55:42,074 - INFO - Contents of /: ['/.exec', '/.run', '/.shell', '/.singularity.d', '/.test', '/bin', '/boot', '/dev', '/environment', '/etc', '/home', '/lib', '/lib64', '/media', '/mnt', '/opt', '/proc', '/requirements.txt', '/root', '/run', '/sbin', '/singularity', '/srv', '/sys', '/tmp', '/usr', '/var', '/meta', '/train_set', '/train_set_small', '/val_set', '/val_set_unlabeled']
+2025-12-30 18:55:42,075 - INFO - Expected train_dir: /train_set, exists: True
+2025-12-30 18:55:42,077 - INFO - Expected val_dir: /val_set, exists: True
+2025-12-30 18:55:56,245 - INFO - Loaded ImageNet data from /: train=1281167, val=50000
+2025-12-30 18:55:59,209 - INFO - Dataset limits applied (stratified sampling enabled)
+2025-12-30 18:55:59,213 - INFO - Dataset loaded: train=100000 samples (782 batches), val=50000 samples (391 batches), test=50000 samples (391 batches)
+2025-12-30 18:56:01,734 - INFO - Training RESNET from scratch
+2025-12-30 18:56:01,736 - INFO - Initializing RESNET model from scratch...
+2025-12-30 18:56:01,737 - INFO - Model architecture: RESNET
+2025-12-30 18:56:01,739 - INFO - Model config: {'type': 'resnet', 'layers': [3, 4, 6, 3], 'num_classes': 1000, 'use_gradient_checkpointing': False}
+2025-12-30 18:56:03,024 - INFO - Model created with random initialization
+2025-12-30 18:56:03,026 - INFO - Total parameters: 25,557,032
+2025-12-30 18:56:03,027 - INFO - Trainable parameters: 25,557,032
+2025-12-30 18:56:03,147 - INFO - Compiling model with torch.compile()
+2025-12-30 18:56:07,043 - INFO - Mixed precision enabled → CUDA bf16 selected (hardware supported)
+2025-12-30 18:56:07,045 - INFO - Starting from-scratch training...
+2025-12-30 18:56:07,047 - INFO - Optimizer: training all model parameters
+2025-12-30 18:56:07,050 - INFO - LR Scheduler: cosine with 3 warmup epochs
+2025-12-30 18:56:07,052 - INFO - Starting training...
+2025-12-30 19:36:48,556 - INFO - Epoch 1/50: LR: 0.000102
+2025-12-30 19:36:48,558 - INFO - Epoch 1/50: Train Loss: 6.9713, Val Loss: 6.9005, Val Acc: 0.19%
+2025-12-30 19:55:16,346 - INFO - Epoch 2/50: LR: 0.000201
+2025-12-30 19:55:16,349 - INFO - Epoch 2/50: Train Loss: 6.8791, Val Loss: 6.6166, Val Acc: 0.80%
+2025-12-30 20:11:24,025 - INFO - Epoch 3/50: LR: 0.000300
+2025-12-30 20:11:24,027 - INFO - Epoch 3/50: Train Loss: 6.5320, Val Loss: 6.2843, Val Acc: 1.37%
+2025-12-30 20:26:13,269 - INFO - Epoch 4/50: LR: 0.000300
+2025-12-30 20:26:13,272 - INFO - Epoch 4/50: Train Loss: 6.2545, Val Loss: 5.9408, Val Acc: 2.47%
+2025-12-30 20:42:41,128 - INFO - Epoch 5/50: LR: 0.000299
+2025-12-30 20:46:36,986 - INFO - Epoch 5/50: Train Loss: 5.9836, Val Loss: 5.7060, Val Acc: 3.44%, Test Loss: 5.7060, Test Acc: 3.44%
+2025-12-30 21:00:04,467 - INFO - Epoch 6/50: LR: 0.000297
+2025-12-30 21:00:04,472 - INFO - Epoch 6/50: Train Loss: 5.7561, Val Loss: 5.9163, Val Acc: 3.36%
+2025-12-30 21:15:01,662 - INFO - Epoch 7/50: LR: 0.000296
+2025-12-30 21:15:01,667 - INFO - Epoch 7/50: Train Loss: 5.5452, Val Loss: 5.2759, Val Acc: 6.44%
+2025-12-30 21:28:45,229 - INFO - Epoch 8/50: LR: 0.000293
+2025-12-30 21:28:45,234 - INFO - Epoch 8/50: Train Loss: 5.3502, Val Loss: 5.1123, Val Acc: 8.00%
+2025-12-30 21:42:33,643 - INFO - Epoch 9/50: LR: 0.000290
+2025-12-30 21:42:33,648 - INFO - Epoch 9/50: Train Loss: 5.1652, Val Loss: 5.0371, Val Acc: 9.12%
+2025-12-30 21:56:26,243 - INFO - Epoch 10/50: LR: 0.000287
+2025-12-30 22:01:12,875 - INFO - Epoch 10/50: Train Loss: 4.9851, Val Loss: 4.8317, Val Acc: 11.25%, Test Loss: 4.8317, Test Acc: 11.25%
+2025-12-30 22:01:12,880 - INFO - Saving checkpoint for epoch 10...
+2025-12-30 22:01:14,250 - INFO - ✅ Checkpoint saved: runs/run_247/checkpoint_epoch_10.pth
+2025-12-30 22:15:08,546 - INFO - Epoch 11/50: LR: 0.000283
+2025-12-30 22:15:08,563 - INFO - Epoch 11/50: Train Loss: 4.8064, Val Loss: 4.4518, Val Acc: 14.18%
+2025-12-30 22:31:17,790 - INFO - Epoch 12/50: LR: 0.000278
+2025-12-30 22:31:17,795 - INFO - Epoch 12/50: Train Loss: 4.6333, Val Loss: 4.4670, Val Acc: 14.70%
+2025-12-30 22:48:11,370 - INFO - Epoch 13/50: LR: 0.000273
+2025-12-30 22:48:11,376 - INFO - Epoch 13/50: Train Loss: 4.4882, Val Loss: 4.2792, Val Acc: 16.43%
+2025-12-30 23:04:48,563 - INFO - Epoch 14/50: LR: 0.000268
+2025-12-30 23:04:48,567 - INFO - Epoch 14/50: Train Loss: 4.3405, Val Loss: 4.0845, Val Acc: 19.08%
+2025-12-30 23:21:39,693 - INFO - Epoch 15/50: LR: 0.000262
+2025-12-30 23:29:09,077 - INFO - Epoch 15/50: Train Loss: 4.2079, Val Loss: 3.9270, Val Acc: 21.41%, Test Loss: 3.9270, Test Acc: 21.41%
+2025-12-30 23:45:53,984 - INFO - Epoch 16/50: LR: 0.000256
+2025-12-30 23:45:53,987 - INFO - Epoch 16/50: Train Loss: 4.0786, Val Loss: 3.9156, Val Acc: 21.57%

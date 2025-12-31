@@ -1,0 +1,42 @@
+2025-12-30 11:55:32,268 - INFO - Logging initialized. Log file: runs/run_243/training.log
+2025-12-30 11:55:32,311 - INFO - Experiment directory: runs/run_243
+2025-12-30 11:55:32,312 - INFO - Setting random seeds for reproducibility (seed: 42)...
+2025-12-30 11:55:32,333 - INFO - ✅ All seeds set to 42 (deterministic=False)
+2025-12-30 11:55:32,769 - INFO - GPU memory cleared at startup. Available: 23.6GB
+2025-12-30 11:55:32,771 - INFO - Using device: cuda
+2025-12-30 11:55:32,772 - INFO - Training configuration: epochs=50, warmup=3, lr=0.0003
+2025-12-30 11:55:32,773 - INFO - RESNET configuration: {'type': 'resnet', 'layers': [3, 4, 6, 3], 'num_classes': 1000, 'use_gradient_checkpointing': False}
+2025-12-30 11:55:32,775 - INFO - Loading dataset...
+2025-12-30 11:55:32,777 - INFO - Starting ImageNet data loading from root: /
+2025-12-30 11:55:32,778 - INFO - Resolved root path: /
+2025-12-30 11:55:32,780 - INFO - Root path exists: True
+2025-12-30 11:55:32,781 - INFO - Root path is dir: True
+2025-12-30 11:55:32,790 - INFO - Contents of /: ['/.exec', '/.run', '/.shell', '/.singularity.d', '/.test', '/bin', '/boot', '/dev', '/environment', '/etc', '/home', '/lib', '/lib64', '/media', '/mnt', '/opt', '/proc', '/requirements.txt', '/root', '/run', '/sbin', '/singularity', '/srv', '/sys', '/tmp', '/usr', '/var', '/meta', '/train_set', '/train_set_small', '/val_set', '/val_set_unlabeled']
+2025-12-30 11:55:32,792 - INFO - Expected train_dir: /train_set, exists: True
+2025-12-30 11:55:32,793 - INFO - Expected val_dir: /val_set, exists: True
+2025-12-30 11:55:47,046 - INFO - Loaded ImageNet data from /: train=1281167, val=50000
+2025-12-30 11:55:49,993 - INFO - Dataset limits applied (stratified sampling enabled)
+2025-12-30 11:55:49,997 - INFO - Dataset loaded: train=100000 samples (782 batches), val=50000 samples (391 batches), test=50000 samples (391 batches)
+2025-12-30 11:55:51,799 - INFO - Training RESNET from scratch
+2025-12-30 11:55:51,801 - INFO - Initializing RESNET model from scratch...
+2025-12-30 11:55:51,802 - INFO - Model architecture: RESNET
+2025-12-30 11:55:51,804 - INFO - Model config: {'type': 'resnet', 'layers': [3, 4, 6, 3], 'num_classes': 1000, 'use_gradient_checkpointing': False}
+2025-12-30 11:55:53,084 - INFO - Model created with random initialization
+2025-12-30 11:55:53,085 - INFO - Total parameters: 25,557,032
+2025-12-30 11:55:53,087 - INFO - Trainable parameters: 25,557,032
+2025-12-30 11:55:53,208 - INFO - Compiling model with torch.compile()
+2025-12-30 11:55:57,057 - INFO - Mixed precision enabled → CUDA bf16 selected (hardware supported)
+2025-12-30 11:55:57,059 - INFO - Starting from-scratch training...
+2025-12-30 11:55:57,060 - INFO - Optimizer: training all model parameters
+2025-12-30 11:55:57,064 - INFO - LR Scheduler: cosine with 3 warmup epochs
+2025-12-30 11:55:57,066 - INFO - Starting training...
+2025-12-30 12:47:35,853 - INFO - Epoch 1/50: LR: 0.000102
+2025-12-30 12:47:35,873 - INFO - Epoch 1/50: Train Loss: 6.9712, Val Loss: 6.9006, Val Acc: 0.16%
+2025-12-30 13:01:24,205 - INFO - Epoch 2/50: LR: 0.000201
+2025-12-30 13:01:24,215 - INFO - Epoch 2/50: Train Loss: 6.8593, Val Loss: 6.5486, Val Acc: 0.87%
+2025-12-30 13:15:58,461 - INFO - Epoch 3/50: LR: 0.000300
+2025-12-30 13:15:58,470 - INFO - Epoch 3/50: Train Loss: 6.5004, Val Loss: 6.1884, Val Acc: 1.48%
+2025-12-30 13:32:05,954 - INFO - Epoch 4/50: LR: 0.000300
+2025-12-30 13:32:05,960 - INFO - Epoch 4/50: Train Loss: 6.2425, Val Loss: 7.2693, Val Acc: 2.21%
+2025-12-30 13:46:31,012 - INFO - Epoch 5/50: LR: 0.000299
+2025-12-30 13:51:46,887 - INFO - Epoch 5/50: Train Loss: 5.9724, Val Loss: 5.6427, Val Acc: 3.80%, Test Loss: 5.6427, Test Acc: 3.80%

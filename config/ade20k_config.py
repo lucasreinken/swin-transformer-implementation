@@ -46,6 +46,18 @@ SWIN_CONFIG = {
 apply_swin_preset(SWIN_CONFIG, SWIN_PRESETS)
 
 # =============================================================================
+# ResNet Configuration (for ResNet-101/50 + UperNet experiments)
+# =============================================================================
+RESNET_CONFIG = {
+    "type": "resnet",
+    "variant": "resnet101",  # Choose: "resnet50" or "resnet101"
+    "pretrained": True,  # Load ImageNet pretrained weights from torchvision
+    "img_size": 512,  # ADE20K resolution
+    "layers": [3, 4, 23, 3],  # ResNet-101 layers (use [3, 4, 6, 3] for ResNet-50)
+    "use_gradient_checkpointing": False,  # Enable for memory efficiency if needed
+}
+
+# =============================================================================
 # Downstream Task Configuration
 # =============================================================================
 # Training mode: "linear_probe" or "from_scratch"

@@ -10,7 +10,8 @@ from .model_wrapper import (
     swin_large_patch4_window7_224,
 )
 from .segmentation_wrapper import SegmentationModelWrapper
-from .model_factory import create_segmentation_model
+from .resnet_encoder import ResNetFeatureExtractor, ResNetSegmentationWrapper
+from .model_factory import create_segmentation_model, create_resnet_segmentation_model
 
 
 __all__ = [
@@ -20,8 +21,11 @@ __all__ = [
     "UperNetHead",
     "ModelWrapper",
     "SegmentationModelWrapper",
+    "ResNetFeatureExtractor",
+    "ResNetSegmentationWrapper",
     "create_linear_classification_model",
     "create_segmentation_model",
+    "create_resnet_segmentation_model",
     "swin_tiny_patch4_window7_224",
     "swin_small_patch4_window7_224",
     "swin_base_patch4_window7_224",

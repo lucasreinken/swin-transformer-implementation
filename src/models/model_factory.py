@@ -9,6 +9,7 @@ import torchvision.models as models
 from .swin.swin_transformer_model import SwinTransformerModel
 from .model_wrapper import ModelWrapper
 from .segmentation_wrapper import SegmentationModelWrapper
+from .resnet_encoder import ResNetFeatureExtractor, ResNetSegmentationWrapper
 from .heads import LinearClassificationHead, UperNetHead
 
 
@@ -241,5 +242,69 @@ def create_segmentation_model(swin_config, downstream_config, load_pretrained=Tr
                   f"{stats['missing']} missing, {stats['size_mismatches']} size mismatches")
         else:
             print("Warning: Could not load pretrained weights. Training from scratch.")
+    
+    return model
+
+
+def create_resnet_segmentation_model(resnet_config, downstream_config):
+    """
+    Create segmentation model with ResNet encoder + UperNet head.
+    
+    This function loads a pretrained ResNet-101/50 from torchvision and combines
+    it with UperNet for semantic segmentation on ADE20K or similar datasets.
+    
+    Args:
+        resnet_config: ResNet configuration dictionary with keys:
+            - variant: 'resnet50' or 'resnet101' (default: 'resnet101')
+            - pretrained: Whether to load ImageNet pretrained weights (default: True)
+            - img_size: Input image size (default: 512)
+        downstream_config: DOWNSTREAM_CONFIG dictionary with keys:
+            - num_classes: Number of segmentation classes (e.g., 150 for ADE20K)
+            - freeze_encoder: If True, freeze ResNet encoder weights
+    
+    Returns:
+        ResNetSegmentationWrapper containing encoder + segmentation head
+    """
+    # Get ResNet variant
+    variant = resnet_config.get("variant", "resnet101")
+    pretrained = resnet_config.get("pretrained", True)
+    img_size = resnet_config.get("img_size", 512)
+    
+    print(f"Creating ResNet segmentation model: {variant}, pretrained={pretrained}")
+    
+    # Create ResNet feature extractor
+    encoder = ResNetFeatureExtractor(
+        variant=variant,
+        pretrained=pretrained,
+    )
+    encoder.set_img_size(img_size)
+    
+    # Get feature channels from encoder
+    # ResNet-101/50: [256, 512, 1024, 2048]
+    in_channels = encoder.out_channels
+    
+    print(f"ResNet encoder feature channels: {in_channels}")
+    
+    # Create UperNet segmentation head
+    seg_head = UperNetHead(
+        in_channels=in_channels,
+        num_classes=downstream_config["num_classes"],
+        channels=512,  # FPN channels (standard for UperNet)
+        pool_scales=(1, 2, 3, 6),  # PPM scales from paper
+        dropout=0.1,  # Dropout before classifier
+    )
+    
+    # Combine encoder + head
+    model = ResNetSegmentationWrapper(
+        encoder=encoder,
+        seg_head=seg_head,
+        freeze_encoder=downstream_config.get("freeze_encoder", False),
+    )
+    
+    # Print parameter counts
+    param_counts = model.get_num_params()
+    print(f"Model parameters: encoder={param_counts['encoder']:,}, "
+          f"head={param_counts['head']:,}, total={param_counts['total']:,}, "
+          f"trainable={param_counts['trainable']:,}")
     
     return model

@@ -20,6 +20,7 @@ from src.pipelines import run_segmentation_pipeline
 from config.ade20k_config import (
     DATA_CONFIG,
     SWIN_CONFIG,
+    RESNET_CONFIG,
     DOWNSTREAM_CONFIG,
     TRAINING_CONFIG,
     SEED_CONFIG,
@@ -44,12 +45,25 @@ def setup_device() -> torch.device:
     return device
 
 
+# Choose encoder backbone: "swin" or "resnet"
+# Set this to "resnet" to train ResNet-101 + UperNet
+ENCODER_TYPE = "swin"  # Options: "swin", "resnet"
+
+
 def main():
     """Main segmentation training pipeline."""
     try:
+        # Determine model name based on encoder type
+        if ENCODER_TYPE == "resnet":
+            model_name = f"ResNet-101 + UperNet"
+            encoder_config = RESNET_CONFIG
+        else:
+            model_name = "Swin-T + UperNet"
+            encoder_config = SWIN_CONFIG
+        
         logger.info("=" * 60)
         logger.info("ADE20K Semantic Segmentation Training")
-        logger.info("Model: Swin-T + UperNet")
+        logger.info(f"Model: {model_name}")
         logger.info("=" * 60)
 
         # Setup run directory and logging
@@ -71,8 +85,9 @@ def main():
             logger.info("CuDNN benchmark mode enabled")
 
         # Log configuration
+        logger.info(f"Encoder type: {ENCODER_TYPE}")
         logger.info(f"Data config: {DATA_CONFIG}")
-        logger.info(f"Swin config: {SWIN_CONFIG}")
+        logger.info(f"Encoder config: {encoder_config}")
         logger.info(f"Downstream config: {DOWNSTREAM_CONFIG}")
         logger.info(f"Training config: {TRAINING_CONFIG}")
 
@@ -115,6 +130,8 @@ def main():
             device=device,
             run_dir=run_dir,
             resume_checkpoint=TRAINING_CONFIG.get("resume_from_checkpoint"),
+            encoder_type=ENCODER_TYPE,
+            resnet_config=RESNET_CONFIG if ENCODER_TYPE == "resnet" else None,
         )
 
         logger.info("Segmentation training completed successfully!")

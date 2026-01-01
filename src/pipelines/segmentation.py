@@ -13,7 +13,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
-from src.models.model_factory import create_segmentation_model
+from src.models.model_factory import create_segmentation_model, create_resnet_segmentation_model
 from src.training import run_segmentation_training_loop
 from src.training.checkpoints import load_checkpoint, save_model_weights
 from src.utils.experiment import ExperimentTracker
@@ -57,6 +57,8 @@ def create_segmentation_model_for_training(
     downstream_config: Dict,
     device: torch.device,
     load_pretrained: bool = True,
+    encoder_type: str = "swin",
+    resnet_config: Optional[Dict] = None,
 ) -> nn.Module:
     """
     Create segmentation model and move to device.
@@ -66,17 +68,31 @@ def create_segmentation_model_for_training(
         downstream_config: Downstream task configuration
         device: Device to place model on
         load_pretrained: Whether to load ImageNet pretrained weights
+        encoder_type: "swin" or "resnet"
+        resnet_config: ResNet configuration (required if encoder_type="resnet")
     
     Returns:
-        SegmentationModelWrapper on device
+        SegmentationModelWrapper or ResNetSegmentationWrapper on device
     """
-    logger.info("Creating Swin-T + UperNet segmentation model...")
-    
-    model = create_segmentation_model(
-        swin_config=swin_config,
-        downstream_config=downstream_config,
-        load_pretrained=load_pretrained,
-    )
+    if encoder_type == "resnet":
+        if resnet_config is None:
+            raise ValueError("resnet_config is required when encoder_type='resnet'")
+        
+        variant = resnet_config.get("variant", "resnet101")
+        logger.info(f"Creating {variant.upper()} + UperNet segmentation model...")
+        
+        model = create_resnet_segmentation_model(
+            resnet_config=resnet_config,
+            downstream_config=downstream_config,
+        )
+    else:
+        logger.info("Creating Swin-T + UperNet segmentation model...")
+        
+        model = create_segmentation_model(
+            swin_config=swin_config,
+            downstream_config=downstream_config,
+            load_pretrained=load_pretrained,
+        )
     
     # Log parameter counts
     param_counts = model.get_num_params()
@@ -100,6 +116,8 @@ def run_segmentation_pipeline(
     device: torch.device,
     run_dir: Path,
     resume_checkpoint: Optional[str] = None,
+    encoder_type: str = "swin",
+    resnet_config: Optional[Dict] = None,
 ) -> Dict:
     """
     Run the full segmentation training pipeline.
@@ -113,14 +131,23 @@ def run_segmentation_pipeline(
         device: Device to train on
         run_dir: Directory to save results
         resume_checkpoint: Path to checkpoint to resume from (optional)
+        encoder_type: "swin" or "resnet" backbone selection
+        resnet_config: ResNet configuration (required if encoder_type="resnet")
     
     Returns:
         Final metrics dictionary
     """
-    variant = "swin_upernet"
+    # Determine variant name for logging and saving
+    if encoder_type == "resnet":
+        resnet_variant = resnet_config.get("variant", "resnet101") if resnet_config else "resnet101"
+        variant = f"{resnet_variant}_upernet"
+        model_display_name = f"{resnet_variant.upper()} + UperNet"
+    else:
+        variant = "swin_upernet"
+        model_display_name = "Swin-T + UperNet"
     
     logger.info("=" * 60)
-    logger.info("Segmentation Pipeline: Swin-T + UperNet on ADE20K")
+    logger.info(f"Segmentation Pipeline: {model_display_name} on ADE20K")
     logger.info("=" * 60)
     
     # Create model
@@ -129,6 +156,8 @@ def run_segmentation_pipeline(
         downstream_config=downstream_config,
         device=device,
         load_pretrained=downstream_config.get("use_pretrained", True),
+        encoder_type=encoder_type,
+        resnet_config=resnet_config,
     )
     
     # Setup mixed precision
@@ -228,7 +257,9 @@ def run_segmentation_pipeline(
         variant=variant,
         run_dir=run_dir,
         config={
-            "swin_config": swin_config,
+            "encoder_type": encoder_type,
+            "swin_config": swin_config if encoder_type == "swin" else None,
+            "resnet_config": resnet_config if encoder_type == "resnet" else None,
             "downstream_config": downstream_config,
             "training_config": training_config,
         },

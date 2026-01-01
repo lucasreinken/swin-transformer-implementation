@@ -16,8 +16,8 @@ DATA_CONFIG = {
     "dataset": "ADE20K",
     "use_batch_for_val": False,
     "val_batch": 5,
-    "batch_size": 16,  # Smaller batch size for segmentation (higher memory)
-    "num_workers": 8,
+    "batch_size": 4,  # Reduced for 12GB GPU (RTX 4070); use 16 for 24GB+ GPUs
+    "num_workers": 4,  # Reduced to avoid DataLoader warnings
     "root": "./datasets",  # Will check shared storage first, then download if needed
     "img_size": 512,  # ADE20K resolution (512 is standard despite window_size mismatch)
     # Subset configuration (optional, set to None to use full dataset)
@@ -40,6 +40,7 @@ SWIN_CONFIG = {
     "attention_dropout": 0.0,
     "projection_dropout": 0.0,
     "drop_path_rate": 0.2,  # Higher for segmentation following paper
+    "use_gradient_checkpointing": True,  # Enable for memory efficiency on 12GB GPUs
 }
 
 # Apply preset values for None fields

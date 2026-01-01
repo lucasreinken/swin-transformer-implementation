@@ -38,7 +38,7 @@ echo ""
 
 # Set PyTorch CUDA memory allocation config for better memory management
 # Segmentation with 512x512 requires more memory than classification
-export PYTORCH_ALLOC_CONF=max_split_size_mb:512
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True,max_split_size_mb:256
 
 echo "PYTORCH_ALLOC_CONF: $PYTORCH_ALLOC_CONF"
 echo ""

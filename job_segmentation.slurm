@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --partition=gpu-teaching-7d
-#SBATCH --gres=gpu:3g.40gb:1
+#SBATCH --gres=gpu:40gb:1
 #SBATCH --mem=64G
 #SBATCH --time=168:00:00
 #SBATCH --job-name=resnet101_ade20k_seg

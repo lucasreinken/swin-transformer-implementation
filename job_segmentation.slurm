@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --partition=gpu-teaching-2d
+#SBATCH --partition=gpu-teaching-9m
 #SBATCH --gpus=1
 #SBATCH --mem=64G
-#SBATCH --time=48:00:00
+#SBATCH --time=00:09:00
 #SBATCH --job-name=swin_ade20k_seg
 #SBATCH --output=logs/%j_%x.out
 #SBATCH --error=logs/%j_%x.err

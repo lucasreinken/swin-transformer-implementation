@@ -1,0 +1,47 @@
+{
+  "timestamp": "2025-12-27T19:53:49.559505",
+  "variant": "swin_upernet",
+  "config": {
+    "swin_config": {
+      "img_size": 512,
+      "variant": "tiny",
+      "patch_size": 4,
+      "embed_dim": 96,
+      "depths": [
+        2,
+        2,
+        6,
+        2
+      ],
+      "num_heads": [
+        3,
+        6,
+        12,
+        24
+      ],
+      "window_size": 7,
+      "mlp_ratio": 4.0,
+      "dropout": 0.0,
+      "attention_dropout": 0.0,
+      "projection_dropout": 0.0,
+      "drop_path_rate": 0.2
+    },
+    "downstream_config": {
+      "mode": "from_scratch",
+      "head_type": "upernet",
+      "num_classes": 150,
+      "hidden_dim": null,
+      "freeze_encoder": false,
+      "use_pretrained": true
+    },
+    "training_config": {
+      "learning_rate": 6e-05,
+      "num_epochs": 160,
+      "warmup_epochs": 2,
+      "warmup_start_factor": 0.1,
+      "weight_decay": 0.01,
+      "mixed_precision": true,
+      "compile": false
+    }
+  }
+}

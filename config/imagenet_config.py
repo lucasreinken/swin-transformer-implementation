@@ -30,7 +30,7 @@ MODEL_CONFIGS = {
         "projection_dropout": 0.0,
         "drop_path_rate": 0.08,
         "use_shifted_window": True,
-        "use_relative_bias": True,
+        "use_relative_bias": False,
         "use_absolute_pos_embed": False,
         "use_hierarchical_merge": False,
         "use_gradient_checkpointing": False,
@@ -101,8 +101,8 @@ TRAINING_CONFIG = {
     "seed": 42,  # Random seed for reproducibility
     "deterministic": False,  # Set to True for fully reproducible (but slower) training
     "learning_rate": 3e-4,  # Optimal for batch_size=128, 50 epochs (scaled from Swin paper)
-    "num_epochs": 50,  # Full training duration for Swin Transformer
-    "warmup_epochs": 3,  # ~6% of 50 epochs for stability
+    "num_epochs": 2,  # Full training duration for Swin Transformer
+    "warmup_epochs": 1,  # ~6% of 50 epochs for stability
     "warmup_start_factor": 0.01,  # Start from very low LR
     "weight_decay": 0.02,  # Balanced regularization
     "min_lr": 5e-5,  # Lower minimum LR for full cosine decay

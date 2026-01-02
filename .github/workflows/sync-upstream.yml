@@ -17,9 +17,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
       - name: Add upstream and fetch
         run: |
-          git remote add upstream https://github.com/wolnik-georg/Machine-Learning-Project.git
+          git remote add upstream https://github.com/wolnik-georg/Machine-Learning-Project.git 2>/dev/null || true
           git fetch --prune upstream "+refs/heads/*:refs/remotes/upstream/*" "+refs/tags/*:refs/tags/*"
 
       - name: Authenticated origin
@@ -28,11 +33,11 @@ jobs:
         run: |
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
-      # 1) Keep main safe: update only if it can fast-forward (won't delete workflow)
-      - name: Sync main (fast-forward only)
+      # 1) Keep main safe: merge upstream into main (keeps workflow on main)
+      - name: Sync main (merge)
         run: |
           git checkout main
-          git merge --no-ff upstream/main -m "Merge upstream/main"
+          git merge --no-ff upstream/main -m "Merge upstream/main" || echo "Nothing to merge"
           git push origin main
 
       # 2) Mirror ALL OTHER branches (force), excluding main
@@ -45,7 +50,7 @@ jobs:
             git push --force origin "refs/remotes/upstream/$br:refs/heads/$br"
           done
 
-      # 3) Sync tags (force). Remove --prune if you DON'T want tag deletions.
+      # 3) Sync tags (force). Remove --force if you DON'T want tag overwrites.
       - name: Sync tags
         run: |
           git push --force origin "refs/tags/*:refs/tags/*"

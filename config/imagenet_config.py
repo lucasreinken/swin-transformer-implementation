@@ -129,7 +129,7 @@ DATA_CONFIG = {
     "dataset": "ImageNet",
     "use_batch_for_val": False,
     "val_batch": 5,
-    "batch_size": 96,  # Reduced from 128 to prevent OOM with improved model
+    "batch_size": 128,  # Reduced from 128 to prevent OOM with improved model
     "num_workers": 2,  # Reduced from 8 to match system recommendation and avoid slowness
     "root": "./datasets",
     "img_size": 224,
@@ -169,8 +169,8 @@ TRAINING_CONFIG = {
     "seed": 42,  # Random seed for reproducibility
     "deterministic": False,  # Set to True for fully reproducible (but slower) training
     "learning_rate": 2e-4,  # More conservative for 300 epochs
-    "num_epochs": 50,  # 50-epoch run for swin_improved comparison
-    "warmup_epochs": 10,  # ~20% of 50 epochs for stability
+    "num_epochs": 10,  # 50-epoch run for swin_improved comparison
+    "warmup_epochs": 2,  # ~20% of 50 epochs for stability
     "warmup_start_factor": 0.01,  # Start from very low LR
     "weight_decay": 0.02,  # Balanced regularization
     "min_lr": 1e-5,  # Lower minimum LR for full cosine decay

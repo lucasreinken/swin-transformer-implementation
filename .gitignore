@@ -1,5 +1,4 @@
 datasets/
-logs/
 docs/
 __pycache__/
 checkpoints/

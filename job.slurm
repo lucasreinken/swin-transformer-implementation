@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --partition=gpu-teaching-5h    # 5-hour partition for shorter runs
+#SBATCH --partition=gpu-teaching-7d    # 7-day partition for longer runs
 #SBATCH --gpus=1
-#SBATCH --time=05:00:00                 # 5 hours for 10-epoch run
-#SBATCH --job-name=imagenet_swin_improved_10ep        # swin improved 10 epochs
+#SBATCH --time=168:00:00                 # 168 hours for 20-epoch run
+#SBATCH --job-name=imagenet_swin_improved_300ep        # swin improved 20 epochs
 #SBATCH --output=logs/%j_%x.out          # includes job name → easier to find
 #SBATCH --error=logs/%j_%x.err
 #SBATCH --array=1-1                      # Adjust as needed for multiple runs
@@ -31,7 +31,7 @@ if torch.cuda.is_available():
     
     # Empty cache multiple times
     for _ in range(3):
-        torch.cuda.empty_cache()
+        torch.cuda.empty_cache()168
         torch.cuda.synchronize()
     
     # Check memory status

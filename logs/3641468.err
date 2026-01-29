@@ -1,0 +1,85 @@
+INFO:    gocryptfs not found, will not be able to use gocryptfs
+2025-11-19 19:46:37,056 - INFO - Logging initialized. Log file: runs/run_39/training.log
+2025-11-19 19:46:37,311 - INFO - Random seeds set to 42 (deterministic=False)
+2025-11-19 19:46:37,312 - INFO - Using device: cuda
+2025-11-19 19:46:37,313 - INFO - Loading data...
+/usr/local/lib/python3.12/site-packages/torch/utils/data/dataloader.py:627: UserWarning: This DataLoader will create 4 worker processes in total. Our suggested max number of worker in current system is 2, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(
+2025-11-19 19:46:39,736 - INFO - Visualizing first batch...
+2025-11-19 19:46:39,737 - INFO - Visualizing from DataLoader with 1303 batches
+2025-11-19 19:46:40,411 - INFO - Loaded 16 images from dataloader
+2025-11-19 19:46:43,182 - INFO - Saved enhanced dataset visualization to runs/run_39/visualization.png
+2025-11-19 19:46:43,184 - INFO - Initializing model...
+2025-11-19 19:46:43,578 - INFO - Created SwinTransformerModel for CIFAR-100 training.
+2025-11-19 19:46:43,604 - INFO - Model moved to device: cuda
+2025-11-19 19:46:43,606 - INFO - Patch embed proj device: cuda:0
+2025-11-19 19:46:43,607 - INFO - Encoder first layer device: cuda:0
+2025-11-19 19:46:43,608 - INFO - Head device: cuda:0
+2025-11-19 19:46:43,610 - INFO - Transferring weights from pretrained to custom model...
+2025-11-19 19:46:43,986 - INFO - Loading pretrained weights from Hugging Face hub (timm/swin_tiny_patch4_window7_224.ms_in1k)
+2025-11-19 19:46:44,205 - INFO - HTTP Request: HEAD https://huggingface.co/timm/swin_tiny_patch4_window7_224.ms_in1k/resolve/main/model.safetensors "HTTP/1.1 302 Found"
+2025-11-19 19:46:44,220 - INFO - [timm/swin_tiny_patch4_window7_224.ms_in1k] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+2025-11-19 19:46:44,390 - INFO - Loaded pretrained model: swin_tiny_patch4_window7_224 from timm.
+2025-11-19 19:46:44,414 - INFO - Weight transfer: 169 layers transferred.
+2025-11-19 19:46:44,416 - INFO - Weight transfer completed: {'transferred': 169, 'missing': 0, 'size_mismatches': 0}
+2025-11-19 19:46:44,417 - INFO - After transfer - Patch embed proj device: cuda:0
+2025-11-19 19:46:44,418 - INFO - After transfer - Encoder first layer device: cuda:0
+2025-11-19 19:46:44,420 - INFO - Total parameters: 78,436
+2025-11-19 19:46:44,551 - INFO - Saved configuration to runs/run_39/config.json
+2025-11-19 19:46:44,553 - INFO - Starting training...
+2025-11-19 19:48:54,903 - INFO - Epoch 1/50: Train Loss: 1.5417, Val Loss: 0.9531, Val Acc: 72.07%
+2025-11-19 19:51:03,895 - INFO - Epoch 2/50: Train Loss: 0.8872, Val Loss: 0.8548, Val Acc: 74.76%
+2025-11-19 19:53:12,979 - INFO - Epoch 3/50: Train Loss: 0.7777, Val Loss: 0.8224, Val Acc: 75.72%
+2025-11-19 19:55:21,612 - INFO - Epoch 4/50: Train Loss: 0.7146, Val Loss: 0.8113, Val Acc: 76.08%
+/usr/local/lib/python3.12/site-packages/torch/utils/data/dataloader.py:627: UserWarning: This DataLoader will create 4 worker processes in total. Our suggested max number of worker in current system is 2, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(
+2025-11-19 19:58:14,918 - INFO - Epoch 5/50: Train Loss: 0.6756, Val Loss: 0.7987, Val Acc: 76.58%, Test Loss: 0.7973, Test Acc: 76.57%
+2025-11-19 20:00:26,655 - INFO - Epoch 6/50: Train Loss: 0.6437, Val Loss: 0.8022, Val Acc: 76.36%
+2025-11-19 20:02:42,943 - INFO - Epoch 7/50: Train Loss: 0.6133, Val Loss: 0.8059, Val Acc: 76.30%
+2025-11-19 20:04:59,816 - INFO - Epoch 8/50: Train Loss: 0.5967, Val Loss: 0.7949, Val Acc: 76.50%
+2025-11-19 20:07:15,979 - INFO - Epoch 9/50: Train Loss: 0.5771, Val Loss: 0.7971, Val Acc: 76.54%
+2025-11-19 20:09:32,423 - INFO - Early stopping triggered at epoch 10.
+2025-11-19 20:09:32,425 - INFO - Training completed!
+2025-11-19 20:09:32,426 - INFO - Starting model implementation validation...
+2025-11-19 20:09:32,811 - INFO - Loading pretrained weights from Hugging Face hub (timm/swin_tiny_patch4_window7_224.ms_in1k)
+2025-11-19 20:09:32,959 - INFO - HTTP Request: HEAD https://huggingface.co/timm/swin_tiny_patch4_window7_224.ms_in1k/resolve/main/model.safetensors "HTTP/1.1 302 Found"
+2025-11-19 20:09:32,974 - INFO - [timm/swin_tiny_patch4_window7_224.ms_in1k] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+2025-11-19 20:09:33,141 - INFO - Loaded pretrained model: swin_tiny_patch4_window7_224 from timm.
+2025-11-19 20:09:33,160 - INFO - Transferring weights from pretrained to custom model...
+2025-11-19 20:09:33,165 - INFO - Weight transfer: 171 layers transferred.
+2025-11-19 20:09:33,166 - WARNING - Size mismatches: ['head.fc.weight: torch.Size([100, 768]) vs torch.Size([1000, 768])', 'head.fc.bias: torch.Size([100]) vs torch.Size([1000])']
+2025-11-19 20:09:33,168 - INFO - Weight transfer completed: {'transferred': 171, 'missing': 0, 'size_mismatches': 2}
+2025-11-19 20:09:33,169 - INFO - Using subset of 1000 samples for validation
+/usr/local/lib/python3.12/site-packages/torch/utils/data/dataloader.py:627: UserWarning: This DataLoader will create 4 worker processes in total. Our suggested max number of worker in current system is 2, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(
+2025-11-19 20:09:38,663 - INFO - === MODEL COMPARISON RESULTS ===
+2025-11-19 20:09:38,664 - INFO - Pretrained Model  - Top-1: 0.80%, Top-5: 1.20%
+2025-11-19 20:09:38,665 - INFO - Custom Model      - Top-1: 70.50%, Top-5: 94.40%
+2025-11-19 20:09:38,666 - INFO - Differences       - Top-1: -69.70%, Top-5: -93.20%
+2025-11-19 20:09:38,709 - INFO - Validation results saved to runs/run_39/model_validation_results.json
+2025-11-19 20:09:38,711 - INFO - Generating training curves...
+2025-11-19 20:09:40,515 - INFO - Training curves saved as separate images with base name 'runs/run_39/training_curves'
+2025-11-19 20:09:40,516 - INFO - Generating confusion matrix on test set...
+2025-11-19 20:10:37,865 - INFO - Performing final evaluation on test set...
+2025-11-19 20:11:24,233 - INFO - Final Test Results: Loss: 0.9986, Accuracy: 74.43%
+2025-11-19 20:11:24,235 - INFO - Generating LR schedule plot...
+2025-11-19 20:11:24,518 - INFO - LR schedule plot saved to 'runs/run_39/lr_schedule.png'
+2025-11-19 20:11:24,519 - INFO - Generating model validation comparison plot...
+Traceback (most recent call last):
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/main.py", line 527, in <module>
+    main()
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/main.py", line 503, in main
+    final_test_metrics = generate_reports(
+                         ^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/main.py", line 412, in generate_reports
+    plot_model_validation_comparison(
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/training/metrics.py", line 312, in plot_model_validation_comparison
+    ax1.set_title("Top-1 Accuracy Comparison", fonsize=14, fontweight="bold")
+  File "/usr/local/lib/python3.12/site-packages/matplotlib/axes/_axes.py", line 201, in set_title
+    title._internal_update(kwargs)
+  File "/usr/local/lib/python3.12/site-packages/matplotlib/artist.py", line 1233, in _internal_update
+    return self._update_props(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/matplotlib/artist.py", line 1206, in _update_props
+    raise AttributeError(
+AttributeError: Text.set() got an unexpected keyword argument 'fonsize'

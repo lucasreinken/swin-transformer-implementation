@@ -1,0 +1,11 @@
+Job started on node: head055
+Allocated GPU(s): 0
+Starting training at Fri Dec 19 13:44:15 CET 2025
+GPU Memory before training:
+1, 24124, 24576
+1, 24124, 24576
+Training completed at Sun Dec 21 01:20:32 CET 2025
+GPU Memory after training:
+1, 24124, 24576
+1, 24124, 24576
+Job finished

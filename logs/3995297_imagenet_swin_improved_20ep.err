@@ -1,3 +1,5 @@
+/var/spool/slurmd/spool/job3995297/slurm_script: line 19: python: command not found
+INFO:    gocryptfs not found, will not be able to use gocryptfs
 2026-01-28 23:18:58,066 - INFO - Logging initialized. Log file: runs/run_283/training.log
 2026-01-28 23:18:58,085 - INFO - Experiment directory: runs/run_283
 2026-01-28 23:18:58,086 - INFO - Setting random seeds for reproducibility (seed: 42)...
@@ -344,3 +346,9 @@
 2026-01-29 17:15:52,126 - INFO - Too many classes (1000) for per-class plotting, skipping
 2026-01-29 17:15:52,127 - INFO - Training curves saved as separate images with base name 'runs/run_283/training_curves_from_scratch'
 2026-01-29 17:15:52,128 - INFO - Generating confusion matrix on test set...
+INFO:    Terminating squashfuse_ll after timeout
+INFO:    Timeouts can be caused by a running background process
+INFO:    Terminating squashfuse_ll after timeout
+INFO:    Timeouts can be caused by a running background process
+/var/spool/slurmd/spool/job3995297/slurm_script: line 62: 3683619 Killed                  apptainer run --nv --overlay /home/space/datasets-sqfs/imagenet2012.sqfs pml.sif python main.py
+[2026-01-29T17:25:57.730] error: Detected 1 oom_kill event in StepId=3995297.batch. Some of the step tasks have been OOM Killed.

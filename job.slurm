@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --partition=gpu-teaching-2d    # 2-day partition for shorter runs
+#SBATCH --partition=gpu-teaching-5h    # 5-hour partition for shorter runs
 #SBATCH --gpus=1
-#SBATCH --time=48:00:00                 # 48 hours for 10-epoch run
+#SBATCH --time=05:00:00                 # 5 hours for 10-epoch run
 #SBATCH --job-name=imagenet_swin_improved_10ep        # swin improved 10 epochs
 #SBATCH --output=logs/%j_%x.out          # includes job name → easier to find
 #SBATCH --error=logs/%j_%x.err

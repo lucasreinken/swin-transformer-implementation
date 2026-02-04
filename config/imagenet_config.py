@@ -13,7 +13,7 @@ from .base_config import (
 
 # Model type selection for comparison experiments
 MODEL_TYPE = (
-    "swin_improved"  # Options: "swin", "swin_hybrid", "swin_improved", "vit", "resnet"
+    "swin_hybrid"  # Options: "swin", "swin_hybrid", "swin_improved", "vit", "resnet"
 )
 
 # Model configurations for all types

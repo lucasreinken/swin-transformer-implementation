@@ -12,7 +12,7 @@ from .base_config import (
 )
 
 # Model type selection for comparison experiments
-MODEL_TYPE = "swin_deformable"  # Options: "swin", "swin_hybrid", "swin_improved", "swin_deformable", "vit", "resnet"
+MODEL_TYPE = "swin_deformable"  # Options: "swin", "swin_v2", "swin_hybrid", "swin_improved", "swin_deformable", "vit", "resnet"
 
 # Model configurations for all types
 MODEL_CONFIGS = {
@@ -34,6 +34,25 @@ MODEL_CONFIGS = {
         "use_absolute_pos_embed": False,
         "use_hierarchical_merge": False,
         "use_gradient_checkpointing": False,  # Enable for memory efficiency during long training
+    },
+    "swin_v2": {
+        "type": "swin_v2",
+        "variant": "tiny",
+        "patch_size": 4,
+        "embed_dim": None,  # Auto-set from preset
+        "depths": None,  # Auto-set from preset
+        "num_heads": None,  # Auto-set from preset
+        "window_size": 7,
+        "mlp_ratio": 4.0,
+        "dropout": 0.0,
+        "attention_dropout": 0.0,
+        "projection_dropout": 0.0,
+        "drop_path_rate": 0.08,
+        "use_shifted_window": True,
+        "use_relative_bias": False,
+        "use_absolute_pos_embed": False,
+        "use_hierarchical_merge": False,
+        "use_gradient_checkpointing": False,  # Enable for memory efficiency
     },
     "swin_hybrid": {
         "type": "swin_hybrid",
@@ -165,7 +184,13 @@ DATA_CONFIG = {
 SWIN_CONFIG = MODEL_CONFIG if MODEL_TYPE == "swin" else {}
 
 # Apply preset values for None fields (only for Swin variants)
-for model_type in ["swin", "swin_hybrid", "swin_improved", "swin_deformable"]:
+for model_type in [
+    "swin",
+    "swin_v2",
+    "swin_hybrid",
+    "swin_improved",
+    "swin_deformable",
+]:
     if model_type in MODEL_CONFIGS:
         apply_swin_preset(MODEL_CONFIGS[model_type], SWIN_PRESETS)
 

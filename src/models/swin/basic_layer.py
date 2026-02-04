@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from .swin_transformer_block import SwinTransformerBlock
+from .swin_transformer_block import SwinTransformerBlock, SwinV2TransformerBlock
 
 
 class BasicLayer(nn.Module):
@@ -180,5 +180,111 @@ class BasicLayer(nn.Module):
         # Pass through all Swin Transformer blocks
         for block in self.blocks:
             x = block(x, H, W)
+
+        return x, H, W
+
+
+class BasicLayerV2(nn.Module):
+    """
+    Basic Swin Transformer V2 Layer with Post-Normalization blocks.
+
+    Identical to BasicLayer but uses SwinV2TransformerBlock instead of SwinTransformerBlock.
+    This enables residual post-normalization for better training stability.
+    """
+
+    def __init__(
+        self,
+        dim: int,
+        depth: int,
+        num_heads: int,
+        window_size: int,
+        mlp_ratio: float = 4.0,
+        dropout: float = 0.0,
+        attention_dropout: float = 0.0,
+        projection_dropout: float = 0.0,
+        drop_path: float | list[float] = 0.0,
+        downsample: nn.Module | None = None,
+        downsample_input_dim: int | None = None,
+        use_shifted_window: bool = True,
+        use_relative_bias: bool = True,
+        use_absolute_pos_embed: bool = False,
+    ):
+        """
+        Args:
+            dim: Number of input channels
+            depth: Number of Swin V2 blocks in this layer
+            num_heads: Number of attention heads
+            window_size: Local window size
+            mlp_ratio: Ratio of mlp hidden dim to embedding dim
+            dropout: Dropout rate
+            attention_dropout: Attention dropout rate
+            projection_dropout: Projection dropout rate
+            drop_path: Stochastic depth rate (can be list or float)
+            downsample: Downsampling layer (e.g., PatchMerging) at the end
+            downsample_input_dim: Input dim for downsample layer
+            use_shifted_window: Whether to use shifted window attention
+            use_relative_bias: Whether to use relative position bias
+            use_absolute_pos_embed: Whether to use absolute position embedding
+        """
+        super().__init__()
+
+        self.dim = dim
+        self.depth = depth
+
+        # Build Swin V2 Transformer blocks (with post-norm)
+        self.blocks = nn.ModuleList(
+            [
+                SwinV2TransformerBlock(
+                    dim=dim,
+                    num_heads=num_heads,
+                    window_size=window_size,
+                    shift_size=(
+                        0
+                        if (i % 2 == 0 or not use_shifted_window)
+                        else window_size // 2
+                    ),
+                    mlp_ratio=mlp_ratio,
+                    dropout=dropout,
+                    attention_dropout=attention_dropout,
+                    projection_dropout=projection_dropout,
+                    drop_path=(
+                        drop_path[i] if isinstance(drop_path, list) else drop_path
+                    ),
+                    use_relative_bias=use_relative_bias,
+                    use_absolute_pos_embed=use_absolute_pos_embed,
+                )
+                for i in range(depth)
+            ]
+        )
+
+        # Optional downsampling layer (Patch Merging)
+        if downsample is not None:
+            downsample_dim = (
+                downsample_input_dim if downsample_input_dim is not None else dim
+            )
+            self.downsample = downsample(dim=downsample_dim)
+        else:
+            self.downsample = None
+
+    def forward(self, x: torch.Tensor, H, W) -> tuple[torch.Tensor, int, int]:
+        """
+        Forward pass through V2 blocks.
+
+        Args:
+            x: Input tensor [B, H*W, C]
+            H: Height of input feature map
+            W: Width of input feature map
+
+        Returns:
+            Output tensor [B, H'*W', C'], output height H', output width W'
+        """
+        # Optional downsampling first
+        if self.downsample is not None:
+            x = self.downsample(x, H, W)
+            H, W = (H + 1) // 2, (W + 1) // 2
+
+        # Pass through all Swin V2 Transformer blocks
+        for block in self.blocks:
+            x, H, W = block(x, H, W)
 
         return x, H, W

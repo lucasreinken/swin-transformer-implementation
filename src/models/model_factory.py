@@ -28,6 +28,8 @@ def create_model(config):
 
     if model_type == "swin":
         return create_swin_model(config)
+    elif model_type == "swin_v2":
+        return create_swin_v2_model(config)
     elif model_type == "swin_hybrid":
         return create_swin_hybrid_model(config)
     elif model_type == "swin_improved":
@@ -45,6 +47,41 @@ def create_model(config):
 def create_swin_model(config):
     """Create Swin Transformer model (existing implementation)."""
     encoder = SwinTransformerModel(
+        img_size=224,  # Fixed for ImageNet
+        patch_size=config["patch_size"],
+        embedding_dim=config["embed_dim"],
+        depths=config["depths"],
+        num_heads=config["num_heads"],
+        window_size=config["window_size"],
+        mlp_ratio=config["mlp_ratio"],
+        dropout_rate=config["dropout"],
+        attention_dropout_rate=config["attention_dropout"],
+        projection_dropout_rate=config["projection_dropout"],
+        drop_path_rate=config["drop_path_rate"],
+        use_shifted_window=config["use_shifted_window"],
+        use_relative_bias=config["use_relative_bias"],
+        use_absolute_pos_embed=config["use_absolute_pos_embed"],
+        use_hierarchical_merge=config["use_hierarchical_merge"],
+        use_gradient_checkpointing=config.get("use_gradient_checkpointing", False),
+    )
+
+    pred_head = LinearClassificationHead(
+        num_features=encoder.num_features,
+        num_classes=1000,  # ImageNet
+    )
+
+    return ModelWrapper(
+        encoder=encoder,
+        pred_head=pred_head,
+        freeze=False,  # From scratch training
+    )
+
+
+def create_swin_v2_model(config):
+    """Create Swin Transformer V2 model with residual post-normalization."""
+    from .swin.swin_v2_model import SwinV2TransformerModel
+
+    encoder = SwinV2TransformerModel(
         img_size=224,  # Fixed for ImageNet
         patch_size=config["patch_size"],
         embedding_dim=config["embed_dim"],

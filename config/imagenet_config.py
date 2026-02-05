@@ -12,7 +12,7 @@ from .base_config import (
 )
 
 # Model type selection for comparison experiments
-MODEL_TYPE = "swin_deformable"  # Options: "swin", "swin_v2", "swin_hybrid", "swin_improved", "swin_deformable", "vit", "resnet"
+MODEL_TYPE = "swin_v2"  # Options: "swin", "swin_v2", "swin_hybrid", "swin_improved", "swin_deformable", "vit", "resnet"
 
 # Model configurations for all types
 MODEL_CONFIGS = {

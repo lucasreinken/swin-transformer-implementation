@@ -1,14 +1,12 @@
 #!/bin/bash
-#SBATCH --partition=gpu-teaching-5h    # 5-hour GPU partition
+#SBATCH --partition=gpu-teaching-7d
 #SBATCH --gpus=1
-#SBATCH --exclusive                      # ← NO sharing with other users → fixes node contention
-#SBATCH --time=05:00:00                 # 5 hours for training
-#SBATCH --job-name=imagenet_weight_transfer_test        # job name
-#SBATCH --output=logs/%j_%x.out          # includes job name → easier to find
+#SBATCH --mem=64G
+#SBATCH --time=168:00:00
+#SBATCH --job-name=test
+#SBATCH --output=logs/%j_%x.out
 #SBATCH --error=logs/%j_%x.err
-#SBATCH --chdir=/home/pml04/swin_transformer/Machine-Learning-Project
-#SBATCH --array=1-1                      # Adjust as needed for multiple runs
-
+#SBATCH --chdir=/home/pml20/Machine-Learning-Project
 mkdir -p logs
 
 # === Best-practice memory fixes (keep all of these!) ===

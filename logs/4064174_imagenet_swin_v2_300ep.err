@@ -1,0 +1,2 @@
+/var/spool/slurmd/spool/job4064174/slurm_script: line 19: python: command not found
+INFO:    gocryptfs not found, will not be able to use gocryptfs

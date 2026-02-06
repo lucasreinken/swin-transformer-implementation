@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH --partition=gpu-teaching-7d
+#SBATCH --partition=gpu-teaching-2d
 #SBATCH --gpus=1
 #SBATCH --mem=64G
-#SBATCH --time=168:00:00
-#SBATCH --job-name=test
+#SBATCH --time=48:00:00
+#SBATCH --job-name=weight_transfer_test
 #SBATCH --output=logs/%j_%x.out
 #SBATCH --error=logs/%j_%x.err
 #SBATCH --chdir=/home/pml20/Machine-Learning-Project

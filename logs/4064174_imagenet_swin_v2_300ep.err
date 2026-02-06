@@ -1,2 +1,39 @@
 /var/spool/slurmd/spool/job4064174/slurm_script: line 19: python: command not found
 INFO:    gocryptfs not found, will not be able to use gocryptfs
+2026-02-06 19:00:39,421 - INFO - Logging initialized. Log file: runs/run_293/training.log
+2026-02-06 19:00:39,446 - INFO - Experiment directory: runs/run_293
+2026-02-06 19:00:39,447 - INFO - Setting random seeds for reproducibility (seed: 42)...
+2026-02-06 19:00:39,491 - INFO - ✅ All seeds set to 42 (deterministic=False)
+2026-02-06 19:00:39,938 - INFO - GPU memory cleared at startup. Available: 39.2GB
+2026-02-06 19:00:39,939 - INFO - Using device: cuda
+2026-02-06 19:00:39,940 - INFO - Training configuration: epochs=300, warmup=30, lr=0.0002
+2026-02-06 19:00:39,941 - INFO - SWIN_V2 configuration: {'type': 'swin_v2', 'variant': 'tiny', 'patch_size': 4, 'embed_dim': 96, 'depths': [2, 2, 6, 2], 'num_heads': [3, 6, 12, 24], 'window_size': 7, 'mlp_ratio': 4.0, 'dropout': 0.0, 'attention_dropout': 0.0, 'projection_dropout': 0.0, 'drop_path_rate': 0.08, 'use_shifted_window': True, 'use_relative_bias': False, 'use_absolute_pos_embed': False, 'use_hierarchical_merge': False, 'use_gradient_checkpointing': False}
+2026-02-06 19:00:39,942 - INFO - Loading dataset...
+2026-02-06 19:00:39,943 - INFO - Starting ImageNet data loading from root: /
+2026-02-06 19:00:39,944 - INFO - Resolved root path: /
+2026-02-06 19:00:39,945 - INFO - Root path exists: True
+2026-02-06 19:00:39,945 - INFO - Root path is dir: True
+2026-02-06 19:00:39,949 - INFO - Contents of /: ['/.exec', '/.run', '/.shell', '/.singularity.d', '/.test', '/bin', '/boot', '/dev', '/environment', '/etc', '/home', '/lib', '/lib64', '/media', '/mnt', '/opt', '/proc', '/requirements.txt', '/root', '/run', '/sbin', '/singularity', '/srv', '/sys', '/tmp', '/usr', '/var', '/meta', '/train_set', '/train_set_small', '/val_set', '/val_set_unlabeled']
+2026-02-06 19:00:39,950 - INFO - Expected train_dir: /train_set, exists: True
+2026-02-06 19:00:39,950 - INFO - Expected val_dir: /val_set, exists: True
+2026-02-06 19:00:45,032 - INFO - Loaded ImageNet data from /: train=1281167, val=50000
+2026-02-06 19:00:45,837 - INFO - Dataset limits applied (stratified sampling enabled)
+2026-02-06 19:00:45,839 - INFO - Dataset loaded: train=100000 samples (782 batches), val=50000 samples (391 batches), test=50000 samples (391 batches)
+2026-02-06 19:00:47,716 - INFO - Training SWIN_V2 from scratch
+2026-02-06 19:00:47,717 - INFO - Initializing SWIN_V2 model from scratch...
+2026-02-06 19:00:47,718 - INFO - Model architecture: SWIN_V2
+2026-02-06 19:00:47,719 - INFO - Model config: {'type': 'swin_v2', 'variant': 'tiny', 'patch_size': 4, 'embed_dim': 96, 'depths': [2, 2, 6, 2], 'num_heads': [3, 6, 12, 24], 'window_size': 7, 'mlp_ratio': 4.0, 'dropout': 0.0, 'attention_dropout': 0.0, 'projection_dropout': 0.0, 'drop_path_rate': 0.08, 'use_shifted_window': True, 'use_relative_bias': False, 'use_absolute_pos_embed': False, 'use_hierarchical_merge': False, 'use_gradient_checkpointing': False}
+2026-02-06 19:00:48,322 - INFO - Model created with random initialization
+2026-02-06 19:00:48,323 - INFO - Total parameters: 31,507,666
+2026-02-06 19:00:48,325 - INFO - Trainable parameters: 31,507,666
+2026-02-06 19:00:48,362 - INFO - Compiling model with torch.compile()
+2026-02-06 19:00:49,865 - INFO - Mixed precision enabled → CUDA bf16 selected (hardware supported)
+2026-02-06 19:00:49,866 - INFO - Starting from-scratch training...
+2026-02-06 19:00:49,867 - INFO - Optimizer: training all model parameters
+2026-02-06 19:00:49,870 - INFO - LR Scheduler: cosine with 30 warmup epochs
+2026-02-06 19:00:49,871 - INFO - Starting training...
+2026-02-06 19:00:52,053 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-06 19:00:52,056 - INFO - Running first forward pass (torch.compile may take time)...
+/usr/local/lib/python3.12/site-packages/torch/backends/cuda/__init__.py:131: UserWarning: Please use the new API settings to control TF32 behavior, such as torch.backends.cudnn.conv.fp32_precision = 'tf32' or torch.backends.cuda.matmul.fp32_precision = 'ieee'. Old settings, e.g, torch.backends.cuda.matmul.allow_tf32 = True, torch.backends.cudnn.allow_tf32 = True, allowTF32CuDNN() and allowTF32CuBLAS() will be deprecated after Pytorch 2.9. Please see https://pytorch.org/docs/main/notes/cuda.html#tensorfloat-32-tf32-on-ampere-and-later-devices (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:80.)
+  return torch._C._get_cublas_allow_tf32()
+W0206 19:01:17.403000 2066774 site-packages/torch/_inductor/utils.py:1558] [0/0] Not enough SMs to use max_autotune_gemm mode

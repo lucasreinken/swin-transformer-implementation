@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH --partition=gpu-teaching-2h    # your long partition
+#SBATCH --partition=gpu-teaching-5h    # 5-hour GPU partition
 #SBATCH --gpus=1
 #SBATCH --exclusive                      # ← NO sharing with other users → fixes node contention
-#SBATCH --time=02:00:00                 # 5 hours for 2-epoch training
-#SBATCH --job-name=imagenet_model_comparison_2ep        # job name
+#SBATCH --time=05:00:00                 # 5 hours for training
+#SBATCH --job-name=imagenet_weight_transfer_test        # job name
 #SBATCH --output=logs/%j_%x.out          # includes job name → easier to find
 #SBATCH --error=logs/%j_%x.err
 #SBATCH --chdir=/home/pml04/swin_transformer/Machine-Learning-Project

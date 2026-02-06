@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --partition=gpu-teaching-9m 
+#SBATCH --partition=gpu-teaching-2h
 #SBATCH --gpus=1
 #SBATCH --time=02:00:00
 #SBATCH --job-name=weight_transfer_test

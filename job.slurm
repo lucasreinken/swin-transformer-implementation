@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --partition=gpu-teaching-2h
+#SBATCH --partition=gpu-teaching-2d
 #SBATCH --gpus=1
 #SBATCH --mem=64G
 #SBATCH --time=48:00:00

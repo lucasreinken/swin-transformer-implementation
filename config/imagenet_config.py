@@ -19,6 +19,7 @@ MODEL_CONFIGS = {
     "swin": {
         "type": "swin",
         "variant": "tiny",
+        "img_size": 224,  # ImageNet standard resolution
         "patch_size": 4,
         "embed_dim": None,  # Auto-set from preset
         "depths": None,  # Auto-set from preset

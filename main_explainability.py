@@ -92,30 +92,24 @@ def main():
     
     # Get transforms
     _, val_transform = get_default_transforms(
-        dataset=DATA_CONFIG.get('dataset', 'imagenet'),
+        dataset="ImageNet",  # Use exact case
         augmentation_strength=DATA_CONFIG.get('augmentation_strength', 'none'),
         img_size=DATA_CONFIG.get('img_size', 224),
     )
     
-    # Load validation data (we'll use validation set for visualization)
-    _, val_dataset, _ = load_data(
-        dataset_name=DATA_CONFIG.get('dataset', 'imagenet'),
-        data_path=DATA_CONFIG.get('data_path', 'data'),
-        train_transform=val_transform,
-        val_transform=val_transform,
-    )
-    
-    # Create data loader
-    val_loader = DataLoader(
-        val_dataset,
+    # Load data using existing dataloader (returns DataLoaders, not datasets)
+    _, val_loader, _ = load_data(
+        dataset="ImageNet",  # Use exact case from main.py
+        transformation=val_transform,
+        val_transformation=val_transform,
         batch_size=DATA_CONFIG.get('batch_size', 1),
-        shuffle=DATA_CONFIG.get('shuffle', False),
         num_workers=DATA_CONFIG.get('num_workers', 4),
-        pin_memory=DATA_CONFIG.get('pin_memory', True),
+        root=DATA_CONFIG.get('data_path', '/data/imagenet'),
+        img_size=DATA_CONFIG.get('img_size', 224),
         worker_init_fn=get_worker_init_fn(seed),
     )
     
-    logger.info(f"Validation set size: {len(val_dataset)}")
+    logger.info(f"Validation set size: {len(val_loader.dataset)}")
     logger.info(f"Batch size: {DATA_CONFIG.get('batch_size', 1)}")
     
     # Get pretrained weights

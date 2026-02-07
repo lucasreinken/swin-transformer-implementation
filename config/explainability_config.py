@@ -94,33 +94,16 @@ DATA_CONFIG = {
 # =============================================================================
 
 OUTPUT_CONFIG = {
-    "base_dir": "./visualization_outputs",
-    "experiment_name": "swin_tiny_attention_analysis",
-    "create_subdirs": True,  # Create subdirectories per image
-    
-    # What to save
-    "save_individruns",
-    "experiment_name": "explainabilityarisons
-    "save_rollout": True,  # Save attention rollout visualizations
-    "save_statistics": True,  # Save attention statistics (CSV)
-    "save_raw_attention": False,  # Save raw attention tensors (.pt files)
-    
-    # File formats
-    "image_format": "png",  # Options: 'png', 'jpg', 'pdf', 'svg'
+    "base_dir": "runs",
+    "experiment_name": "explainability",
+}
 
-    
-    # Distance-based analysis
-    "analyze_attention_distance": True,  # Average distance of attended tokens
-    "distance_metric": "euclidean",  # Options: 'euclidean', 'manhattan'
-    
-    # Comparative analysis
-    "compare_w_msa_sw_msa_stats": True,  # Statistical comparison
-    "compare_across_stages_stats": True,  # Track evolution across stages
-    "compare_across_heads_stats": True,  # Head specialization analysis
-    
-    # Thresholds
-    "attention_threshold": 0.1,  # Minimum attention value to consider
-    "top_k_tokens": 10,  # Number of top attended tokens to track
+# =============================================================================
+# Analysis Configuration
+# =============================================================================
+
+ANALYSIS_CONFIG = {
+    "compute_statistics": True,  # Compute attention statistics
 }
 
 # =============================================================================
@@ -130,24 +113,12 @@ OUTPUT_CONFIG = {
 SEED_CONFIG = {
     "seed": 42,
     "deterministic": True,
-}"compute_statistics": True,  # Compute attention statistics
-        "viz": VIZ_CONFIG,
-        "data": DATA_CONFIG,
-        "output": OUTPUT_CONFIG,
-        "analysis": ANALYSIS_CONFIG,
-        "seed": SEED_CONFIG,
-    }
+}
 
 # =============================================================================
-# Validation
+# Build complete MODEL_CONFIG for pipeline
 # =============================================================================
 
-def validate_config():
-    """Validate configuration parameters."""
-    errors = []
-    
-    # Validate model config
-  Build complete MODEL_CONFIG for pipeline
 MODEL_CONFIG = {
     **SWIN_CONFIG,
     "pretrained_weights": PRETRAINED_CONFIG["pretrained_model"] if PRETRAINED_CONFIG["use_pretrained"] else None,

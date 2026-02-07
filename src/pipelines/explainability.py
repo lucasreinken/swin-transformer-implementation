@@ -119,16 +119,20 @@ def get_sample_images(
     data_loader: DataLoader,
     num_samples: int,
     device: torch.device,
-    strategy: str = 'random'
+    strategy: str = 'random',
+    num_classes: int = 10,
+    samples_per_class: int = 3,
 ) -> Tuple[torch.Tensor, torch.Tensor, List[int]]:
     """
     Extract sample images from data loader for visualization.
     
     Args:
         data_loader: DataLoader to sample from
-        num_samples: Number of samples to extract
+        num_samples: Total number of samples to extract
         device: Device to place tensors on
-        strategy: Sampling strategy ('random', 'first', 'diverse')
+        strategy: Sampling strategy ('random', 'first', 'diverse_classes')
+        num_classes: Number of distinct classes (for 'diverse_classes')
+        samples_per_class: Samples per class (for 'diverse_classes')
     
     Returns:
         Tuple of (images, labels, indices)
@@ -165,10 +169,62 @@ def get_sample_images(
             all_labels.append(torch.tensor([label]))
             all_indices.append(idx)
     
+    elif strategy == 'diverse_classes':
+        # Sample num_classes random classes, samples_per_class images each.
+        # ImageNet val is sorted by class (50 images per class, 1000 classes).
+        import random
+        dataset = data_loader.dataset
+        dataset_size = len(dataset)
+        
+        logger.info(f"Diverse sampling: {num_classes} classes × {samples_per_class} samples")
+        
+        # Build a class → indices map by scanning a subset of the dataset.
+        # ImageNet val has 50 images/class sorted, so sampling evenly works.
+        class_to_indices: Dict[int, List[int]] = {}
+        # For ImageNet val (50k images, 1000 classes) we can infer structure:
+        # class i occupies indices [i*50 .. (i+1)*50-1]
+        # But to be general, we scan labels from dataset targets if available.
+        if hasattr(dataset, 'targets'):
+            # Fast path — ImageFolder exposes .targets
+            targets = dataset.targets
+            for idx, lbl in enumerate(targets):
+                class_to_indices.setdefault(lbl, []).append(idx)
+        else:
+            # Slow path — iterate batches (stop early once we have enough)
+            logger.info("  Building class index (scanning dataset)...")
+            for idx in range(dataset_size):
+                _, lbl = dataset[idx]
+                lbl_val = lbl.item() if isinstance(lbl, torch.Tensor) else int(lbl)
+                class_to_indices.setdefault(lbl_val, []).append(idx)
+                # Stop early once we have plenty of classes
+                if len(class_to_indices) >= num_classes * 5 and idx > num_classes * samples_per_class * 10:
+                    break
+        
+        # Pick random classes
+        available_classes = [c for c, idxs in class_to_indices.items() if len(idxs) >= samples_per_class]
+        if len(available_classes) < num_classes:
+            logger.warning(f"  Only {len(available_classes)} classes have >= {samples_per_class} samples, using all")
+            selected_classes = available_classes
+        else:
+            selected_classes = sorted(random.sample(available_classes, num_classes))
+        
+        logger.info(f"  Selected classes: {selected_classes}")
+        
+        for cls in selected_classes:
+            cls_indices = class_to_indices[cls]
+            chosen = random.sample(cls_indices, min(samples_per_class, len(cls_indices)))
+            for idx in chosen:
+                image, label = dataset[idx]
+                all_images.append(image.unsqueeze(0))
+                all_labels.append(torch.tensor([label if isinstance(label, int) else label.item()]))
+                all_indices.append(idx)
+        
+        logger.info(f"  Collected {len(all_images)} samples from {len(selected_classes)} classes")
+    
     elif strategy == 'diverse':
-        # Try to get diverse classes
-        class_samples = {}
-        target_per_class = max(1, num_samples // data_loader.dataset.num_classes if hasattr(data_loader.dataset, 'num_classes') else 1)
+        # Legacy: greedy diverse sampling via dataloader iteration
+        class_samples: Dict[int, list] = {}
+        target_per_class = max(1, num_samples // 10)
         
         for idx, (images, labels) in enumerate(data_loader):
             for i in range(images.size(0)):
@@ -179,13 +235,12 @@ def get_sample_images(
                 if len(class_samples[label]) < target_per_class:
                     class_samples[label].append((images[i], label, idx * data_loader.batch_size + i))
                 
-                if sum(len(samples) for samples in class_samples.values()) >= num_samples:
+                if sum(len(s) for s in class_samples.values()) >= num_samples:
                     break
             
-            if sum(len(samples) for samples in class_samples.values()) >= num_samples:
+            if sum(len(s) for s in class_samples.values()) >= num_samples:
                 break
         
-        # Flatten samples
         for label_samples in class_samples.values():
             for img, lbl, idx in label_samples[:num_samples]:
                 all_images.append(img.unsqueeze(0))
@@ -197,6 +252,8 @@ def get_sample_images(
     labels = torch.cat(all_labels, dim=0).to(device)
     
     logger.info(f"Extracted {len(all_indices)} samples (shape: {images.shape})")
+    unique_labels = labels.unique().tolist()
+    logger.info(f"Unique classes: {len(unique_labels)} — {unique_labels}")
     
     return images, labels, all_indices
 
@@ -270,31 +327,30 @@ def visualize_attention_patterns(
         img_pil = Image.fromarray((img_np * 255).astype(np.uint8))
         img_pil.save(sample_dir / "original_image.png")
         
-        # Get query positions
+        # Get query positions — all in IMAGE coordinates (224×224)
         query_strategy = viz_config.get('query_strategy', 'center')
+        img_H, img_W = 224, 224
         if query_strategy == 'center':
-            H, W = 224, 224  # Input resolution
-            query_positions = [(H // 2, W // 2)]
+            query_positions = [(img_H // 2, img_W // 2)]  # (112, 112)
         elif query_strategy == 'grid':
             grid_points = viz_config.get('grid_points', 5)
-            H, W = 224, 224
             positions = []
             for i in range(grid_points):
                 for j in range(grid_points):
-                    h = int((i + 0.5) * H / grid_points)
-                    w = int((j + 0.5) * W / grid_points)
+                    h = int((i + 0.5) * img_H / grid_points)
+                    w = int((j + 0.5) * img_W / grid_points)
                     positions.append((h, w))
             query_positions = positions
         elif query_strategy == 'corners_center':
             query_positions = [
-                (56, 56),   # Center
-                (14, 14),   # Top-left
-                (14, 210),  # Top-right
-                (210, 14),  # Bottom-left
-                (210, 210), # Bottom-right
+                (img_H // 2, img_W // 2),  # Center (112, 112)
+                (28, 28),                   # Top-left
+                (28, img_W - 28),           # Top-right
+                (img_H - 28, 28),           # Bottom-left
+                (img_H - 28, img_W - 28),   # Bottom-right
             ]
         else:
-            query_positions = [(112, 112)]  # Default center
+            query_positions = [(img_H // 2, img_W // 2)]  # Default center
         
         # Generate W-MSA vs SW-MSA comparisons
         stages_to_compare = viz_config.get('comparison_stages', [0, 1, 2])
@@ -311,6 +367,36 @@ def visualize_attention_patterns(
                 logger.info(f"  Generated W-MSA vs SW-MSA comparison for stage {stage_idx}")
             except Exception as e:
                 logger.warning(f"  Failed to generate comparison for stage {stage_idx}: {e}")
+        
+        # Generate combined W-MSA + SW-MSA overlay (both windows on one image)
+        if viz_config.get('combined_wmsa_swmsa_overlay', False):
+            for stage_idx in stages_to_compare:
+                try:
+                    overlay_path = sample_dir / f"combined_wmsa_swmsa_stage{stage_idx}.png"
+                    visualizer.visualize_wmsa_swmsa_combined(
+                        query_position=query_positions[0],
+                        stage_idx=stage_idx,
+                        save_path=str(overlay_path),
+                    )
+                    stats['num_visualizations'] += 1
+                    logger.info(f"  Generated combined W-MSA+SW-MSA overlay for stage {stage_idx}")
+                except Exception as e:
+                    logger.warning(f"  Failed to generate combined overlay for stage {stage_idx}: {e}")
+        
+        # Generate per-head attention visualization
+        if viz_config.get('per_head_viz', False):
+            for stage_idx in stages_to_compare[:2]:  # stages 0 and 1 (fewer heads, more informative)
+                try:
+                    head_path = sample_dir / f"per_head_stage{stage_idx}.png"
+                    visualizer.visualize_per_head_attention(
+                        query_position=query_positions[0],
+                        stage_idx=stage_idx,
+                        save_path=str(head_path),
+                    )
+                    stats['num_visualizations'] += 1
+                    logger.info(f"  Generated per-head attention for stage {stage_idx}")
+                except Exception as e:
+                    logger.warning(f"  Failed to generate per-head viz for stage {stage_idx}: {e}")
         
         # Generate stage evolution visualization
         try:
@@ -350,6 +436,19 @@ def visualize_attention_patterns(
                 import json
                 json.dump(json_stats, f, indent=2)
             logger.info(f"  Saved attention statistics to {stats_path}")
+            
+            # Generate attention summary bar-chart
+            if viz_config.get('attention_summary_plot', False):
+                try:
+                    summary_path = sample_dir / "attention_summary.png"
+                    visualizer.visualize_attention_summary(
+                        attn_stats,
+                        save_path=str(summary_path),
+                    )
+                    stats['num_visualizations'] += 1
+                    logger.info(f"  Generated attention summary plot")
+                except Exception as e:
+                    logger.warning(f"  Failed to generate attention summary: {e}")
         except Exception as e:
             logger.warning(f"  Failed to compute statistics: {e}")
     
@@ -400,7 +499,9 @@ def run_explainability(
         data_loader=data_loader,
         num_samples=num_samples,
         device=device,
-        strategy=sampling_strategy
+        strategy=sampling_strategy,
+        num_classes=viz_config.get('num_classes', 10),
+        samples_per_class=viz_config.get('samples_per_class', 3),
     )
     
     # Create output directory

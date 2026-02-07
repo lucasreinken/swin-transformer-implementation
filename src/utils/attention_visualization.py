@@ -579,3 +579,278 @@ class AttentionVisualizer:
                 vis.save(output_dir / filename)
         
         logger.info(f"Saved {len(self.attention_maps) * len(query_positions)} visualizations")
+    
+    # ------------------------------------------------------------------
+    # NEW VISUALIZATION METHODS
+    # ------------------------------------------------------------------
+
+    def visualize_per_head_attention(
+        self,
+        query_position: Tuple[int, int],
+        stage_idx: int,
+        save_path: Optional[str] = None,
+    ) -> Image.Image:
+        """
+        Visualize each attention head individually for a given stage.
+
+        Creates a grid where each cell shows a single head's spatial attention
+        pattern.  Both the W-MSA and SW-MSA block are shown side-by-side.
+
+        Args:
+            query_position: (h, w) in **image** coordinates (224×224)
+            stage_idx: Which stage to visualise
+            save_path: Optional file path to save the output image
+
+        Returns:
+            PIL Image of the per-head grid
+        """
+        stage_maps = [m for m in self.attention_maps if m['stage'] == stage_idx]
+        wmsa_block = next((m for m in stage_maps if not m['is_shifted']), None)
+        swmsa_block = next((m for m in stage_maps if m['is_shifted']), None)
+
+        blocks = [(wmsa_block, 'W-MSA'), (swmsa_block, 'SW-MSA')]
+        blocks = [(b, n) for b, n in blocks if b is not None]
+
+        if not blocks:
+            raise ValueError(f"No attention maps found for stage {stage_idx}")
+
+        num_heads = blocks[0][0]['num_heads']
+
+        # Prepare original image
+        if self.last_image is not None:
+            img = self.last_image[0].cpu().permute(1, 2, 0).numpy()
+            mean = np.array([0.485, 0.456, 0.406])
+            std  = np.array([0.229, 0.224, 0.225])
+            img  = std * img + mean
+            img  = np.clip(img, 0, 1)
+        else:
+            img = np.zeros((224, 224, 3))
+
+        ncols = min(num_heads, 4)
+        nrows_per_block = (num_heads + ncols - 1) // ncols
+        total_rows = len(blocks) * nrows_per_block
+        fig, axes = plt.subplots(total_rows, ncols, figsize=(4 * ncols, 4 * total_rows))
+        if total_rows == 1:
+            axes = axes[np.newaxis, :]
+        if ncols == 1:
+            axes = axes[:, np.newaxis]
+
+        for b_idx, (block, block_name) in enumerate(blocks):
+            feat_H, feat_W = block['resolution']
+            scaled_query = (
+                min(query_position[0] * feat_H // 224, feat_H - 1),
+                min(query_position[1] * feat_W // 224, feat_W - 1),
+            )
+            for head_idx in range(num_heads):
+                row = b_idx * nrows_per_block + head_idx // ncols
+                col = head_idx % ncols
+                ax = axes[row, col]
+
+                attn_map = attention_to_spatial_map(
+                    block['attention'],
+                    scaled_query,
+                    block,
+                    aggregate_heads=head_idx,  # single head
+                )
+                a = attn_map.cpu().numpy()
+                a = (a - a.min()) / (a.max() - a.min() + 1e-8)
+                a_up = np.array(
+                    Image.fromarray((a * 255).astype(np.uint8)).resize(
+                        (224, 224), Image.BILINEAR
+                    )
+                ) / 255.0
+
+                ax.imshow(img)
+                ax.imshow(a_up, cmap=self.colormap, alpha=self.overlay_alpha)
+                ax.set_title(f'{block_name} Head {head_idx}', fontsize=9)
+                ax.axis('off')
+
+            # Hide unused axes
+            for h in range(num_heads, nrows_per_block * ncols):
+                axes[b_idx * nrows_per_block + h // ncols, h % ncols].axis('off')
+
+        fig.suptitle(
+            f'Per-Head Attention — Stage {stage_idx} ({num_heads} heads, '
+            f'{blocks[0][0]["resolution"][0]}×{blocks[0][0]["resolution"][1]})',
+            fontsize=14, fontweight='bold',
+        )
+        plt.tight_layout(rect=[0, 0, 1, 0.96])
+
+        fig.canvas.draw()
+        w, h = fig.canvas.get_width_height()
+        pil_img = Image.frombytes('RGBA', (w, h), fig.canvas.buffer_rgba()).convert('RGB')
+
+        if save_path:
+            pil_img.save(save_path, dpi=(300, 300))
+            logger.info(f"Saved per-head attention to {save_path}")
+
+        plt.close(fig)
+        return pil_img
+
+    def visualize_wmsa_swmsa_combined(
+        self,
+        query_position: Tuple[int, int],
+        stage_idx: int,
+        save_path: Optional[str] = None,
+    ) -> Image.Image:
+        """
+        Overlay W-MSA and SW-MSA attention on the *same* image using two
+        colour channels so their receptive field difference is immediately
+        visible.
+
+        W-MSA → blue channel,  SW-MSA → red channel.  Overlap → magenta.
+
+        Args:
+            query_position: (h, w) in image coordinates (224×224)
+            stage_idx: Stage to visualise
+            save_path: Optional file path
+
+        Returns:
+            PIL Image of the combined overlay
+        """
+        stage_maps = [m for m in self.attention_maps if m['stage'] == stage_idx]
+        wmsa_block  = next((m for m in stage_maps if not m['is_shifted']), None)
+        swmsa_block = next((m for m in stage_maps if m['is_shifted']), None)
+        if wmsa_block is None or swmsa_block is None:
+            raise ValueError(f"Need both W-MSA and SW-MSA for stage {stage_idx}")
+
+        # Prepare original image
+        if self.last_image is not None:
+            img = self.last_image[0].cpu().permute(1, 2, 0).numpy()
+            mean = np.array([0.485, 0.456, 0.406])
+            std  = np.array([0.229, 0.224, 0.225])
+            img  = std * img + mean
+            img  = np.clip(img, 0, 1)
+        else:
+            img = np.zeros((224, 224, 3))
+
+        def _get_attn(block):
+            feat_H, feat_W = block['resolution']
+            sq = (
+                min(query_position[0] * feat_H // 224, feat_H - 1),
+                min(query_position[1] * feat_W // 224, feat_W - 1),
+            )
+            a = attention_to_spatial_map(block['attention'], sq, block, aggregate_heads='mean')
+            a = a.cpu().numpy()
+            a = (a - a.min()) / (a.max() - a.min() + 1e-8)
+            a = np.array(
+                Image.fromarray((a * 255).astype(np.uint8)).resize((224, 224), Image.BILINEAR)
+            ) / 255.0
+            return a
+
+        wmsa_np  = _get_attn(wmsa_block)
+        swmsa_np = _get_attn(swmsa_block)
+
+        # Build RGB overlay: R=SW-MSA, G=0, B=W-MSA
+        overlay = np.zeros((224, 224, 3))
+        overlay[..., 0] = swmsa_np   # Red  → SW-MSA
+        overlay[..., 2] = wmsa_np    # Blue → W-MSA
+
+        fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+
+        axes[0].imshow(img)
+        axes[0].plot(query_position[1], query_position[0], 'r*', markersize=20)
+        axes[0].set_title('Original Image\n(Red star = Query)', fontsize=12)
+        axes[0].axis('off')
+
+        axes[1].imshow(img)
+        axes[1].imshow(overlay, alpha=0.65)
+        axes[1].plot(query_position[1], query_position[0], 'w*', markersize=18)
+        axes[1].set_title(
+            f'Stage {stage_idx} — W-MSA (blue) + SW-MSA (red)\n'
+            f'Overlap = magenta',
+            fontsize=12,
+        )
+        axes[1].axis('off')
+
+        # Legend patches
+        from matplotlib.patches import Patch
+        legend_elements = [
+            Patch(facecolor='blue',    alpha=0.6, label='W-MSA'),
+            Patch(facecolor='red',     alpha=0.6, label='SW-MSA'),
+            Patch(facecolor='magenta', alpha=0.6, label='Overlap'),
+        ]
+        axes[1].legend(handles=legend_elements, loc='lower right', fontsize=10)
+
+        plt.tight_layout()
+        fig.canvas.draw()
+        w, h = fig.canvas.get_width_height()
+        pil_img = Image.frombytes('RGBA', (w, h), fig.canvas.buffer_rgba()).convert('RGB')
+
+        if save_path:
+            pil_img.save(save_path, dpi=(300, 300))
+            logger.info(f"Saved combined W-MSA+SW-MSA overlay to {save_path}")
+
+        plt.close(fig)
+        return pil_img
+
+    def visualize_attention_summary(
+        self,
+        attn_stats: Dict[str, list],
+        save_path: Optional[str] = None,
+    ) -> Image.Image:
+        """
+        Create a summary bar-chart of attention statistics (entropy, sparsity,
+        avg_distance) grouped by stage and coloured by W-MSA / SW-MSA.
+
+        Args:
+            attn_stats: Dictionary returned by ``compute_attention_statistics``
+            save_path: Optional path to save the figure
+
+        Returns:
+            PIL Image of the summary chart
+        """
+        metrics = ['entropy', 'sparsity', 'avg_distance', 'max_attention']
+        metric_labels = {
+            'entropy': 'Entropy',
+            'sparsity': 'Sparsity (%)',
+            'avg_distance': 'Avg Distance',
+            'max_attention': 'Max Attention',
+        }
+
+        n_layers = len(attn_stats['stage'])
+        labels = []
+        wmsa_mask = []
+        for i in range(n_layers):
+            kind = 'SW' if attn_stats['is_shifted'][i] else 'W'
+            labels.append(f"S{attn_stats['stage'][i]}B{attn_stats['block'][i]}({kind})")
+            wmsa_mask.append(not attn_stats['is_shifted'][i])
+
+        x = np.arange(n_layers)
+        colours = ['#1f77b4' if w else '#d62728' for w in wmsa_mask]
+
+        fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+        axes = axes.flat
+
+        for ax, metric in zip(axes, metrics):
+            vals = attn_stats[metric]
+            # Convert to float if needed
+            vals = [float(v) for v in vals]
+            ax.bar(x, vals, color=colours, edgecolor='black', linewidth=0.5)
+            ax.set_xticks(x)
+            ax.set_xticklabels(labels, rotation=45, ha='right', fontsize=8)
+            ax.set_ylabel(metric_labels.get(metric, metric), fontsize=10)
+            ax.set_title(metric_labels.get(metric, metric), fontsize=12, fontweight='bold')
+            ax.grid(axis='y', alpha=0.3)
+
+        # Shared legend
+        from matplotlib.patches import Patch
+        legend_elements = [
+            Patch(facecolor='#1f77b4', edgecolor='black', label='W-MSA'),
+            Patch(facecolor='#d62728', edgecolor='black', label='SW-MSA'),
+        ]
+        fig.legend(handles=legend_elements, loc='upper center', ncol=2, fontsize=12)
+
+        fig.suptitle('Attention Statistics Summary', fontsize=15, fontweight='bold', y=1.01)
+        plt.tight_layout(rect=[0, 0, 1, 0.97])
+
+        fig.canvas.draw()
+        w, h = fig.canvas.get_width_height()
+        pil_img = Image.frombytes('RGBA', (w, h), fig.canvas.buffer_rgba()).convert('RGB')
+
+        if save_path:
+            pil_img.save(save_path, dpi=(300, 300))
+            logger.info(f"Saved attention summary to {save_path}")
+
+        plt.close(fig)
+        return pil_img

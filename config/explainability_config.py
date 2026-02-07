@@ -53,23 +53,28 @@ PRETRAINED_CONFIG = {
 
 VIZ_CONFIG = {
     # Sample settings
-    "num_samples": 5,  # Number of images to visualize
-    "sampling_strategy": "first",  # Options: 'first', 'random', 'diverse'
+    "num_samples": 30,  # 10 classes × 3 samples each
+    "sampling_strategy": "diverse_classes",  # Options: 'first', 'random', 'diverse_classes'
+    "num_classes": 10,        # Number of distinct classes to sample
+    "samples_per_class": 3,   # Samples per class
     
     # Which layers to visualize
     "target_stages": None,  # None = all stages [0, 1, 2, 3]
     "comparison_stages": [0, 1, 2],  # Stages for W-MSA vs SW-MSA comparison
     
     # Query token selection (which tokens to visualize attention FROM)
-    "query_strategy": "corners_center",  # Options: 'center', 'grid', 'corners_center'
+    "query_strategy": "center",  # Options: 'center', 'grid', 'corners_center'
     "grid_points": 3,  # For 'grid' strategy
     
     # Visualization style
     "colormap": "jet",  # Matplotlib colormap: 'jet', 'hot', 'viridis', 'turbo'
     "overlay_alpha": 0.6,  # Transparency of attention heatmap overlay (0-1)
     
-    # Output control
-    "save_all_maps": False,  # Save all individual attention maps (can be large)
+    # Additional visualizations
+    "save_all_maps": False,   # Save all individual attention maps (can be large)
+    "per_head_viz": True,     # Visualize individual attention heads
+    "combined_wmsa_swmsa_overlay": True,  # Overlay both W-MSA & SW-MSA windows on one image
+    "attention_summary_plot": True,  # Bar-chart summary of entropy/sparsity per stage
 }
 
 # =============================================================================
@@ -80,11 +85,11 @@ DATA_CONFIG = {
     "dataset": "ImageNet",  # Must be exact case to match dataloader.py
     "data_path": "/",  # Overlay mounts ImageNet at root: /train_set, /val_set
     "split": "val",  # Use validation set
-    "num_samples": 5,  # Number of images to visualize
+    "num_samples": 30,  # 10 classes × 3 samples each
     "img_size": 224,  # Input image size
     "batch_size": 1,  # Process one image at a time for visualization
     "shuffle": False,  # Don't shuffle for reproducibility
-    "num_workers": 4,  # DataLoader workers
+    "num_workers": 2,  # DataLoader workers (cluster recommends ≤2)
     "pin_memory": True,  # Pin memory for GPU transfer
 }
 

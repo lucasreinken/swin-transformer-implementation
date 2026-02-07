@@ -8,7 +8,7 @@ spatial image coordinates, handling both W-MSA and SW-MSA (shifted window) cases
 import torch
 import torch.nn.functional as F
 import numpy as np
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Union
 
 
 def window_partition_inverse(
@@ -92,7 +92,7 @@ def attention_to_spatial_map(
     attn_weights: torch.Tensor,
     query_position: Tuple[int, int],
     window_metadata: dict,
-    aggregate_heads: str = 'mean'
+    aggregate_heads: Union[str, int] = 'mean'
 ) -> torch.Tensor:
     """
     Convert window-based attention weights to spatial attention map.

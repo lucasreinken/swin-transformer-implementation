@@ -10,6 +10,10 @@
 
 mkdir -p logs
 
+# === Early sanity check / debug logging ===
+echo "Job started on $(hostname) at $(date)"
+nvidia-smi  # This prints GPU info (or errors if none available)
+
 # === GPU memory configuration ===
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True,max_split_size_mb:256,garbage_collection_threshold:0.8
 export CUDA_LAUNCH_BLOCKING=0

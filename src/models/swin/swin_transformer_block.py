@@ -189,16 +189,25 @@ class SwinTransformerBlock(nn.Module):
         x = F.pad(x, (0, 0, pad_l, pad_r, pad_t, pad_b))  # Pad (C, W, H) dimensions: (0, 0, left, right, top, bottom)
         _, Hp, Wp, _ = x.shape
 
+        # Disable shifting when there is only one window (resolution <= window_size)
+        # In this case shifting is meaningless and the attention mask would
+        # artificially partition the single window into disconnected sub-regions,
+        # causing "hot corner" artifacts in attention visualizations.
+        if min(Hp, Wp) <= self.window_size:
+            shift_size = 0
+        else:
+            shift_size = self.shift_size
+
         # Cyclic shift for SW-MSA
-        if self.shift_size > 0:
+        if shift_size > 0:
             shifted_x = torch.roll(
-                x, shifts=(-self.shift_size, -self.shift_size), dims=(1, 2)
+                x, shifts=(-shift_size, -shift_size), dims=(1, 2)
             )
             # Create attention mask dynamically for SW-MSA (using padded resolution)
             image_mask = create_image_mask(
                 (Hp, Wp),  # Use padded resolution for mask
                 self.window_size,
-                self.shift_size,
+                shift_size,
                 device=x.device,
             )
             mask_windows = window_partition(image_mask, self.window_size)
@@ -221,8 +230,8 @@ class SwinTransformerBlock(nn.Module):
         # Store block metadata if attention capture is enabled
         if self.return_attention and self.attn._last_attention_weights is not None:
             self._block_metadata = {
-                'is_shifted': self.shift_size > 0,
-                'shift_size': self.shift_size,
+                'is_shifted': shift_size > 0,
+                'shift_size': shift_size,
                 'window_size': self.window_size,
                 'resolution': (H, W),  # Original resolution before padding
                 'padded_resolution': (Hp, Wp),  # Resolution after padding
@@ -235,9 +244,9 @@ class SwinTransformerBlock(nn.Module):
         shifted_x = window_reverse(attn_windows, self.window_size, Hp, Wp)
 
         # Reverse cyclic shift for SW-MSA
-        if self.shift_size > 0:
+        if shift_size > 0:
             x = torch.roll(
-                shifted_x, shifts=(self.shift_size, self.shift_size), dims=(1, 2)
+                shifted_x, shifts=(shift_size, shift_size), dims=(1, 2)
             )
         else:
             x = shifted_x

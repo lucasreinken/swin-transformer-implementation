@@ -365,12 +365,16 @@ class AttentionVisualizer:
         save_path: Optional[str] = None
     ) -> Image.Image:
         """
-        Visualize how attention evolves across selected stages.
+        Visualize how attention evolves across all (or selected) stages.
+        
+        Stage 3 (7×7, single window) shows *global* semantic attention —
+        which tokens the query attends to across the entire image.  This is
+        valid and informative: the shift_size fix in SwinTransformerBlock
+        ensures no artificial masking occurs at this resolution.
         
         Args:
             query_position: (h, w) query coordinates in image space (224×224)
-            stages: List of stage indices to include (None = all *except*
-                    stages where resolution == window_size, i.e. global attention)
+            stages: List of stage indices to include (None = all stages)
             save_path: Optional path to save visualization
         
         Returns:
@@ -379,21 +383,6 @@ class AttentionVisualizer:
         all_stages = sorted(set(m['stage'] for m in self.attention_maps))
         if stages is not None:
             all_stages = [s for s in all_stages if s in stages]
-        else:
-            # Auto-exclude stages where feature map == window size (single-window
-            # global attention → the 7×7→224×224 upsample is uninformative)
-            filtered = []
-            for s in all_stages:
-                sample_block = next(m for m in self.attention_maps if m['stage'] == s)
-                H, W = sample_block['resolution']
-                ws = sample_block['window_size']
-                if H > ws or W > ws:
-                    filtered.append(s)
-                else:
-                    logger.info(f"Stage {s} excluded from evolution plot "
-                                f"(resolution {H}×{W} == window_size {ws}, "
-                                f"single-window global attention)")
-            all_stages = filtered
         stages = all_stages
         
         n_panels = len(stages) + 1

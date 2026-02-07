@@ -118,6 +118,21 @@ class AttentionVisualizer:
         self.attention_maps = all_attention_maps
         logger.info(f"Extracted {len(self.attention_maps)} attention maps")
         
+        # Shape verification — helps diagnose window-count / resolution issues
+        for m in self.attention_maps:
+            attn_shape = list(m['attention'].shape)
+            res = m['resolution']
+            nW_h, nW_w = m['num_windows']
+            expected_windows = nW_h * nW_w
+            actual_windows = attn_shape[0]
+            ok = '✓' if actual_windows == expected_windows else '✗ MISMATCH'
+            logger.info(
+                f"  Stage {m['stage']} Block {m['block']}: "
+                f"attn={attn_shape}, res={res}, "
+                f"windows={actual_windows} (expected {expected_windows}) {ok}, "
+                f"shifted={m['is_shifted']}"
+            )
+        
         return self.attention_maps
     
     def create_attention_heatmap(

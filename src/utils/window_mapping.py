@@ -173,39 +173,41 @@ def attention_to_spatial_map(
     in_window_w = query_w_shifted % window_size
     query_token_idx = in_window_h * window_size + in_window_w
     
-    # Extract attention for this query token
-    # attn shape: [nW*B, N, N] -> we want [nW*B, N] for the query
-    query_attn = attn[:, query_token_idx, :]  # [nW*B, N]
-    
-    # Reshape to window grid: [B, nH, nW, N]
-    B = attn.shape[0] // (nH * nW)
-    query_attn = query_attn.view(B, nH, nW, N)
-    
-    # Reshape each window's attention to 2D: [B, nH, nW, window_size, window_size]
-    query_attn = query_attn.view(B, nH, nW, window_size, window_size)
-    
-    # Reconstruct spatial map: [B, Hp, Wp]
-    spatial_map = torch.zeros(B, Hp, Wp, device=attn_weights.device)
-    
-    for h_idx in range(nH):
-        for w_idx in range(nW):
-            h_start = h_idx * window_size
-            h_end = h_start + window_size
-            w_start = w_idx * window_size
-            w_end = w_start + window_size
-            
-            spatial_map[:, h_start:h_end, w_start:w_end] = query_attn[:, h_idx, w_idx, :, :]
-    
-    # Reverse cyclic shift if this was SW-MSA
+    # In window-based self-attention each token can ONLY attend within its own
+    # window.  Therefore the attention map for a given query consists of:
+    #   - non-zero values inside the query's window (the softmax row), and
+    #   - zeros everywhere else (no cross-window attention in W-MSA / SW-MSA).
+    #
+    # The old code incorrectly did  attn[:, query_token_idx, :]  which takes
+    # the same *local* token index from EVERY window.  That local index
+    # corresponds to a different spatial position in each window, so 63 out
+    # of 64 windows (at stage 0) were wrong → scattered noise.
+    #
+    # Fix: extract only from the one window that contains the query.
+
+    # For batch dim: windows stored as [b0_w0, b0_w1, …, b0_wN, b1_w0, …]
+    # For visualization B=1, so window_idx indexes directly.
+    window_attn = attn[window_idx, query_token_idx, :]        # [N]
+    window_attn_2d = window_attn.view(window_size, window_size)  # [ws, ws]
+
+    # Build spatial map – only the query's window is non-zero
+    spatial_map = torch.zeros(Hp, Wp, device=attn_weights.device)
+    h_start = window_h_idx * window_size
+    w_start = window_w_idx * window_size
+    spatial_map[h_start:h_start + window_size,
+               w_start:w_start + window_size] = window_attn_2d
+
+    # Reverse the cyclic shift for SW-MSA so coordinates are in original space
     if is_shifted and shift_size > 0:
-        spatial_map = torch.roll(spatial_map, shifts=(shift_size, shift_size), dims=(1, 2))
-    
+        spatial_map = spatial_map.unsqueeze(0)   # [1, Hp, Wp]
+        spatial_map = torch.roll(
+            spatial_map, shifts=(shift_size, shift_size), dims=(1, 2)
+        )
+        spatial_map = spatial_map.squeeze(0)      # [Hp, Wp]
+
     # Crop to original resolution (remove padding)
-    spatial_map = spatial_map[:, :H, :W]
-    
-    # Return single image (assume batch size 1)
-    spatial_map = spatial_map[0]  # [H, W]
-    
+    spatial_map = spatial_map[:H, :W]
+
     return spatial_map
 
 

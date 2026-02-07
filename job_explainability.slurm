@@ -5,7 +5,7 @@
 #SBATCH --job-name=swin_explainability
 #SBATCH --output=logs/%j_%x.out
 #SBATCH --error=logs/%j_%x.err
-#SBATCH --chdir=/home/pml20/Machine-Learning-Project
+#SBATCH --chdir=/home/pml20/swin_transformer/Machine-Learning-Project
 #SBATCH --array=1-1
 
 # Ensure logs dir exists
@@ -31,7 +31,6 @@ module load apptainer || echo "module load apptainer failed (apptainer might alr
 # Paths
 SIF="${SLURM_SUBMIT_DIR:-$PWD}/pml.sif"
 OVERLAY="/home/space/datasets-sqfs/imagenet2012.sqfs"
-BIND_DATA="/scratch/swin_data:/data"
 
 # Show submit dir contents (small)
 echo "Submit dir: ${SLURM_SUBMIT_DIR:-$PWD}"
@@ -75,7 +74,6 @@ echo "Starting explainability pipeline (container run) at $(date)"
 set -x
 apptainer run --nv \
     ${OVERLAY_ARG} \
-    --bind ${BIND_DATA} \
     --bind ${SLURM_SUBMIT_DIR}:${SLURM_SUBMIT_DIR} \
     "$SIF" \
     python ${SLURM_SUBMIT_DIR}/main_explainability.py

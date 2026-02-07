@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --partition=gpu-teaching-2h    # Use appropriate partition
+#SBATCH --partition=gpu-teaching-9m    # Use appropriate partition
 #SBATCH --gpus=1
 #SBATCH --time=02:00:00                 # 2 hours should be enough for visualization
 #SBATCH --job-name=swin_explainability  # Job name

@@ -80,6 +80,7 @@ class SwinTransformerBlock(nn.Module):
         drop_path: float = 0.0,
         use_relative_bias: bool = True,  # Ablation flag: True for learned bias, False for zero bias
         use_absolute_pos_embed: bool = False,  # Ablation flag: True for absolute pos embed (ViT-style)
+        return_attention: bool = False,  # Explainability flag: True to capture attention weights
     ):
         """
         Initialize Swin Transformer Block.
@@ -107,6 +108,10 @@ class SwinTransformerBlock(nn.Module):
         self.window_size = window_size
         self.shift_size = shift_size
         self.mlp_ratio = mlp_ratio
+        self.return_attention = return_attention
+        
+        # Storage for block metadata (only used when return_attention=True)
+        self._block_metadata = None
 
         assert (
             0 <= self.shift_size < self.window_size
@@ -123,6 +128,7 @@ class SwinTransformerBlock(nn.Module):
             proj_dropout=projection_dropout,
             use_relative_bias=use_relative_bias,  # Pass ablation flag
             use_absolute_pos_embed=use_absolute_pos_embed,  # Pass ablation flag
+            return_attention=return_attention,  # Pass explainability flag
         )
 
         # Stochastic depth (DropPath) for regularization
@@ -211,6 +217,18 @@ class SwinTransformerBlock(nn.Module):
 
         # Apply window attention
         attn_windows = self.attn(x_windows, attn_mask)
+        
+        # Store block metadata if attention capture is enabled
+        if self.return_attention and self.attn._last_attention_weights is not None:
+            self._block_metadata = {
+                'is_shifted': self.shift_size > 0,
+                'shift_size': self.shift_size,
+                'window_size': self.window_size,
+                'resolution': (H, W),  # Original resolution before padding
+                'padded_resolution': (Hp, Wp),  # Resolution after padding
+                'attention': self.attn._last_attention_weights,  # [num_windows*B, num_heads, N, N]
+                'num_windows': (Hp // self.window_size, Wp // self.window_size),
+            }
 
         # Merge windows back: [B*num_windows, window_size*window_size, C] → [B, Hp, Wp, C]
         attn_windows = attn_windows.view(-1, self.window_size, self.window_size, C)

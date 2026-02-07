@@ -52,6 +52,7 @@ class SwinTransformerModel((BaseModule if BaseModule is not None else nn.Module)
         use_absolute_pos_embed: bool = False,  # Ablation flag: True for absolute pos embed (ViT-style), False for relative bias
         use_hierarchical_merge: bool = False,  # Ablation flag: False for hierarchical PatchMerging, True for single-resolution conv
         use_gradient_checkpointing: bool = False,  # Enable gradient checkpointing to save memory
+        return_attention_maps: bool = False,  # Explainability flag: True to capture attention weights for visualization
         init_cfg: dict | None = None,   # MMEngine weight initialization config (optional)
         **kwargs: Dict[str, Any]
     ):
@@ -83,7 +84,12 @@ class SwinTransformerModel((BaseModule if BaseModule is not None else nn.Module)
             "use_absolute_pos_embed": use_absolute_pos_embed,
             "use_hierarchical_merge": use_hierarchical_merge,
             "use_gradient_checkpointing": use_gradient_checkpointing,
+            "return_attention_maps": return_attention_maps,
         }
+        
+        # Attention map storage (only used when return_attention_maps=True)
+        self.return_attention_maps = return_attention_maps
+        self.attention_maps = []
 
         # Validate configuration
         assert len(depths) == len(
@@ -169,6 +175,7 @@ class SwinTransformerModel((BaseModule if BaseModule is not None else nn.Module)
                 use_shifted_window=use_shifted_window,  # Pass ablation flag
                 use_relative_bias=use_relative_bias,  # Pass ablation flag
                 use_absolute_pos_embed=use_absolute_pos_embed,  # Pass ablation flag
+                return_attention=return_attention_maps,  # Pass explainability flag
             )
 
             self.layers.append(basic_layer)
@@ -208,25 +215,80 @@ class SwinTransformerModel((BaseModule if BaseModule is not None else nn.Module)
 
     def forward_features(self, x: torch.Tensor) -> torch.Tensor:
         """Extract features through transformer stages"""
+        # Clear attention maps from previous forward pass
+        if self.return_attention_maps:
+            self.attention_maps = []
+        
         x, (H, W) = self.patch_embed(x)
         if self.out_indices is not None:
             outs = []
             for i, layer in enumerate(self.layers):
                 x, H, W = layer(x, H, W)
+                
+                # Collect attention maps if enabled
+                if self.return_attention_maps:
+                    self._collect_attention_from_layer(layer, stage_idx=i)
+                
                 if i in self.out_indices:
                     x_out = getattr(self, f"norm{i}")(x)
                     out = x_out.view(-1, H, W, self.num_features_list[i]).permute(0, 3, 1, 2).contiguous()
                     outs.append(out)
             x = tuple(outs)
         else:
-            for layer in self.layers:
+            for i, layer in enumerate(self.layers):
                 x, H, W = layer(x, H, W)
+                
+                # Collect attention maps if enabled
+                if self.return_attention_maps:
+                    self._collect_attention_from_layer(layer, stage_idx=i)
         return x
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Complete forward pass through Swin Transformer."""
         x = self.forward_features(x)
         return x
+    
+    def _collect_attention_from_layer(self, layer, stage_idx: int):
+        """
+        Collect attention maps from all blocks in a layer.
+        
+        Args:
+            layer: BasicLayer instance
+            stage_idx: Stage index (0-3 for Swin-Tiny)
+        """
+        for block_idx, block in enumerate(layer.blocks):
+            if hasattr(block, '_block_metadata') and block._block_metadata is not None:
+                metadata = block._block_metadata.copy()
+                metadata['stage'] = stage_idx
+                metadata['block'] = block_idx
+                metadata['dim'] = block.dim
+                metadata['num_heads'] = block.num_heads
+                self.attention_maps.append(metadata)
+    
+    def get_attention_maps(self):
+        """
+        Get collected attention maps from the last forward pass.
+        
+        Returns:
+            List of dictionaries containing attention weights and metadata:
+            - 'stage': stage index
+            - 'block': block index within stage
+            - 'is_shifted': whether this is SW-MSA (True) or W-MSA (False)
+            - 'attention': attention weights [num_windows*B, num_heads, N, N]
+            - 'resolution': (H, W) original feature map resolution
+            - 'padded_resolution': (Hp, Wp) padded resolution
+            - 'window_size': window size
+            - 'shift_size': shift size
+            - 'num_windows': (nH, nW) number of windows
+            - 'dim': feature dimension
+            - 'num_heads': number of attention heads
+        """
+        if not self.return_attention_maps:
+            raise ValueError(
+                "return_attention_maps=False. Create model with return_attention_maps=True "
+                "to collect attention weights."
+            )
+        return self.attention_maps
 
     def get_model_info(self) -> Dict[str, Any]:
         """Get model configuration information."""

@@ -296,7 +296,6 @@ def visualize_attention_patterns(
         'num_samples': len(images),
         'num_visualizations': 0,
         'stages_analyzed': set(),
-        'blocks_analyzed': set(),
     }
     
     # Process each image
@@ -317,15 +316,6 @@ def visualize_attention_patterns(
         # Create sample-specific output directory
         sample_dir = output_dir / f"sample_{dataset_idx}_label_{label}"
         sample_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Save original image
-        img_np = image[0].cpu().permute(1, 2, 0).numpy()
-        mean = np.array([0.485, 0.456, 0.406])
-        std = np.array([0.229, 0.224, 0.225])
-        img_np = std * img_np + mean
-        img_np = np.clip(img_np, 0, 1)
-        img_pil = Image.fromarray((img_np * 255).astype(np.uint8))
-        img_pil.save(sample_dir / "original_image.png")
         
         # Get query positions — all in IMAGE coordinates (224×224)
         query_strategy = viz_config.get('query_strategy', 'center')
@@ -385,7 +375,8 @@ def visualize_attention_patterns(
         
         # Generate per-head attention visualization
         if viz_config.get('per_head_viz', False):
-            for stage_idx in stages_to_compare[:2]:  # stages 0 and 1 (fewer heads, more informative)
+            per_head_stages = viz_config.get('per_head_stages', [1, 2])
+            for stage_idx in per_head_stages:
                 try:
                     head_path = sample_dir / f"per_head_stage{stage_idx}.png"
                     visualizer.visualize_per_head_attention(
@@ -403,6 +394,7 @@ def visualize_attention_patterns(
             evolution_path = sample_dir / "attention_evolution_across_stages.png"
             visualizer.visualize_stage_evolution(
                 query_position=query_positions[0],
+                stages=stages_to_compare,
                 save_path=str(evolution_path)
             )
             stats['num_visualizations'] += 1
@@ -454,7 +446,6 @@ def visualize_attention_patterns(
     
     # Convert sets to lists for JSON serialization
     stats['stages_analyzed'] = sorted(list(stats['stages_analyzed']))
-    stats['blocks_analyzed'] = sorted(list(stats['blocks_analyzed']))
     
     logger.info(f"Generated {stats['num_visualizations']} visualizations for {stats['num_samples']} samples")
     

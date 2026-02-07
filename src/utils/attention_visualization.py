@@ -361,21 +361,45 @@ class AttentionVisualizer:
     def visualize_stage_evolution(
         self,
         query_position: Tuple[int, int],
+        stages: Optional[List[int]] = None,
         save_path: Optional[str] = None
     ) -> Image.Image:
         """
-        Visualize how attention evolves across all stages.
+        Visualize how attention evolves across selected stages.
         
         Args:
-            query_position: (h, w) query coordinates (in stage 0 resolution)
+            query_position: (h, w) query coordinates in image space (224×224)
+            stages: List of stage indices to include (None = all *except*
+                    stages where resolution == window_size, i.e. global attention)
             save_path: Optional path to save visualization
         
         Returns:
-            PIL Image showing attention across all stages
+            PIL Image showing attention across selected stages
         """
-        stages = sorted(set(m['stage'] for m in self.attention_maps))
+        all_stages = sorted(set(m['stage'] for m in self.attention_maps))
+        if stages is not None:
+            all_stages = [s for s in all_stages if s in stages]
+        else:
+            # Auto-exclude stages where feature map == window size (single-window
+            # global attention → the 7×7→224×224 upsample is uninformative)
+            filtered = []
+            for s in all_stages:
+                sample_block = next(m for m in self.attention_maps if m['stage'] == s)
+                H, W = sample_block['resolution']
+                ws = sample_block['window_size']
+                if H > ws or W > ws:
+                    filtered.append(s)
+                else:
+                    logger.info(f"Stage {s} excluded from evolution plot "
+                                f"(resolution {H}×{W} == window_size {ws}, "
+                                f"single-window global attention)")
+            all_stages = filtered
+        stages = all_stages
         
-        fig, axes = plt.subplots(1, len(stages) + 1, figsize=(5 * (len(stages) + 1), 5))
+        n_panels = len(stages) + 1
+        fig, axes = plt.subplots(1, n_panels, figsize=(5 * n_panels, 5))
+        if n_panels == 1:
+            axes = [axes]  # ensure indexable
         
         # Original image
         if self.last_image is not None:
@@ -741,6 +765,12 @@ class AttentionVisualizer:
         wmsa_np  = _get_attn(wmsa_block)
         swmsa_np = _get_attn(swmsa_block)
 
+        # Boost visibility: gamma < 1 compresses dynamic range so more
+        # spatial locations become visible (especially the medium-weight ones)
+        gamma = 0.5
+        wmsa_np  = np.power(wmsa_np,  gamma)
+        swmsa_np = np.power(swmsa_np, gamma)
+
         # Build RGB overlay: R=SW-MSA, G=0, B=W-MSA
         overlay = np.zeros((224, 224, 3))
         overlay[..., 0] = swmsa_np   # Red  → SW-MSA
@@ -754,7 +784,7 @@ class AttentionVisualizer:
         axes[0].axis('off')
 
         axes[1].imshow(img)
-        axes[1].imshow(overlay, alpha=0.65)
+        axes[1].imshow(overlay, alpha=0.85)
         axes[1].plot(query_position[1], query_position[0], 'w*', markersize=18)
         axes[1].set_title(
             f'Stage {stage_idx} — W-MSA (blue) + SW-MSA (red)\n'

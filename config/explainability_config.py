@@ -73,6 +73,7 @@ VIZ_CONFIG = {
     # Additional visualizations
     "save_all_maps": False,   # Save all individual attention maps (can be large)
     "per_head_viz": True,     # Visualize individual attention heads
+    "per_head_stages": [1, 2],  # Stages for per-head viz (0 has too few heads to interpret)
     "combined_wmsa_swmsa_overlay": True,  # Overlay both W-MSA & SW-MSA windows on one image
     "attention_summary_plot": True,  # Bar-chart summary of entropy/sparsity per stage
 }

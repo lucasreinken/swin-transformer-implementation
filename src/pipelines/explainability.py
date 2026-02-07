@@ -16,13 +16,7 @@ from torch.utils.data import DataLoader
 import numpy as np
 from PIL import Image
 
-from config import (
-    DATA_CONFIG,
-    TRAINING_CONFIG,
-)
-
 from src.models import SwinTransformerModel
-from src.utils.experiment import ExperimentTracker
 from src.utils.load_weights import transfer_weights
 from src.utils.attention_visualization import AttentionVisualizer
 
@@ -47,38 +41,55 @@ def create_explainability_model(
     """
     logger.info("Creating Swin Transformer model for explainability...")
     
-    # Ensure attention capture is enabled
-    model_config = model_config.copy()
-    model_config['return_attention_maps'] = True
+    # Map config keys to SwinTransformerModel constructor parameter names.
+    # The config uses short names (embed_dim, dropout) but the model uses
+    # full names (embedding_dim, dropout_rate).  See model_factory.py.
+    model = SwinTransformerModel(
+        img_size=model_config.get('img_size', 224),
+        patch_size=model_config.get('patch_size', 4),
+        embedding_dim=model_config.get('embed_dim', 96),
+        depths=model_config.get('depths', [2, 2, 6, 2]),
+        num_heads=model_config.get('num_heads', [3, 6, 12, 24]),
+        window_size=model_config.get('window_size', 7),
+        mlp_ratio=model_config.get('mlp_ratio', 4.0),
+        dropout_rate=model_config.get('dropout', 0.0),
+        attention_dropout_rate=model_config.get('attention_dropout', 0.0),
+        projection_dropout_rate=model_config.get('projection_dropout', 0.0),
+        drop_path_rate=model_config.get('drop_path_rate', 0.0),
+        use_shifted_window=model_config.get('use_shifted_window', True),
+        use_relative_bias=model_config.get('use_relative_bias', True),
+        use_absolute_pos_embed=model_config.get('use_absolute_pos_embed', False),
+        use_hierarchical_merge=model_config.get('use_hierarchical_merge', False),
+        use_gradient_checkpointing=model_config.get('use_gradient_checkpointing', False),
+        return_attention_maps=True,  # Always enable for explainability
+    )
     
-    # Log configuration
     logger.info(f"Model architecture: Swin Transformer")
     logger.info(f"Attention capture: ENABLED")
-    logger.info(f"Configuration: {model_config}")
-    
-    # Create model
-    model = SwinTransformerModel(**model_config)
+    logger.info(f"embed_dim={model_config.get('embed_dim')}, depths={model_config.get('depths')}, "
+                f"num_heads={model_config.get('num_heads')}, window_size={model_config.get('window_size')}")
     
     # Load pretrained weights if provided
     if pretrained_weights:
         logger.info(f"Loading pretrained weights: {pretrained_weights}")
         
         if pretrained_weights.startswith('swin_'):
-            # TIMM model name
-            from timm import create_model
+            # TIMM model name — use transfer_weights with correct signature:
+            #   transfer_weights(custom_model, pretrained_model, encoder_only, model_name, device)
+            from timm import create_model as timm_create_model
             logger.info("Loading weights from TIMM pretrained model...")
-            timm_model = create_model(pretrained_weights, pretrained=True)
-            transfer_weights(
-                source_model=timm_model,
-                target_model=model,
-                strict=False,
-                ignore_head=True
+            timm_model = timm_create_model(pretrained_weights, pretrained=True)
+            result = transfer_weights(
+                custom_model=model,
+                pretrained_model=timm_model,
+                encoder_only=False,  # model IS the encoder (no wrapper)
             )
+            logger.info(f"Weight transfer result: {result}")
             logger.info("Successfully loaded TIMM pretrained weights")
         else:
             # Local checkpoint
             logger.info(f"Loading weights from checkpoint: {pretrained_weights}")
-            checkpoint = torch.load(pretrained_weights, map_location=device)
+            checkpoint = torch.load(pretrained_weights, map_location=device, weights_only=False)
             
             if 'model_state_dict' in checkpoint:
                 state_dict = checkpoint['model_state_dict']

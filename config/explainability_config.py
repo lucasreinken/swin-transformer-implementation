@@ -77,8 +77,8 @@ VIZ_CONFIG = {
 # =============================================================================
 
 DATA_CONFIG = {
-    "dataset": "imagenet",  # Dataset to sample images from
-    "data_path": "/data/imagenet",  # Path inside container (from overlay)
+    "dataset": "ImageNet",  # Must be exact case to match dataloader.py
+    "data_path": "/",  # Overlay mounts ImageNet at root: /train_set, /val_set
     "split": "val",  # Use validation set
     "num_samples": 5,  # Number of images to visualize
     "img_size": 224,  # Input image size
@@ -86,7 +86,6 @@ DATA_CONFIG = {
     "shuffle": False,  # Don't shuffle for reproducibility
     "num_workers": 4,  # DataLoader workers
     "pin_memory": True,  # Pin memory for GPU transfer
-    "augmentation_strength": "none",  # No augmentation for visualization
 }
 
 # =============================================================================

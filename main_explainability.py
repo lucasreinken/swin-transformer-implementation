@@ -12,7 +12,6 @@ import logging
 from pathlib import Path
 
 import torch
-from torch.utils.data import DataLoader
 
 from src.data import load_data
 from src.data.transforms import get_default_transforms
@@ -24,7 +23,6 @@ from config.explainability_config import (
     DATA_CONFIG,
     VIZ_CONFIG,
     SEED_CONFIG,
-    OUTPUT_CONFIG,
 )
 
 from src.pipelines.explainability import run_explainability
@@ -56,12 +54,9 @@ def validate_configuration() -> None:
 def main():
     """Main execution function for explainability pipeline."""
     
-    # Set up run directory and logging
-    run_dir = setup_run_directory(
-        base_dir=OUTPUT_CONFIG.get('base_dir', 'runs'),
-        experiment_name=OUTPUT_CONFIG.get('experiment_name', 'explainability')
-    )
-    setup_logging(run_dir, log_level=logging.INFO)
+    # Set up run directory and logging (uses existing run_N pattern)
+    run_dir = setup_run_directory()
+    setup_logging(run_dir)
     
     logger.info("="*80)
     logger.info("SWIN TRANSFORMER EXPLAINABILITY ANALYSIS")
@@ -90,21 +85,21 @@ def main():
     logger.info(f"Dataset: {DATA_CONFIG.get('dataset', 'imagenet')}")
     logger.info(f"Data path: {DATA_CONFIG.get('data_path', 'data')}")
     
-    # Get transforms
-    _, val_transform = get_default_transforms(
-        dataset="ImageNet",  # Use exact case
-        augmentation_strength=DATA_CONFIG.get('augmentation_strength', 'none'),
+    # Get transforms (validation / no augmentation)
+    val_transform = get_default_transforms(
+        dataset="ImageNet",
         img_size=DATA_CONFIG.get('img_size', 224),
+        is_training=False,
     )
     
     # Load data using existing dataloader (returns DataLoaders, not datasets)
     _, val_loader, _ = load_data(
-        dataset="ImageNet",  # Use exact case from main.py
+        dataset="ImageNet",
         transformation=val_transform,
         val_transformation=val_transform,
         batch_size=DATA_CONFIG.get('batch_size', 1),
         num_workers=DATA_CONFIG.get('num_workers', 4),
-        root=DATA_CONFIG.get('data_path', '/data/imagenet'),
+        root=DATA_CONFIG.get('data_path', '/'),  # Overlay mounts at /
         img_size=DATA_CONFIG.get('img_size', 224),
         worker_init_fn=get_worker_init_fn(seed),
     )

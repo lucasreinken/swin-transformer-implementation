@@ -5,7 +5,7 @@
 #SBATCH --job-name=swin_explainability
 #SBATCH --output=logs/%j_%x.out
 #SBATCH --error=logs/%j_%x.err
-#SBATCH --chdir=/home/pml20/swin_transformer/Machine-Learning-Project
+#SBATCH --chdir=/home/pml20/Machine-Learning-Project
 #SBATCH --array=1-1
 
 # Ensure logs dir exists

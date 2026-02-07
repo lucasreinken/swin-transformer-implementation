@@ -205,11 +205,10 @@ class AttentionVisualizer:
         
         # Convert to PIL Image
         fig.canvas.draw()
+        w, h = fig.canvas.get_width_height()
         image_pil = Image.frombytes(
-            'RGB',
-            fig.canvas.get_width_height(),
-            fig.canvas.tostring_rgb()
-        )
+            'RGBA', (w, h), fig.canvas.buffer_rgba()
+        ).convert('RGB')
         
         plt.close(fig)
         
@@ -250,17 +249,25 @@ class AttentionVisualizer:
         if wmsa_block is None or swmsa_block is None:
             raise ValueError(f"Could not find both W-MSA and SW-MSA blocks in stage {stage_idx}")
         
-        # Get attention maps
+        # Scale query position from image coordinates to feature-map coordinates
+        feat_H, feat_W = wmsa_block['resolution']
+        img_H, img_W = 224, 224  # Swin-Tiny input resolution
+        scaled_query = (
+            min(query_position[0] * feat_H // img_H, feat_H - 1),
+            min(query_position[1] * feat_W // img_W, feat_W - 1),
+        )
+        
+        # Get attention maps (feature-map resolution)
         wmsa_attn = attention_to_spatial_map(
             wmsa_block['attention'],
-            query_position,
+            scaled_query,
             wmsa_block,
             aggregate_heads='mean'
         )
         
         swmsa_attn = attention_to_spatial_map(
             swmsa_block['attention'],
-            query_position,
+            scaled_query,
             swmsa_block,
             aggregate_heads='mean'
         )
@@ -284,27 +291,36 @@ class AttentionVisualizer:
         axes[0].set_title('Original Image\n(Red star = Query position)', fontsize=12)
         axes[0].axis('off')
         
+        # Helper: normalize and resize attention map to image resolution
+        def _prep_attn(attn_tensor):
+            a = attn_tensor.cpu().numpy()
+            a = (a - a.min()) / (a.max() - a.min() + 1e-8)
+            a = np.array(
+                Image.fromarray((a * 255).astype(np.uint8)).resize(
+                    (img.shape[1], img.shape[0]), Image.BILINEAR
+                )
+            ) / 255.0
+            return a
+        
         # W-MSA attention
-        wmsa_np = wmsa_attn.cpu().numpy()
-        wmsa_np = (wmsa_np - wmsa_np.min()) / (wmsa_np.max() - wmsa_np.min() + 1e-8)
+        wmsa_np = _prep_attn(wmsa_attn)
         axes[1].imshow(img)
         im1 = axes[1].imshow(wmsa_np, cmap=self.colormap, alpha=self.overlay_alpha)
         axes[1].set_title(
             f'W-MSA (Stage {stage_idx}, Block {wmsa_block["block"]})\n'
-            f'Window-based attention',
+            f'Window-based attention ({feat_H}×{feat_W})',
             fontsize=12
         )
         axes[1].axis('off')
         plt.colorbar(im1, ax=axes[1], fraction=0.046, pad=0.04)
         
         # SW-MSA attention
-        swmsa_np = swmsa_attn.cpu().numpy()
-        swmsa_np = (swmsa_np - swmsa_np.min()) / (swmsa_np.max() - swmsa_np.min() + 1e-8)
+        swmsa_np = _prep_attn(swmsa_attn)
         axes[2].imshow(img)
         im2 = axes[2].imshow(swmsa_np, cmap=self.colormap, alpha=self.overlay_alpha)
         axes[2].set_title(
             f'SW-MSA (Stage {stage_idx}, Block {swmsa_block["block"]})\n'
-            f'Shifted window attention',
+            f'Shifted window attention ({feat_H}×{feat_W})',
             fontsize=12
         )
         axes[2].axis('off')
@@ -314,11 +330,10 @@ class AttentionVisualizer:
         
         # Convert to PIL
         fig.canvas.draw()
+        w, h = fig.canvas.get_width_height()
         comparison_pil = Image.frombytes(
-            'RGB',
-            fig.canvas.get_width_height(),
-            fig.canvas.tostring_rgb()
-        )
+            'RGBA', (w, h), fig.canvas.buffer_rgba()
+        ).convert('RGB')
         
         if save_path:
             comparison_pil.save(save_path, dpi=(300, 300))
@@ -411,11 +426,10 @@ class AttentionVisualizer:
         
         # Convert to PIL
         fig.canvas.draw()
+        w, h = fig.canvas.get_width_height()
         evolution_pil = Image.frombytes(
-            'RGB',
-            fig.canvas.get_width_height(),
-            fig.canvas.tostring_rgb()
-        )
+            'RGBA', (w, h), fig.canvas.buffer_rgba()
+        ).convert('RGB')
         
         if save_path:
             evolution_pil.save(save_path, dpi=(300, 300))
@@ -494,24 +508,31 @@ class AttentionVisualizer:
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Default query positions (center + corners)
+        # Default query positions in image coordinates (224x224)
         if query_positions is None:
             query_positions = [
-                (56, 56),   # Center
-                (14, 14),   # Top-left
-                (14, 98),   # Top-right
-                (98, 14),   # Bottom-left
-                (98, 98),   # Bottom-right
+                (112, 112),  # Center
+                (28, 28),    # Top-left
+                (28, 196),   # Top-right
+                (196, 28),   # Bottom-left
+                (196, 196),  # Bottom-right
             ]
         
         logger.info(f"Saving attention visualizations to {output_dir}")
         
         for query_idx, query_pos in enumerate(query_positions):
             for attn_map in self.attention_maps:
+                # Scale query position from image coords to feature-map coords
+                feat_H, feat_W = attn_map['resolution']
+                scaled_query = (
+                    min(query_pos[0] * feat_H // 224, feat_H - 1),
+                    min(query_pos[1] * feat_W // 224, feat_W - 1),
+                )
+                
                 # Generate attention map
                 spatial_attn = attention_to_spatial_map(
                     attn_map['attention'],
-                    query_pos,
+                    scaled_query,
                     attn_map,
                     aggregate_heads='mean'
                 )

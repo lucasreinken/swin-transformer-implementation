@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --partition=gpu-teaching-2h    # Use appropriate partition
+#SBATCH --partition=gpu-teaching-2d    # Use appropriate partition
 #SBATCH --gpus=1
 #SBATCH --exclusive                     # No sharing with other users
 #SBATCH --time=01:00:00                 # 1 hour should be enough for visualization

@@ -1,0 +1,1114 @@
+2026-02-08 01:20:44,839 - INFO - Logging initialized. Log file: runs/run_269/training.log
+2026-02-08 01:20:44,841 - INFO - ================================================================================
+2026-02-08 01:20:44,843 - INFO - SWIN TRANSFORMER EXPLAINABILITY ANALYSIS
+2026-02-08 01:20:44,844 - INFO - ================================================================================
+2026-02-08 01:20:44,845 - INFO - Run directory: runs/run_269
+2026-02-08 01:20:44,846 - INFO - Validating explainability configuration...
+2026-02-08 01:20:44,848 - INFO - Configuration validation passed!
+2026-02-08 01:20:44,867 - INFO - ✅ All seeds set to 42 (deterministic=True)
+2026-02-08 01:20:44,868 - INFO - Random seed set to 42 (deterministic=True)
+2026-02-08 01:20:45,042 - INFO - Using device: cuda
+2026-02-08 01:20:45,104 - INFO - GPU: NVIDIA GeForce RTX 3090
+2026-02-08 01:20:45,105 - INFO - CUDA version: 12.8
+2026-02-08 01:20:45,107 - INFO - Loading data for explainability analysis...
+2026-02-08 01:20:45,108 - INFO - Dataset: ImageNet
+2026-02-08 01:20:45,109 - INFO - Data path: /
+2026-02-08 01:20:45,112 - INFO - Starting ImageNet data loading from root: /
+2026-02-08 01:20:45,113 - INFO - Resolved root path: /
+2026-02-08 01:20:45,115 - INFO - Root path exists: True
+2026-02-08 01:20:45,116 - INFO - Root path is dir: True
+2026-02-08 01:20:45,163 - INFO - Contents of /: ['/.exec', '/.run', '/.shell', '/.singularity.d', '/.test', '/bin', '/boot', '/dev', '/environment', '/etc', '/home', '/lib', '/lib64', '/media', '/mnt', '/opt', '/proc', '/requirements.txt', '/root', '/run', '/sbin', '/singularity', '/srv', '/sys', '/tmp', '/usr', '/var', '/meta', '/train_set', '/train_set_small', '/val_set', '/val_set_unlabeled']
+2026-02-08 01:20:45,164 - INFO - Expected train_dir: /train_set, exists: True
+2026-02-08 01:20:45,165 - INFO - Expected val_dir: /val_set, exists: True
+2026-02-08 01:20:59,863 - INFO - Loaded ImageNet data from /: train=1281167, val=50000
+2026-02-08 01:20:59,866 - INFO - Dataset limits applied
+2026-02-08 01:21:00,188 - INFO - Validation set size: 50000
+2026-02-08 01:21:00,189 - INFO - Batch size: 1
+2026-02-08 01:21:00,191 - INFO - Using pretrained weights: swin_tiny_patch4_window7_224
+2026-02-08 01:21:00,192 - INFO - ================================================================================
+2026-02-08 01:21:00,194 - INFO - EXPLAINABILITY PIPELINE: Swin Transformer Attention Analysis
+2026-02-08 01:21:00,195 - INFO - ================================================================================
+2026-02-08 01:21:00,196 - INFO - Creating Swin Transformer model for explainability...
+2026-02-08 01:21:00,774 - INFO - Model architecture: Swin Transformer
+2026-02-08 01:21:00,776 - INFO - Attention capture: ENABLED
+2026-02-08 01:21:00,777 - INFO - embed_dim=96, depths=[2, 2, 6, 2], num_heads=[3, 6, 12, 24], window_size=7
+2026-02-08 01:21:00,778 - INFO - Loading pretrained weights: swin_tiny_patch4_window7_224
+2026-02-08 01:21:00,780 - INFO - Loading weights from TIMM pretrained model...
+2026-02-08 01:21:01,518 - INFO - Loading pretrained weights from Hugging Face hub (timm/swin_tiny_patch4_window7_224.ms_in1k)
+2026-02-08 01:21:01,764 - INFO - HTTP Request: HEAD https://huggingface.co/timm/swin_tiny_patch4_window7_224.ms_in1k/resolve/main/model.safetensors "HTTP/1.1 302 Found"
+2026-02-08 01:21:01,767 - WARNING - Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-02-08 01:21:01,779 - INFO - [timm/swin_tiny_patch4_window7_224.ms_in1k] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+2026-02-08 01:21:01,952 - INFO - Weight transfer: 169 layers transferred.
+2026-02-08 01:21:01,954 - INFO - Weight transfer result: {'transferred': 169, 'missing': 0, 'size_mismatches': 0}
+2026-02-08 01:21:01,955 - INFO - Successfully loaded TIMM pretrained weights
+2026-02-08 01:21:01,958 - INFO - Total parameters: 27,517,818
+2026-02-08 01:21:01,959 - INFO - Trainable parameters: 27,517,818
+2026-02-08 01:21:02,232 - INFO - Extracting 30 sample images using 'diverse_classes' strategy...
+2026-02-08 01:21:02,234 - INFO - Diverse sampling: 10 classes × 3 samples
+2026-02-08 01:21:02,263 - INFO -   Selected classes: [25, 104, 114, 142, 228, 250, 281, 654, 754, 759]
+2026-02-08 01:21:02,653 - INFO -   Collected 30 samples from 10 classes
+2026-02-08 01:21:02,663 - INFO - Extracted 30 samples (shape: torch.Size([30, 3, 224, 224]))
+2026-02-08 01:21:02,854 - INFO - Unique classes: 10 — [25, 104, 114, 142, 228, 250, 281, 654, 754, 759]
+2026-02-08 01:21:02,861 - INFO - Visualizations will be saved to: runs/run_269/visualizations
+2026-02-08 01:21:02,863 - INFO - Generating attention visualizations...
+2026-02-08 01:21:02,872 - INFO - Processing sample 1/30 (dataset idx: 1293, label: 25)
+2026-02-08 01:21:05,130 - INFO - Extracted 12 attention maps
+2026-02-08 01:21:05,132 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:21:05,134 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:21:05,135 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:21:05,137 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:21:05,138 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:21:05,140 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:21:05,141 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:21:05,143 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:21:05,144 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:21:05,146 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:21:05,147 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:21:05,148 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:21:07,364 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_1293_label_25/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:21:07,366 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:21:08,316 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_1293_label_25/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:21:08,318 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:21:09,315 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_1293_label_25/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:21:09,317 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:21:09,822 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_1293_label_25/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:21:09,824 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:21:10,394 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_1293_label_25/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:21:10,396 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:21:10,996 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_1293_label_25/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:21:10,998 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:21:13,363 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_1293_label_25/per_head_stage1.png
+2026-02-08 01:21:13,365 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:21:17,341 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_1293_label_25/per_head_stage2.png
+2026-02-08 01:21:17,344 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:21:18,570 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_1293_label_25/attention_evolution_across_stages.png
+2026-02-08 01:21:18,572 - INFO -   Generated stage evolution visualization
+2026-02-08 01:21:19,347 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_1293_label_25/attention_statistics.json
+2026-02-08 01:21:20,609 - INFO - Saved attention summary to runs/run_269/visualizations/sample_1293_label_25/attention_summary.png
+2026-02-08 01:21:20,611 - INFO -   Generated attention summary plot
+2026-02-08 01:21:20,613 - INFO - Processing sample 2/30 (dataset idx: 1297, label: 25)
+2026-02-08 01:21:20,670 - INFO - Extracted 12 attention maps
+2026-02-08 01:21:20,671 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:21:20,673 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:21:20,674 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:21:20,676 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:21:20,677 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:21:20,678 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:21:20,680 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:21:20,681 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:21:20,683 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:21:20,684 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:21:20,686 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:21:20,687 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:21:21,726 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_1297_label_25/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:21:21,728 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:21:22,546 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_1297_label_25/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:21:22,548 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:21:23,519 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_1297_label_25/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:21:23,521 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:21:24,022 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_1297_label_25/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:21:24,024 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:21:24,527 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_1297_label_25/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:21:24,529 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:21:25,038 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_1297_label_25/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:21:25,040 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:21:26,965 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_1297_label_25/per_head_stage1.png
+2026-02-08 01:21:26,967 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:21:31,066 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_1297_label_25/per_head_stage2.png
+2026-02-08 01:21:31,068 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:21:32,252 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_1297_label_25/attention_evolution_across_stages.png
+2026-02-08 01:21:32,254 - INFO -   Generated stage evolution visualization
+2026-02-08 01:21:32,555 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_1297_label_25/attention_statistics.json
+2026-02-08 01:21:33,516 - INFO - Saved attention summary to runs/run_269/visualizations/sample_1297_label_25/attention_summary.png
+2026-02-08 01:21:33,517 - INFO -   Generated attention summary plot
+2026-02-08 01:21:33,519 - INFO - Processing sample 3/30 (dataset idx: 1284, label: 25)
+2026-02-08 01:21:33,576 - INFO - Extracted 12 attention maps
+2026-02-08 01:21:33,578 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:21:33,579 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:21:33,580 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:21:33,582 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:21:33,584 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:21:33,585 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:21:33,587 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:21:33,588 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:21:33,590 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:21:33,591 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:21:33,592 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:21:33,594 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:21:34,503 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_1284_label_25/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:21:34,505 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:21:35,420 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_1284_label_25/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:21:35,422 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:21:36,628 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_1284_label_25/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:21:36,630 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:21:37,103 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_1284_label_25/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:21:37,105 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:21:37,615 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_1284_label_25/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:21:37,616 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:21:38,094 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_1284_label_25/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:21:38,096 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:21:40,076 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_1284_label_25/per_head_stage1.png
+2026-02-08 01:21:40,077 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:21:44,240 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_1284_label_25/per_head_stage2.png
+2026-02-08 01:21:44,244 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:21:45,452 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_1284_label_25/attention_evolution_across_stages.png
+2026-02-08 01:21:45,455 - INFO -   Generated stage evolution visualization
+2026-02-08 01:21:45,769 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_1284_label_25/attention_statistics.json
+2026-02-08 01:21:46,729 - INFO - Saved attention summary to runs/run_269/visualizations/sample_1284_label_25/attention_summary.png
+2026-02-08 01:21:46,731 - INFO -   Generated attention summary plot
+2026-02-08 01:21:46,732 - INFO - Processing sample 4/30 (dataset idx: 5205, label: 104)
+2026-02-08 01:21:46,788 - INFO - Extracted 12 attention maps
+2026-02-08 01:21:46,790 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:21:46,791 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:21:46,792 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:21:46,794 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:21:46,795 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:21:46,796 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:21:46,797 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:21:46,799 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:21:46,800 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:21:46,802 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:21:46,803 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:21:46,804 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:21:47,734 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_5205_label_104/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:21:47,737 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:21:48,577 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_5205_label_104/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:21:48,578 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:21:49,432 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_5205_label_104/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:21:49,434 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:21:49,908 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_5205_label_104/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:21:49,910 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:21:50,383 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_5205_label_104/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:21:50,385 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:21:50,868 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_5205_label_104/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:21:50,870 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:21:53,182 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_5205_label_104/per_head_stage1.png
+2026-02-08 01:21:53,184 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:21:57,034 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_5205_label_104/per_head_stage2.png
+2026-02-08 01:21:57,039 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:21:58,232 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_5205_label_104/attention_evolution_across_stages.png
+2026-02-08 01:21:58,234 - INFO -   Generated stage evolution visualization
+2026-02-08 01:21:58,537 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_5205_label_104/attention_statistics.json
+2026-02-08 01:21:59,885 - INFO - Saved attention summary to runs/run_269/visualizations/sample_5205_label_104/attention_summary.png
+2026-02-08 01:21:59,887 - INFO -   Generated attention summary plot
+2026-02-08 01:21:59,888 - INFO - Processing sample 5/30 (dataset idx: 5237, label: 104)
+2026-02-08 01:21:59,945 - INFO - Extracted 12 attention maps
+2026-02-08 01:21:59,946 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:21:59,947 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:21:59,948 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:21:59,949 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:21:59,950 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:21:59,951 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:21:59,952 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:21:59,953 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:21:59,954 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:21:59,956 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:21:59,957 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:21:59,958 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:22:00,919 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_5237_label_104/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:22:00,921 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:22:01,858 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_5237_label_104/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:22:01,860 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:22:02,755 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_5237_label_104/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:22:02,756 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:22:03,262 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_5237_label_104/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:22:03,264 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:22:03,769 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_5237_label_104/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:22:03,770 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:22:04,283 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_5237_label_104/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:22:04,285 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:22:06,338 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_5237_label_104/per_head_stage1.png
+2026-02-08 01:22:06,340 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:22:10,591 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_5237_label_104/per_head_stage2.png
+2026-02-08 01:22:10,593 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:22:11,897 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_5237_label_104/attention_evolution_across_stages.png
+2026-02-08 01:22:11,899 - INFO -   Generated stage evolution visualization
+2026-02-08 01:22:12,281 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_5237_label_104/attention_statistics.json
+2026-02-08 01:22:13,235 - INFO - Saved attention summary to runs/run_269/visualizations/sample_5237_label_104/attention_summary.png
+2026-02-08 01:22:13,237 - INFO -   Generated attention summary plot
+2026-02-08 01:22:13,239 - INFO - Processing sample 6/30 (dataset idx: 5227, label: 104)
+2026-02-08 01:22:13,295 - INFO - Extracted 12 attention maps
+2026-02-08 01:22:13,297 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:22:13,298 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:22:13,300 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:22:13,301 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:22:13,302 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:22:13,304 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:22:13,305 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:22:13,307 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:22:13,308 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:22:13,309 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:22:13,311 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:22:13,312 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:22:14,263 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_5227_label_104/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:22:14,264 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:22:15,178 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_5227_label_104/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:22:15,180 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:22:16,098 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_5227_label_104/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:22:16,100 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:22:16,611 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_5227_label_104/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:22:16,613 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:22:17,438 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_5227_label_104/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:22:17,440 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:22:17,957 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_5227_label_104/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:22:17,959 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:22:20,037 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_5227_label_104/per_head_stage1.png
+2026-02-08 01:22:20,038 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:22:23,929 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_5227_label_104/per_head_stage2.png
+2026-02-08 01:22:23,930 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:22:25,471 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_5227_label_104/attention_evolution_across_stages.png
+2026-02-08 01:22:25,473 - INFO -   Generated stage evolution visualization
+2026-02-08 01:22:25,773 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_5227_label_104/attention_statistics.json
+2026-02-08 01:22:26,741 - INFO - Saved attention summary to runs/run_269/visualizations/sample_5227_label_104/attention_summary.png
+2026-02-08 01:22:26,743 - INFO -   Generated attention summary plot
+2026-02-08 01:22:26,745 - INFO - Processing sample 7/30 (dataset idx: 5702, label: 114)
+2026-02-08 01:22:26,800 - INFO - Extracted 12 attention maps
+2026-02-08 01:22:26,802 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:22:26,803 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:22:26,804 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:22:26,806 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:22:26,807 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:22:26,808 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:22:26,809 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:22:26,810 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:22:26,812 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:22:26,813 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:22:26,815 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:22:26,816 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:22:27,824 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_5702_label_114/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:22:27,826 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:22:28,738 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_5702_label_114/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:22:28,740 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:22:29,598 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_5702_label_114/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:22:29,600 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:22:30,077 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_5702_label_114/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:22:30,079 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:22:30,558 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_5702_label_114/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:22:30,560 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:22:31,045 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_5702_label_114/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:22:31,047 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:22:33,010 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_5702_label_114/per_head_stage1.png
+2026-02-08 01:22:33,012 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:22:37,157 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_5702_label_114/per_head_stage2.png
+2026-02-08 01:22:37,159 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:22:38,344 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_5702_label_114/attention_evolution_across_stages.png
+2026-02-08 01:22:38,346 - INFO -   Generated stage evolution visualization
+2026-02-08 01:22:38,647 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_5702_label_114/attention_statistics.json
+2026-02-08 01:22:39,593 - INFO - Saved attention summary to runs/run_269/visualizations/sample_5702_label_114/attention_summary.png
+2026-02-08 01:22:39,595 - INFO -   Generated attention summary plot
+2026-02-08 01:22:39,597 - INFO - Processing sample 8/30 (dataset idx: 5701, label: 114)
+2026-02-08 01:22:39,652 - INFO - Extracted 12 attention maps
+2026-02-08 01:22:39,654 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:22:39,655 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:22:39,657 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:22:39,658 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:22:39,659 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:22:39,661 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:22:39,662 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:22:39,664 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:22:39,665 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:22:39,666 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:22:39,668 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:22:39,669 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:22:40,689 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_5701_label_114/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:22:40,691 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:22:41,990 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_5701_label_114/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:22:41,992 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:22:42,906 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_5701_label_114/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:22:42,908 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:22:43,410 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_5701_label_114/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:22:43,412 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:22:43,931 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_5701_label_114/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:22:43,933 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:22:44,446 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_5701_label_114/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:22:44,447 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:22:46,418 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_5701_label_114/per_head_stage1.png
+2026-02-08 01:22:46,419 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:22:50,684 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_5701_label_114/per_head_stage2.png
+2026-02-08 01:22:50,688 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:22:51,939 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_5701_label_114/attention_evolution_across_stages.png
+2026-02-08 01:22:51,941 - INFO -   Generated stage evolution visualization
+2026-02-08 01:22:52,238 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_5701_label_114/attention_statistics.json
+2026-02-08 01:22:53,204 - INFO - Saved attention summary to runs/run_269/visualizations/sample_5701_label_114/attention_summary.png
+2026-02-08 01:22:53,206 - INFO -   Generated attention summary plot
+2026-02-08 01:22:53,208 - INFO - Processing sample 9/30 (dataset idx: 5705, label: 114)
+2026-02-08 01:22:53,266 - INFO - Extracted 12 attention maps
+2026-02-08 01:22:53,267 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:22:53,269 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:22:53,270 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:22:53,271 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:22:53,273 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:22:53,274 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:22:53,276 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:22:53,277 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:22:53,278 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:22:53,280 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:22:53,281 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:22:53,283 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:22:54,136 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_5705_label_114/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:22:54,138 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:22:55,003 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_5705_label_114/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:22:55,004 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:22:55,854 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_5705_label_114/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:22:55,856 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:22:56,318 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_5705_label_114/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:22:56,320 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:22:56,780 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_5705_label_114/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:22:56,782 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:22:57,251 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_5705_label_114/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:22:57,253 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:22:59,563 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_5705_label_114/per_head_stage1.png
+2026-02-08 01:22:59,565 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:23:03,308 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_5705_label_114/per_head_stage2.png
+2026-02-08 01:23:03,310 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:23:04,456 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_5705_label_114/attention_evolution_across_stages.png
+2026-02-08 01:23:04,458 - INFO -   Generated stage evolution visualization
+2026-02-08 01:23:05,412 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_5705_label_114/attention_statistics.json
+2026-02-08 01:23:06,405 - INFO - Saved attention summary to runs/run_269/visualizations/sample_5705_label_114/attention_summary.png
+2026-02-08 01:23:06,407 - INFO -   Generated attention summary plot
+2026-02-08 01:23:06,408 - INFO - Processing sample 10/30 (dataset idx: 7113, label: 142)
+2026-02-08 01:23:06,465 - INFO - Extracted 12 attention maps
+2026-02-08 01:23:06,467 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:23:06,468 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:23:06,470 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:23:06,471 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:23:06,473 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:23:06,474 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:23:06,476 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:23:06,477 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:23:06,479 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:23:06,480 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:23:06,482 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:23:06,483 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:23:07,774 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_7113_label_142/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:23:07,776 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:23:08,748 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_7113_label_142/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:23:08,750 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:23:09,681 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_7113_label_142/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:23:09,683 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:23:10,194 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_7113_label_142/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:23:10,196 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:23:10,709 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_7113_label_142/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:23:10,711 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:23:11,281 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_7113_label_142/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:23:11,282 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:23:13,433 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_7113_label_142/per_head_stage1.png
+2026-02-08 01:23:13,434 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:23:17,924 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_7113_label_142/per_head_stage2.png
+2026-02-08 01:23:17,929 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:23:19,194 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_7113_label_142/attention_evolution_across_stages.png
+2026-02-08 01:23:19,196 - INFO -   Generated stage evolution visualization
+2026-02-08 01:23:19,496 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_7113_label_142/attention_statistics.json
+2026-02-08 01:23:20,478 - INFO - Saved attention summary to runs/run_269/visualizations/sample_7113_label_142/attention_summary.png
+2026-02-08 01:23:20,480 - INFO -   Generated attention summary plot
+2026-02-08 01:23:20,482 - INFO - Processing sample 11/30 (dataset idx: 7114, label: 142)
+2026-02-08 01:23:20,542 - INFO - Extracted 12 attention maps
+2026-02-08 01:23:20,544 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:23:20,545 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:23:20,546 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:23:20,548 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:23:20,549 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:23:20,550 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:23:20,552 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:23:20,553 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:23:20,555 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:23:20,556 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:23:20,557 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:23:20,559 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:23:21,509 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_7114_label_142/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:23:21,510 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:23:22,444 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_7114_label_142/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:23:22,445 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:23:23,385 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_7114_label_142/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:23:23,387 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:23:23,885 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_7114_label_142/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:23:23,887 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:23:24,385 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_7114_label_142/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:23:24,387 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:23:24,896 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_7114_label_142/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:23:24,898 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:23:27,318 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_7114_label_142/per_head_stage1.png
+2026-02-08 01:23:27,320 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:23:31,191 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_7114_label_142/per_head_stage2.png
+2026-02-08 01:23:31,195 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:23:32,439 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_7114_label_142/attention_evolution_across_stages.png
+2026-02-08 01:23:32,441 - INFO -   Generated stage evolution visualization
+2026-02-08 01:23:32,740 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_7114_label_142/attention_statistics.json
+2026-02-08 01:23:33,993 - INFO - Saved attention summary to runs/run_269/visualizations/sample_7114_label_142/attention_summary.png
+2026-02-08 01:23:33,995 - INFO -   Generated attention summary plot
+2026-02-08 01:23:33,996 - INFO - Processing sample 12/30 (dataset idx: 7132, label: 142)
+2026-02-08 01:23:34,052 - INFO - Extracted 12 attention maps
+2026-02-08 01:23:34,054 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:23:34,055 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:23:34,057 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:23:34,058 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:23:34,060 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:23:34,061 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:23:34,063 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:23:34,064 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:23:34,065 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:23:34,067 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:23:34,068 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:23:34,069 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:23:34,961 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_7132_label_142/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:23:34,963 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:23:35,778 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_7132_label_142/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:23:35,780 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:23:36,628 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_7132_label_142/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:23:36,630 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:23:37,117 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_7132_label_142/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:23:37,119 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:23:37,594 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_7132_label_142/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:23:37,596 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:23:38,071 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_7132_label_142/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:23:38,073 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:23:40,021 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_7132_label_142/per_head_stage1.png
+2026-02-08 01:23:40,023 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:23:44,091 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_7132_label_142/per_head_stage2.png
+2026-02-08 01:23:44,093 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:23:45,353 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_7132_label_142/attention_evolution_across_stages.png
+2026-02-08 01:23:45,355 - INFO -   Generated stage evolution visualization
+2026-02-08 01:23:45,657 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_7132_label_142/attention_statistics.json
+2026-02-08 01:23:46,616 - INFO - Saved attention summary to runs/run_269/visualizations/sample_7132_label_142/attention_summary.png
+2026-02-08 01:23:46,617 - INFO -   Generated attention summary plot
+2026-02-08 01:23:46,619 - INFO - Processing sample 13/30 (dataset idx: 11438, label: 228)
+2026-02-08 01:23:46,676 - INFO - Extracted 12 attention maps
+2026-02-08 01:23:46,678 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:23:46,679 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:23:46,680 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:23:46,681 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:23:46,683 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:23:46,684 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:23:46,686 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:23:46,687 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:23:46,689 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:23:46,690 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:23:46,691 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:23:46,693 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:23:47,482 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_11438_label_228/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:23:47,484 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:23:48,220 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_11438_label_228/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:23:48,222 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:23:49,376 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_11438_label_228/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:23:49,378 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:23:49,844 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_11438_label_228/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:23:49,846 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:23:50,266 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_11438_label_228/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:23:50,268 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:23:50,808 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_11438_label_228/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:23:50,810 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:23:52,642 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_11438_label_228/per_head_stage1.png
+2026-02-08 01:23:52,644 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:23:56,553 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_11438_label_228/per_head_stage2.png
+2026-02-08 01:23:56,557 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:23:57,672 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_11438_label_228/attention_evolution_across_stages.png
+2026-02-08 01:23:57,674 - INFO -   Generated stage evolution visualization
+2026-02-08 01:23:57,972 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_11438_label_228/attention_statistics.json
+2026-02-08 01:23:58,940 - INFO - Saved attention summary to runs/run_269/visualizations/sample_11438_label_228/attention_summary.png
+2026-02-08 01:23:58,942 - INFO -   Generated attention summary plot
+2026-02-08 01:23:58,944 - INFO - Processing sample 14/30 (dataset idx: 11401, label: 228)
+2026-02-08 01:23:59,001 - INFO - Extracted 12 attention maps
+2026-02-08 01:23:59,002 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:23:59,004 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:23:59,005 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:23:59,007 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:23:59,008 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:23:59,009 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:23:59,011 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:23:59,012 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:23:59,014 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:23:59,015 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:23:59,017 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:23:59,018 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:23:59,960 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_11401_label_228/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:23:59,962 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:24:00,887 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_11401_label_228/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:24:00,889 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:24:01,809 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_11401_label_228/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:24:01,811 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:24:02,312 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_11401_label_228/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:24:02,314 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:24:02,815 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_11401_label_228/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:24:02,817 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:24:03,382 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_11401_label_228/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:24:03,384 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:24:05,824 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_11401_label_228/per_head_stage1.png
+2026-02-08 01:24:05,826 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:24:09,882 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_11401_label_228/per_head_stage2.png
+2026-02-08 01:24:09,884 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:24:11,104 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_11401_label_228/attention_evolution_across_stages.png
+2026-02-08 01:24:11,106 - INFO -   Generated stage evolution visualization
+2026-02-08 01:24:11,403 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_11401_label_228/attention_statistics.json
+2026-02-08 01:24:12,379 - INFO - Saved attention summary to runs/run_269/visualizations/sample_11401_label_228/attention_summary.png
+2026-02-08 01:24:12,380 - INFO -   Generated attention summary plot
+2026-02-08 01:24:12,382 - INFO - Processing sample 15/30 (dataset idx: 11435, label: 228)
+2026-02-08 01:24:12,441 - INFO - Extracted 12 attention maps
+2026-02-08 01:24:12,442 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:24:12,444 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:24:12,445 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:24:12,446 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:24:12,448 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:24:12,449 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:24:12,451 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:24:12,452 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:24:12,454 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:24:12,455 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:24:12,457 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:24:12,458 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:24:13,426 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_11435_label_228/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:24:13,428 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:24:14,736 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_11435_label_228/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:24:14,737 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:24:15,674 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_11435_label_228/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:24:15,676 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:24:16,299 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_11435_label_228/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:24:16,301 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:24:16,804 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_11435_label_228/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:24:16,805 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:24:17,334 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_11435_label_228/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:24:17,336 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:24:19,437 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_11435_label_228/per_head_stage1.png
+2026-02-08 01:24:19,439 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:24:23,776 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_11435_label_228/per_head_stage2.png
+2026-02-08 01:24:23,780 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:24:25,056 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_11435_label_228/attention_evolution_across_stages.png
+2026-02-08 01:24:25,058 - INFO -   Generated stage evolution visualization
+2026-02-08 01:24:25,360 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_11435_label_228/attention_statistics.json
+2026-02-08 01:24:26,324 - INFO - Saved attention summary to runs/run_269/visualizations/sample_11435_label_228/attention_summary.png
+2026-02-08 01:24:26,326 - INFO -   Generated attention summary plot
+2026-02-08 01:24:26,328 - INFO - Processing sample 16/30 (dataset idx: 12512, label: 250)
+2026-02-08 01:24:26,383 - INFO - Extracted 12 attention maps
+2026-02-08 01:24:26,385 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:24:26,386 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:24:26,388 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:24:26,389 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:24:26,390 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:24:26,392 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:24:26,393 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:24:26,394 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:24:26,395 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:24:26,397 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:24:26,398 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:24:26,400 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:24:27,339 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_12512_label_250/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:24:27,340 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:24:28,227 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_12512_label_250/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:24:28,229 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:24:29,091 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_12512_label_250/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:24:29,092 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:24:29,578 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_12512_label_250/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:24:29,579 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:24:30,067 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_12512_label_250/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:24:30,069 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:24:30,560 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_12512_label_250/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:24:30,562 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:24:32,940 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_12512_label_250/per_head_stage1.png
+2026-02-08 01:24:32,942 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:24:36,819 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_12512_label_250/per_head_stage2.png
+2026-02-08 01:24:36,823 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:24:38,086 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_12512_label_250/attention_evolution_across_stages.png
+2026-02-08 01:24:38,088 - INFO -   Generated stage evolution visualization
+2026-02-08 01:24:38,390 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_12512_label_250/attention_statistics.json
+2026-02-08 01:24:39,371 - INFO - Saved attention summary to runs/run_269/visualizations/sample_12512_label_250/attention_summary.png
+2026-02-08 01:24:39,372 - INFO -   Generated attention summary plot
+2026-02-08 01:24:39,374 - INFO - Processing sample 17/30 (dataset idx: 12545, label: 250)
+2026-02-08 01:24:39,431 - INFO - Extracted 12 attention maps
+2026-02-08 01:24:39,433 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:24:39,435 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:24:39,436 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:24:39,438 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:24:39,439 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:24:39,440 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:24:39,442 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:24:39,443 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:24:39,445 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:24:39,446 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:24:39,447 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:24:39,449 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:24:40,348 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_12545_label_250/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:24:40,350 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:24:41,683 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_12545_label_250/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:24:41,685 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:24:42,557 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_12545_label_250/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:24:42,558 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:24:43,031 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_12545_label_250/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:24:43,033 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:24:43,522 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_12545_label_250/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:24:43,524 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:24:44,010 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_12545_label_250/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:24:44,012 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:24:45,980 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_12545_label_250/per_head_stage1.png
+2026-02-08 01:24:45,981 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:24:50,202 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_12545_label_250/per_head_stage2.png
+2026-02-08 01:24:50,206 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:24:51,446 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_12545_label_250/attention_evolution_across_stages.png
+2026-02-08 01:24:51,448 - INFO -   Generated stage evolution visualization
+2026-02-08 01:24:51,748 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_12545_label_250/attention_statistics.json
+2026-02-08 01:24:52,708 - INFO - Saved attention summary to runs/run_269/visualizations/sample_12545_label_250/attention_summary.png
+2026-02-08 01:24:52,710 - INFO -   Generated attention summary plot
+2026-02-08 01:24:52,711 - INFO - Processing sample 18/30 (dataset idx: 12541, label: 250)
+2026-02-08 01:24:52,767 - INFO - Extracted 12 attention maps
+2026-02-08 01:24:52,769 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:24:52,770 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:24:52,772 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:24:52,773 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:24:52,774 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:24:52,776 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:24:52,777 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:24:52,778 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:24:52,780 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:24:52,781 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:24:52,782 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:24:52,784 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:24:53,610 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_12541_label_250/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:24:53,611 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:24:54,515 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_12541_label_250/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:24:54,517 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:24:55,330 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_12541_label_250/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:24:55,331 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:24:55,777 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_12541_label_250/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:24:55,779 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:24:56,222 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_12541_label_250/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:24:56,223 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:24:56,676 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_12541_label_250/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:24:56,678 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:24:58,953 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_12541_label_250/per_head_stage1.png
+2026-02-08 01:24:58,954 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:25:02,741 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_12541_label_250/per_head_stage2.png
+2026-02-08 01:25:02,745 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:25:03,938 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_12541_label_250/attention_evolution_across_stages.png
+2026-02-08 01:25:03,939 - INFO -   Generated stage evolution visualization
+2026-02-08 01:25:04,239 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_12541_label_250/attention_statistics.json
+2026-02-08 01:25:05,242 - INFO - Saved attention summary to runs/run_269/visualizations/sample_12541_label_250/attention_summary.png
+2026-02-08 01:25:05,243 - INFO -   Generated attention summary plot
+2026-02-08 01:25:05,245 - INFO - Processing sample 19/30 (dataset idx: 14094, label: 281)
+2026-02-08 01:25:05,302 - INFO - Extracted 12 attention maps
+2026-02-08 01:25:05,303 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:25:05,305 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:25:05,306 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:25:05,308 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:25:05,309 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:25:05,310 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:25:05,311 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:25:05,313 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:25:05,314 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:25:05,315 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:25:05,317 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:25:05,318 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:25:06,646 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_14094_label_281/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:25:06,648 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:25:07,555 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_14094_label_281/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:25:07,556 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:25:08,433 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_14094_label_281/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:25:08,434 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:25:08,921 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_14094_label_281/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:25:08,922 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:25:09,481 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_14094_label_281/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:25:09,483 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:25:09,978 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_14094_label_281/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:25:09,980 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:25:12,006 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_14094_label_281/per_head_stage1.png
+2026-02-08 01:25:12,007 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:25:16,201 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_14094_label_281/per_head_stage2.png
+2026-02-08 01:25:16,205 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:25:17,416 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_14094_label_281/attention_evolution_across_stages.png
+2026-02-08 01:25:17,418 - INFO -   Generated stage evolution visualization
+2026-02-08 01:25:17,718 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_14094_label_281/attention_statistics.json
+2026-02-08 01:25:18,666 - INFO - Saved attention summary to runs/run_269/visualizations/sample_14094_label_281/attention_summary.png
+2026-02-08 01:25:18,667 - INFO -   Generated attention summary plot
+2026-02-08 01:25:18,669 - INFO - Processing sample 20/30 (dataset idx: 14084, label: 281)
+2026-02-08 01:25:18,726 - INFO - Extracted 12 attention maps
+2026-02-08 01:25:18,728 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:25:18,729 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:25:18,731 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:25:18,732 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:25:18,733 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:25:18,735 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:25:18,736 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:25:18,738 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:25:18,739 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:25:18,741 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:25:18,742 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:25:18,744 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:25:19,667 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_14084_label_281/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:25:19,669 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:25:20,547 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_14084_label_281/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:25:20,548 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:25:21,430 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_14084_label_281/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:25:21,432 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:25:21,930 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_14084_label_281/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:25:21,932 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:25:22,422 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_14084_label_281/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:25:22,424 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:25:23,257 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_14084_label_281/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:25:23,259 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:25:25,310 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_14084_label_281/per_head_stage1.png
+2026-02-08 01:25:25,312 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:25:29,186 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_14084_label_281/per_head_stage2.png
+2026-02-08 01:25:29,188 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:25:30,742 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_14084_label_281/attention_evolution_across_stages.png
+2026-02-08 01:25:30,744 - INFO -   Generated stage evolution visualization
+2026-02-08 01:25:31,042 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_14084_label_281/attention_statistics.json
+2026-02-08 01:25:32,008 - INFO - Saved attention summary to runs/run_269/visualizations/sample_14084_label_281/attention_summary.png
+2026-02-08 01:25:32,010 - INFO -   Generated attention summary plot
+2026-02-08 01:25:32,012 - INFO - Processing sample 21/30 (dataset idx: 14076, label: 281)
+2026-02-08 01:25:32,068 - INFO - Extracted 12 attention maps
+2026-02-08 01:25:32,070 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:25:32,071 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:25:32,072 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:25:32,074 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:25:32,075 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:25:32,077 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:25:32,078 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:25:32,079 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:25:32,080 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:25:32,082 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:25:32,083 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:25:32,085 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:25:32,912 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_14076_label_281/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:25:32,914 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:25:33,689 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_14076_label_281/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:25:33,691 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:25:34,511 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_14076_label_281/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:25:34,513 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:25:34,949 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_14076_label_281/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:25:34,951 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:25:35,384 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_14076_label_281/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:25:35,385 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:25:35,831 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_14076_label_281/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:25:35,832 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:25:37,800 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_14076_label_281/per_head_stage1.png
+2026-02-08 01:25:37,802 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:25:41,633 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_14076_label_281/per_head_stage2.png
+2026-02-08 01:25:41,636 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:25:42,781 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_14076_label_281/attention_evolution_across_stages.png
+2026-02-08 01:25:42,783 - INFO -   Generated stage evolution visualization
+2026-02-08 01:25:43,084 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_14076_label_281/attention_statistics.json
+2026-02-08 01:25:44,070 - INFO - Saved attention summary to runs/run_269/visualizations/sample_14076_label_281/attention_summary.png
+2026-02-08 01:25:44,072 - INFO -   Generated attention summary plot
+2026-02-08 01:25:44,073 - INFO - Processing sample 22/30 (dataset idx: 32714, label: 654)
+2026-02-08 01:25:44,130 - INFO - Extracted 12 attention maps
+2026-02-08 01:25:44,132 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:25:44,133 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:25:44,135 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:25:44,136 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:25:44,138 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:25:44,139 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:25:44,141 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:25:44,142 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:25:44,144 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:25:44,145 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:25:44,146 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:25:44,148 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:25:45,002 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_32714_label_654/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:25:45,004 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:25:46,078 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_32714_label_654/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:25:46,079 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:25:46,867 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_32714_label_654/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:25:46,869 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:25:47,305 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_32714_label_654/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:25:47,307 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:25:47,740 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_32714_label_654/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:25:47,741 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:25:48,182 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_32714_label_654/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:25:48,184 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:25:50,057 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_32714_label_654/per_head_stage1.png
+2026-02-08 01:25:50,059 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:25:53,980 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_32714_label_654/per_head_stage2.png
+2026-02-08 01:25:53,985 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:25:55,111 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_32714_label_654/attention_evolution_across_stages.png
+2026-02-08 01:25:55,113 - INFO -   Generated stage evolution visualization
+2026-02-08 01:25:55,414 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_32714_label_654/attention_statistics.json
+2026-02-08 01:25:56,367 - INFO - Saved attention summary to runs/run_269/visualizations/sample_32714_label_654/attention_summary.png
+2026-02-08 01:25:56,369 - INFO -   Generated attention summary plot
+2026-02-08 01:25:56,371 - INFO - Processing sample 23/30 (dataset idx: 32728, label: 654)
+2026-02-08 01:25:56,428 - INFO - Extracted 12 attention maps
+2026-02-08 01:25:56,430 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:25:56,432 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:25:56,433 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:25:56,434 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:25:56,436 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:25:56,437 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:25:56,439 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:25:56,441 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:25:56,442 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:25:56,444 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:25:56,445 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:25:56,447 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:25:57,401 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_32728_label_654/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:25:57,403 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:25:58,269 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_32728_label_654/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:25:58,271 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:25:59,137 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_32728_label_654/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:25:59,138 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:25:59,636 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_32728_label_654/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:25:59,638 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:26:00,115 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_32728_label_654/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:26:00,117 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:26:00,608 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_32728_label_654/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:26:00,610 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:26:02,994 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_32728_label_654/per_head_stage1.png
+2026-02-08 01:26:02,995 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:26:06,826 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_32728_label_654/per_head_stage2.png
+2026-02-08 01:26:06,828 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:26:08,028 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_32728_label_654/attention_evolution_across_stages.png
+2026-02-08 01:26:08,030 - INFO -   Generated stage evolution visualization
+2026-02-08 01:26:08,329 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_32728_label_654/attention_statistics.json
+2026-02-08 01:26:09,286 - INFO - Saved attention summary to runs/run_269/visualizations/sample_32728_label_654/attention_summary.png
+2026-02-08 01:26:09,288 - INFO -   Generated attention summary plot
+2026-02-08 01:26:09,290 - INFO - Processing sample 24/30 (dataset idx: 32737, label: 654)
+2026-02-08 01:26:09,345 - INFO - Extracted 12 attention maps
+2026-02-08 01:26:09,346 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:26:09,348 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:26:09,349 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:26:09,351 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:26:09,352 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:26:09,354 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:26:09,355 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:26:09,357 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:26:09,358 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:26:09,360 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:26:09,361 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:26:09,363 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:26:10,540 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_32737_label_654/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:26:10,542 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:26:11,381 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_32737_label_654/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:26:11,383 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:26:12,196 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_32737_label_654/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:26:12,198 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:26:12,646 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_32737_label_654/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:26:12,648 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:26:13,127 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_32737_label_654/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:26:13,128 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:26:13,584 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_32737_label_654/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:26:13,586 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:26:15,486 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_32737_label_654/per_head_stage1.png
+2026-02-08 01:26:15,488 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:26:19,479 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_32737_label_654/per_head_stage2.png
+2026-02-08 01:26:19,483 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:26:20,576 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_32737_label_654/attention_evolution_across_stages.png
+2026-02-08 01:26:20,578 - INFO -   Generated stage evolution visualization
+2026-02-08 01:26:20,878 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_32737_label_654/attention_statistics.json
+2026-02-08 01:26:21,839 - INFO - Saved attention summary to runs/run_269/visualizations/sample_32737_label_654/attention_summary.png
+2026-02-08 01:26:21,841 - INFO -   Generated attention summary plot
+2026-02-08 01:26:21,843 - INFO - Processing sample 25/30 (dataset idx: 37717, label: 754)
+2026-02-08 01:26:21,901 - INFO - Extracted 12 attention maps
+2026-02-08 01:26:21,903 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:26:21,904 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:26:21,906 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:26:21,907 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:26:21,909 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:26:21,910 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:26:21,912 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:26:21,913 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:26:21,915 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:26:21,916 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:26:21,918 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:26:21,919 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:26:22,792 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_37717_label_754/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:26:22,794 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:26:23,640 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_37717_label_754/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:26:23,642 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:26:24,486 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_37717_label_754/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:26:24,488 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:26:24,980 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_37717_label_754/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:26:24,982 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:26:25,460 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_37717_label_754/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:26:25,462 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:26:25,940 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_37717_label_754/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:26:25,942 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:26:28,224 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_37717_label_754/per_head_stage1.png
+2026-02-08 01:26:28,225 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:26:31,969 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_37717_label_754/per_head_stage2.png
+2026-02-08 01:26:31,973 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:26:33,243 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_37717_label_754/attention_evolution_across_stages.png
+2026-02-08 01:26:33,245 - INFO -   Generated stage evolution visualization
+2026-02-08 01:26:33,547 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_37717_label_754/attention_statistics.json
+2026-02-08 01:26:34,804 - INFO - Saved attention summary to runs/run_269/visualizations/sample_37717_label_754/attention_summary.png
+2026-02-08 01:26:34,805 - INFO -   Generated attention summary plot
+2026-02-08 01:26:34,807 - INFO - Processing sample 26/30 (dataset idx: 37700, label: 754)
+2026-02-08 01:26:34,862 - INFO - Extracted 12 attention maps
+2026-02-08 01:26:34,864 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:26:34,865 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:26:34,867 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:26:34,868 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:26:34,870 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:26:34,872 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:26:34,873 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:26:34,874 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:26:34,876 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:26:34,877 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:26:34,879 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:26:34,880 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:26:35,794 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_37700_label_754/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:26:35,795 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:26:36,692 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_37700_label_754/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:26:36,694 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:26:37,535 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_37700_label_754/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:26:37,537 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:26:38,013 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_37700_label_754/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:26:38,015 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:26:38,490 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_37700_label_754/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:26:38,492 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:26:39,073 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_37700_label_754/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:26:39,075 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:26:41,079 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_37700_label_754/per_head_stage1.png
+2026-02-08 01:26:41,081 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:26:45,192 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_37700_label_754/per_head_stage2.png
+2026-02-08 01:26:45,195 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:26:46,350 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_37700_label_754/attention_evolution_across_stages.png
+2026-02-08 01:26:46,352 - INFO -   Generated stage evolution visualization
+2026-02-08 01:26:46,652 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_37700_label_754/attention_statistics.json
+2026-02-08 01:26:47,604 - INFO - Saved attention summary to runs/run_269/visualizations/sample_37700_label_754/attention_summary.png
+2026-02-08 01:26:47,606 - INFO -   Generated attention summary plot
+2026-02-08 01:26:47,608 - INFO - Processing sample 27/30 (dataset idx: 37748, label: 754)
+2026-02-08 01:26:47,665 - INFO - Extracted 12 attention maps
+2026-02-08 01:26:47,667 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:26:47,668 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:26:47,670 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:26:47,672 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:26:47,673 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:26:47,674 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:26:47,675 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:26:47,677 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:26:47,678 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:26:47,679 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:26:47,681 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:26:47,682 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:26:48,753 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_37748_label_754/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:26:48,755 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:26:49,614 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_37748_label_754/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:26:49,615 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:26:50,778 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_37748_label_754/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:26:50,780 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:26:51,228 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_37748_label_754/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:26:51,229 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:26:51,678 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_37748_label_754/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:26:51,680 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:26:52,170 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_37748_label_754/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:26:52,172 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:26:54,136 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_37748_label_754/per_head_stage1.png
+2026-02-08 01:26:54,138 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:26:57,867 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_37748_label_754/per_head_stage2.png
+2026-02-08 01:26:57,871 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:26:59,396 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_37748_label_754/attention_evolution_across_stages.png
+2026-02-08 01:26:59,398 - INFO -   Generated stage evolution visualization
+2026-02-08 01:26:59,699 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_37748_label_754/attention_statistics.json
+2026-02-08 01:27:00,681 - INFO - Saved attention summary to runs/run_269/visualizations/sample_37748_label_754/attention_summary.png
+2026-02-08 01:27:00,683 - INFO -   Generated attention summary plot
+2026-02-08 01:27:00,685 - INFO - Processing sample 28/30 (dataset idx: 37960, label: 759)
+2026-02-08 01:27:00,743 - INFO - Extracted 12 attention maps
+2026-02-08 01:27:00,744 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:27:00,746 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:27:00,747 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:27:00,749 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:27:00,750 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:27:00,752 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:27:00,753 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:27:00,754 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:27:00,756 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:27:00,757 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:27:00,759 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:27:00,760 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:27:01,577 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_37960_label_759/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:27:01,579 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:27:02,397 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_37960_label_759/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:27:02,399 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:27:03,197 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_37960_label_759/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:27:03,199 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:27:03,621 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_37960_label_759/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:27:03,622 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:27:04,049 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_37960_label_759/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:27:04,051 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:27:04,487 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_37960_label_759/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:27:04,489 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:27:06,649 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_37960_label_759/per_head_stage1.png
+2026-02-08 01:27:06,651 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:27:10,334 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_37960_label_759/per_head_stage2.png
+2026-02-08 01:27:10,339 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:27:11,472 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_37960_label_759/attention_evolution_across_stages.png
+2026-02-08 01:27:11,474 - INFO -   Generated stage evolution visualization
+2026-02-08 01:27:11,772 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_37960_label_759/attention_statistics.json
+2026-02-08 01:27:12,750 - INFO - Saved attention summary to runs/run_269/visualizations/sample_37960_label_759/attention_summary.png
+2026-02-08 01:27:12,752 - INFO -   Generated attention summary plot
+2026-02-08 01:27:12,754 - INFO - Processing sample 29/30 (dataset idx: 37994, label: 759)
+2026-02-08 01:27:12,813 - INFO - Extracted 12 attention maps
+2026-02-08 01:27:12,815 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:27:12,816 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:27:12,818 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:27:12,819 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:27:12,821 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:27:12,822 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:27:12,823 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:27:12,824 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:27:12,826 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:27:12,827 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:27:12,829 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:27:12,830 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:27:14,100 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_37994_label_759/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:27:14,102 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:27:14,987 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_37994_label_759/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:27:14,989 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:27:15,860 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_37994_label_759/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:27:15,862 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:27:16,342 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_37994_label_759/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:27:16,344 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:27:16,827 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_37994_label_759/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:27:16,829 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:27:17,318 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_37994_label_759/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:27:17,319 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:27:19,329 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_37994_label_759/per_head_stage1.png
+2026-02-08 01:27:19,331 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:27:23,487 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_37994_label_759/per_head_stage2.png
+2026-02-08 01:27:23,492 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:27:24,686 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_37994_label_759/attention_evolution_across_stages.png
+2026-02-08 01:27:24,688 - INFO -   Generated stage evolution visualization
+2026-02-08 01:27:25,011 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_37994_label_759/attention_statistics.json
+2026-02-08 01:27:25,967 - INFO - Saved attention summary to runs/run_269/visualizations/sample_37994_label_759/attention_summary.png
+2026-02-08 01:27:25,968 - INFO -   Generated attention summary plot
+2026-02-08 01:27:25,970 - INFO - Processing sample 30/30 (dataset idx: 37977, label: 759)
+2026-02-08 01:27:26,029 - INFO - Extracted 12 attention maps
+2026-02-08 01:27:26,030 - INFO -   Stage 0 Block 0: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=False
+2026-02-08 01:27:26,032 - INFO -   Stage 0 Block 1: attn=[64, 3, 49, 49], res=(56, 56), windows=64 (expected 64) ✓, shifted=True
+2026-02-08 01:27:26,033 - INFO -   Stage 1 Block 0: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=False
+2026-02-08 01:27:26,035 - INFO -   Stage 1 Block 1: attn=[16, 6, 49, 49], res=(28, 28), windows=16 (expected 16) ✓, shifted=True
+2026-02-08 01:27:26,036 - INFO -   Stage 2 Block 0: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:27:26,038 - INFO -   Stage 2 Block 1: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:27:26,039 - INFO -   Stage 2 Block 2: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:27:26,040 - INFO -   Stage 2 Block 3: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:27:26,042 - INFO -   Stage 2 Block 4: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=False
+2026-02-08 01:27:26,043 - INFO -   Stage 2 Block 5: attn=[4, 12, 49, 49], res=(14, 14), windows=4 (expected 4) ✓, shifted=True
+2026-02-08 01:27:26,044 - INFO -   Stage 3 Block 0: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:27:26,045 - INFO -   Stage 3 Block 1: attn=[1, 24, 49, 49], res=(7, 7), windows=1 (expected 1) ✓, shifted=False
+2026-02-08 01:27:26,901 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_37977_label_759/wmsa_vs_swmsa_stage0_center.png
+2026-02-08 01:27:26,903 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 0
+2026-02-08 01:27:27,766 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_37977_label_759/wmsa_vs_swmsa_stage1_center.png
+2026-02-08 01:27:27,768 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 1
+2026-02-08 01:27:28,592 - INFO - Saved W-MSA vs SW-MSA comparison to runs/run_269/visualizations/sample_37977_label_759/wmsa_vs_swmsa_stage2_center.png
+2026-02-08 01:27:28,594 - INFO -   Generated W-MSA vs SW-MSA comparison for stage 2
+2026-02-08 01:27:29,050 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_37977_label_759/combined_wmsa_swmsa_stage0.png
+2026-02-08 01:27:29,052 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 0
+2026-02-08 01:27:29,508 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_37977_label_759/combined_wmsa_swmsa_stage1.png
+2026-02-08 01:27:29,510 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 1
+2026-02-08 01:27:29,982 - INFO - Saved combined W-MSA+SW-MSA overlay to runs/run_269/visualizations/sample_37977_label_759/combined_wmsa_swmsa_stage2.png
+2026-02-08 01:27:29,983 - INFO -   Generated combined W-MSA+SW-MSA overlay for stage 2
+2026-02-08 01:27:32,236 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_37977_label_759/per_head_stage1.png
+2026-02-08 01:27:32,238 - INFO -   Generated per-head attention for stage 1
+2026-02-08 01:27:35,969 - INFO - Saved per-head attention to runs/run_269/visualizations/sample_37977_label_759/per_head_stage2.png
+2026-02-08 01:27:35,971 - INFO -   Generated per-head attention for stage 2
+2026-02-08 01:27:37,143 - INFO - Saved stage evolution to runs/run_269/visualizations/sample_37977_label_759/attention_evolution_across_stages.png
+2026-02-08 01:27:37,145 - INFO -   Generated stage evolution visualization
+2026-02-08 01:27:37,450 - INFO -   Saved attention statistics to runs/run_269/visualizations/sample_37977_label_759/attention_statistics.json
+2026-02-08 01:27:38,732 - INFO - Saved attention summary to runs/run_269/visualizations/sample_37977_label_759/attention_summary.png
+2026-02-08 01:27:38,733 - INFO -   Generated attention summary plot
+2026-02-08 01:27:38,735 - INFO - Generated 300 visualizations for 30 samples
+2026-02-08 01:27:38,740 - INFO - ================================================================================
+2026-02-08 01:27:38,742 - INFO - EXPLAINABILITY PIPELINE COMPLETED
+2026-02-08 01:27:38,743 - INFO - Generated 300 visualizations
+2026-02-08 01:27:38,744 - INFO - Analyzed stages: [0, 1, 2]
+2026-02-08 01:27:38,746 - INFO - Results saved to: runs/run_269
+2026-02-08 01:27:38,748 - INFO - ================================================================================
+2026-02-08 01:27:38,752 - INFO - ================================================================================
+2026-02-08 01:27:38,754 - INFO - EXPLAINABILITY ANALYSIS COMPLETED SUCCESSFULLY
+2026-02-08 01:27:38,755 - INFO - Results saved to: runs/run_269
+2026-02-08 01:27:38,757 - INFO - ================================================================================

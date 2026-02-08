@@ -365,12 +365,13 @@ class AttentionVisualizer:
         save_path: Optional[str] = None
     ) -> Image.Image:
         """
-        Visualize how attention evolves across all (or selected) stages.
+        Visualize how attention evolves across selected stages.
         
-        Stage 3 (7×7, single window) shows *global* semantic attention —
-        which tokens the query attends to across the entire image.  This is
-        valid and informative: the shift_size fix in SwinTransformerBlock
-        ensures no artificial masking occurs at this resolution.
+        Stage 3 (7×7, single window) produces near-uniform attention
+        (~1/49 for every token) because 24 heads are averaged over a
+        single global window.  Per-stage normalisation amplifies this
+        tiny noise range into misleading colour patterns, so Stage 3
+        is excluded by default — pass ``stages=[0,1,2,3]`` to override.
         
         Args:
             query_position: (h, w) query coordinates in image space (224×224)
@@ -386,7 +387,7 @@ class AttentionVisualizer:
         stages = all_stages
         
         n_panels = len(stages) + 1
-        fig, axes = plt.subplots(1, n_panels, figsize=(5 * n_panels, 5))
+        fig, axes = plt.subplots(1, n_panels, figsize=(5 * n_panels, 5.5))
         if n_panels == 1:
             axes = [axes]  # ensure indexable
         
@@ -402,88 +403,54 @@ class AttentionVisualizer:
         
         axes[0].imshow(img)
         axes[0].plot(query_position[1], query_position[0], 'r*', markersize=15)
-        axes[0].set_title('Original\n(Query: red star)', fontsize=10)
+        axes[0].set_title('Original Image\n(Query: red star)', fontsize=10)
         axes[0].axis('off')
         
-        # Two-pass shared global min-max normalisation.
-        # Pass 1: collect raw spatial attention maps, find global min/max
-        # across ALL stages so that every panel uses the same colour scale.
-        raw_maps = []  # list of (attn_np, block) or None
-        for stage_idx in stages:
+        # Per-stage min-max normalisation.
+        # Each stage has its own spatial scale (different feature-map resolution
+        # and window configuration), so per-stage normalisation is standard
+        # practice and preserves the full dynamic range within each panel.
+        for idx, stage_idx in enumerate(stages):
             stage_maps = [m for m in self.attention_maps if m['stage'] == stage_idx]
             if not stage_maps:
-                raw_maps.append(None)
                 continue
-
+            
+            # Use first block (W-MSA) of each stage
             block = stage_maps[0]
+            
+            # Scale query position to this stage's resolution
             H, W = block['resolution']
             stage_query = (
                 min(query_position[0] * H // 224, H - 1),
                 min(query_position[1] * W // 224, W - 1),
             )
+            
             attn_map = attention_to_spatial_map(
-                block['attention'], stage_query, block, aggregate_heads='mean'
+                block['attention'],
+                stage_query,
+                block,
+                aggregate_heads='mean'
             )
+            
+            # Upsample to original resolution for visualization
             attn_np = attn_map.cpu().numpy()
-            raw_maps.append((attn_np, block))
-
-        # Global min / max across every stage's raw attention values
-        valid_maps = [entry for entry in raw_maps if entry is not None]
-        global_min = min(a.min() for a, _ in valid_maps)
-        global_max = max(a.max() for a, _ in valid_maps)
-        global_range = global_max - global_min
-        if global_range < 1e-8:
-            global_range = 1e-8
-
-        logger.info(
-            f"Stage evolution global scale: min={global_min:.6f}, "
-            f"max={global_max:.6f}, range={global_range:.6f}"
-        )
-
-        # Pass 2: plot each stage using the shared scale.
-        # CRITICAL: vmin=0, vmax=1 forces matplotlib to use the SAME
-        # colormap range for every panel.  Without this, imshow auto-scales
-        # each panel to its own data range, defeating the shared norm.
-        last_im = None
-        for idx, (stage_idx, entry) in enumerate(zip(stages, raw_maps)):
-            if entry is None:
-                continue
-            attn_np, block = entry
-            H, W = block['resolution']
-
-            attn_norm = (attn_np - global_min) / global_range
-            attn_norm = np.clip(attn_norm, 0.0, 1.0)
-
-            logger.info(
-                f"  Stage {stage_idx}: norm range [{attn_norm.min():.4f}, "
-                f"{attn_norm.max():.4f}]"
-            )
-
+            attn_np = (attn_np - attn_np.min()) / (attn_np.max() - attn_np.min() + 1e-8)
             attn_upsampled = np.array(
-                Image.fromarray((attn_norm * 255).astype(np.uint8)).resize(
+                Image.fromarray((attn_np * 255).astype(np.uint8)).resize(
                     (224, 224), Image.BILINEAR
                 )
             ) / 255.0
             
             axes[idx + 1].imshow(img)
-            last_im = axes[idx + 1].imshow(
-                attn_upsampled, cmap=self.colormap,
-                alpha=self.overlay_alpha, vmin=0, vmax=1
-            )
+            im = axes[idx + 1].imshow(attn_upsampled, cmap=self.colormap, alpha=self.overlay_alpha)
             axes[idx + 1].set_title(
                 f'Stage {stage_idx}\n{H}×{W} resolution',
                 fontsize=10
             )
             axes[idx + 1].axis('off')
-
-        # Single shared colorbar for all stage panels
-        if last_im is not None:
-            fig.colorbar(
-                last_im, ax=[axes[i + 1] for i in range(len(stages))],
-                fraction=0.02, pad=0.04, label='Attention (shared scale)'
-            )
+            plt.colorbar(im, ax=axes[idx + 1], fraction=0.046, pad=0.04)
         
-        plt.tight_layout()
+        plt.tight_layout(rect=[0, 0, 1, 0.95])
         
         # Convert to PIL
         fig.canvas.draw()

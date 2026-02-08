@@ -389,12 +389,15 @@ def visualize_attention_patterns(
                 except Exception as e:
                     logger.warning(f"  Failed to generate per-head viz for stage {stage_idx}: {e}")
         
-        # Generate stage evolution visualization (all stages including stage 3 global attention)
+        # Generate stage evolution visualization (Stages 0-2 by default;
+        # Stage 3 is excluded because its single-window 7×7 attention is
+        # near-uniform and per-stage normalisation amplifies noise).
         try:
+            evolution_stages = viz_config.get('evolution_stages', [0, 1, 2])
             evolution_path = sample_dir / "attention_evolution_across_stages.png"
             visualizer.visualize_stage_evolution(
                 query_position=query_positions[0],
-                stages=None,  # all stages — Stage 3 shows global semantic attention
+                stages=evolution_stages,
                 save_path=str(evolution_path)
             )
             stats['num_visualizations'] += 1

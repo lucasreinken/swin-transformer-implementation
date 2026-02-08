@@ -60,6 +60,7 @@ VIZ_CONFIG = {
     
     # Which layers to visualize
     "target_stages": None,  # None = all stages [0, 1, 2, 3]
+    "evolution_stages": [0, 1, 2],  # Stages for evolution plot (Stage 3 excluded: near-uniform)
     "comparison_stages": [0, 1, 2],  # Stages for W-MSA vs SW-MSA comparison
     
     # Query token selection (which tokens to visualize attention FROM)

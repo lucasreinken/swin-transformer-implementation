@@ -435,7 +435,16 @@ class AttentionVisualizer:
         if global_range < 1e-8:
             global_range = 1e-8
 
-        # Pass 2: plot each stage using the shared scale
+        logger.info(
+            f"Stage evolution global scale: min={global_min:.6f}, "
+            f"max={global_max:.6f}, range={global_range:.6f}"
+        )
+
+        # Pass 2: plot each stage using the shared scale.
+        # CRITICAL: vmin=0, vmax=1 forces matplotlib to use the SAME
+        # colormap range for every panel.  Without this, imshow auto-scales
+        # each panel to its own data range, defeating the shared norm.
+        last_im = None
         for idx, (stage_idx, entry) in enumerate(zip(stages, raw_maps)):
             if entry is None:
                 continue
@@ -444,6 +453,12 @@ class AttentionVisualizer:
 
             attn_norm = (attn_np - global_min) / global_range
             attn_norm = np.clip(attn_norm, 0.0, 1.0)
+
+            logger.info(
+                f"  Stage {stage_idx}: norm range [{attn_norm.min():.4f}, "
+                f"{attn_norm.max():.4f}]"
+            )
+
             attn_upsampled = np.array(
                 Image.fromarray((attn_norm * 255).astype(np.uint8)).resize(
                     (224, 224), Image.BILINEAR
@@ -451,13 +466,22 @@ class AttentionVisualizer:
             ) / 255.0
             
             axes[idx + 1].imshow(img)
-            im = axes[idx + 1].imshow(attn_upsampled, cmap=self.colormap, alpha=self.overlay_alpha)
+            last_im = axes[idx + 1].imshow(
+                attn_upsampled, cmap=self.colormap,
+                alpha=self.overlay_alpha, vmin=0, vmax=1
+            )
             axes[idx + 1].set_title(
                 f'Stage {stage_idx}\n{H}×{W} resolution',
                 fontsize=10
             )
             axes[idx + 1].axis('off')
-            plt.colorbar(im, ax=axes[idx + 1], fraction=0.046, pad=0.04)
+
+        # Single shared colorbar for all stage panels
+        if last_im is not None:
+            fig.colorbar(
+                last_im, ax=[axes[i + 1] for i in range(len(stages))],
+                fraction=0.02, pad=0.04, label='Attention (shared scale)'
+            )
         
         plt.tight_layout()
         

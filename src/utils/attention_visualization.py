@@ -73,62 +73,7 @@ class AttentionVisualizer:
         
         self.attention_maps = []
         self.last_image = None
-
-    # ------------------------------------------------------------------
-    # Normalization helpers
-    # ------------------------------------------------------------------
-
-    @staticmethod
-    def _normalize_attention(
-        attn_np: np.ndarray,
-        num_tokens: Optional[int] = None,
-        *,
-        shared_vmax: Optional[float] = None,
-    ) -> np.ndarray:
-        """Baseline-relative normalization for an attention heatmap.
-
-        Instead of the naive ``(x-min)/(max-min)`` that amplifies noise in
-        near-uniform maps (e.g. Stage 3 with 1 window of 49 tokens), we:
-
-        1. Subtract the *uniform baseline* ``1/N`` (where ``N`` is the number
-           of tokens = ``window_size²``) so the map represents **deviation
-           from uniform attention**.
-        2. Take the absolute value so both above- and below-average tokens
-           contribute to the heatmap.
-        3. Normalise into [0, 1] using the maximum absolute deviation – or,
-           when ``shared_vmax`` is supplied, use that value so that multiple
-           stages share the same colour scale and are directly comparable.
-
-        If the dynamic range of deviations is negligible (< 1e-6), the output
-        is all zeros — i.e. "truly uniform → no colour".
-
-        Args:
-            attn_np: Raw attention map, shape ``(H, W)``.  Must still be on
-                the softmax probability scale (sums to ≈ 1 for the query row).
-            num_tokens: ``N`` for the uniform baseline.  When ``None`` the
-                method falls back to ``H * W`` (i.e. full spatial map size).
-            shared_vmax: If given, the absolute-deviation map is divided by
-                this value (clamped to [0, 1]) instead of the per-map maximum.
-                Pass the cross-stage maximum to make heatmaps comparable.
-
-        Returns:
-            Normalised ``np.ndarray`` of the same shape, in ``[0, 1]``.
-        """
-        if num_tokens is None:
-            num_tokens = attn_np.size  # H * W
-        baseline = 1.0 / num_tokens
-        deviation = np.abs(attn_np - baseline)
-
-        if shared_vmax is not None:
-            vmax = max(shared_vmax, 1e-8)
-        else:
-            vmax = deviation.max()
-
-        if vmax < 1e-6:
-            return np.zeros_like(attn_np)
-
-        return np.clip(deviation / vmax, 0.0, 1.0)
-
+        
     def extract_attention_maps(
         self,
         image: torch.Tensor,
@@ -199,8 +144,7 @@ class AttentionVisualizer:
         title: Optional[str] = None,
         window_boundaries: bool = False,
         window_size: Optional[int] = None,
-        shift_size: int = 0,
-        num_tokens: Optional[int] = None,
+        shift_size: int = 0
     ) -> Image.Image:
         """
         Create attention heatmap visualization.
@@ -214,8 +158,6 @@ class AttentionVisualizer:
             window_boundaries: Whether to show window boundaries
             window_size: Window size (required if window_boundaries=True)
             shift_size: Shift size for SW-MSA boundaries
-            num_tokens: Number of tokens in the attention window (for
-                baseline-relative normalisation).  Defaults to H*W of the map.
         
         Returns:
             PIL Image of the visualization
@@ -238,8 +180,8 @@ class AttentionVisualizer:
         # Convert attention to numpy
         attn_np = attn_map.cpu().numpy()
         
-        # Baseline-relative normalization (avoids amplifying near-uniform maps)
-        attn_np = self._normalize_attention(attn_np, num_tokens=num_tokens)
+        # Normalize attention map
+        attn_np = (attn_np - attn_np.min()) / (attn_np.max() - attn_np.min() + 1e-8)
         
         # Resize attention to match image if needed
         if attn_np.shape != image_np.shape[:2]:
@@ -365,11 +307,9 @@ class AttentionVisualizer:
         axes[0].axis('off')
         
         # Helper: normalize and resize attention map to image resolution
-        num_tokens = wmsa_block['window_size'] ** 2
-
         def _prep_attn(attn_tensor):
             a = attn_tensor.cpu().numpy()
-            a = self._normalize_attention(a, num_tokens=num_tokens)
+            a = (a - a.min()) / (a.max() - a.min() + 1e-8)
             a = np.array(
                 Image.fromarray((a * 255).astype(np.uint8)).resize(
                     (img.shape[1], img.shape[0]), Image.BILINEAR
@@ -465,9 +405,10 @@ class AttentionVisualizer:
         axes[0].set_title('Original\n(Query: red star)', fontsize=10)
         axes[0].axis('off')
         
-        # Each stage — two-pass: (1) collect raw maps & find shared scale,
-        # (2) normalise with shared vmax so all stages are directly comparable.
-        raw_maps = []  # list of (attn_np, num_tokens, block)
+        # Two-pass shared global min-max normalisation.
+        # Pass 1: collect raw spatial attention maps, find global min/max
+        # across ALL stages so that every panel uses the same colour scale.
+        raw_maps = []  # list of (attn_np, block) or None
         for stage_idx in stages:
             stage_maps = [m for m in self.attention_maps if m['stage'] == stage_idx]
             if not stage_maps:
@@ -484,29 +425,25 @@ class AttentionVisualizer:
                 block['attention'], stage_query, block, aggregate_heads='mean'
             )
             attn_np = attn_map.cpu().numpy()
-            num_tokens = block['window_size'] ** 2
-            raw_maps.append((attn_np, num_tokens, block))
+            raw_maps.append((attn_np, block))
 
-        # Shared vmax across stages (max absolute deviation from baseline)
-        all_devs = []
-        for entry in raw_maps:
-            if entry is None:
-                continue
-            a, nt, _ = entry
-            baseline = 1.0 / nt
-            all_devs.append(np.abs(a - baseline).max())
-        shared_vmax = max(all_devs) if all_devs else 1e-8
+        # Global min / max across every stage's raw attention values
+        valid_maps = [entry for entry in raw_maps if entry is not None]
+        global_min = min(a.min() for a, _ in valid_maps)
+        global_max = max(a.max() for a, _ in valid_maps)
+        global_range = global_max - global_min
+        if global_range < 1e-8:
+            global_range = 1e-8
 
-        # Pass 2: plot with shared scale
+        # Pass 2: plot each stage using the shared scale
         for idx, (stage_idx, entry) in enumerate(zip(stages, raw_maps)):
             if entry is None:
                 continue
-            attn_np, num_tokens, block = entry
+            attn_np, block = entry
             H, W = block['resolution']
 
-            attn_norm = self._normalize_attention(
-                attn_np, num_tokens=num_tokens, shared_vmax=shared_vmax
-            )
+            attn_norm = (attn_np - global_min) / global_range
+            attn_norm = np.clip(attn_norm, 0.0, 1.0)
             attn_upsampled = np.array(
                 Image.fromarray((attn_norm * 255).astype(np.uint8)).resize(
                     (224, 224), Image.BILINEAR
@@ -651,8 +588,7 @@ class AttentionVisualizer:
                     title=title,
                     window_boundaries=True,
                     window_size=attn_map['window_size'],
-                    shift_size=attn_map['shift_size'] if attn_map['is_shifted'] else 0,
-                    num_tokens=attn_map['window_size'] ** 2,
+                    shift_size=attn_map['shift_size'] if attn_map['is_shifted'] else 0
                 )
                 
                 # Save
@@ -723,7 +659,6 @@ class AttentionVisualizer:
 
         for b_idx, (block, block_name) in enumerate(blocks):
             feat_H, feat_W = block['resolution']
-            num_tokens = block['window_size'] ** 2
             scaled_query = (
                 min(query_position[0] * feat_H // 224, feat_H - 1),
                 min(query_position[1] * feat_W // 224, feat_W - 1),
@@ -740,7 +675,7 @@ class AttentionVisualizer:
                     aggregate_heads=head_idx,  # single head
                 )
                 a = attn_map.cpu().numpy()
-                a = self._normalize_attention(a, num_tokens=num_tokens)
+                a = (a - a.min()) / (a.max() - a.min() + 1e-8)
                 a_up = np.array(
                     Image.fromarray((a * 255).astype(np.uint8)).resize(
                         (224, 224), Image.BILINEAR
@@ -813,14 +748,13 @@ class AttentionVisualizer:
 
         def _get_attn(block):
             feat_H, feat_W = block['resolution']
-            num_tokens = block['window_size'] ** 2
             sq = (
                 min(query_position[0] * feat_H // 224, feat_H - 1),
                 min(query_position[1] * feat_W // 224, feat_W - 1),
             )
             a = attention_to_spatial_map(block['attention'], sq, block, aggregate_heads='mean')
             a = a.cpu().numpy()
-            a = self._normalize_attention(a, num_tokens=num_tokens)
+            a = (a - a.min()) / (a.max() - a.min() + 1e-8)
             a = np.array(
                 Image.fromarray((a * 255).astype(np.uint8)).resize((224, 224), Image.BILINEAR)
             ) / 255.0

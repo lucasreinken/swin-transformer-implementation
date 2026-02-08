@@ -19,6 +19,13 @@ from PIL import Image
 from src.models import SwinTransformerModel
 from src.utils.load_weights import transfer_weights
 from src.utils.attention_visualization import AttentionVisualizer
+from src.utils.gradcam import (
+    SwinGradCAM,
+    denormalize_image,
+    visualize_gradcam_multistage,
+    visualize_attention_vs_gradcam,
+)
+from src.utils.window_mapping import attention_to_spatial_map
 
 logger = logging.getLogger(__name__)
 
@@ -258,6 +265,36 @@ def get_sample_images(
     return images, labels, all_indices
 
 
+def _extract_attention_heatmap(visualizer, query_position, stage_idx, img_size=224):
+    """
+    Extract a normalised, upsampled attention heatmap from the visualizer's
+    stored attention maps for a given stage.  Used by the Grad-CAM comparison.
+
+    Returns:
+        numpy array [img_size, img_size] in [0, 1], or None if unavailable.
+    """
+    stage_maps = [m for m in visualizer.attention_maps if m['stage'] == stage_idx]
+    if not stage_maps:
+        return None
+    block = stage_maps[0]  # first block (W-MSA)
+    H, W = block['resolution']
+    stage_query = (
+        min(query_position[0] * H // img_size, H - 1),
+        min(query_position[1] * W // img_size, W - 1),
+    )
+    attn_map = attention_to_spatial_map(
+        block['attention'], stage_query, block, aggregate_heads='mean'
+    )
+    attn_np = attn_map.cpu().numpy()
+    attn_np = (attn_np - attn_np.min()) / (attn_np.max() - attn_np.min() + 1e-8)
+    attn_upsampled = np.array(
+        Image.fromarray((attn_np * 255).astype(np.uint8)).resize(
+            (img_size, img_size), Image.BILINEAR
+        )
+    ) / 255.0
+    return attn_upsampled
+
+
 def visualize_attention_patterns(
     model: SwinTransformerModel,
     images: torch.Tensor,
@@ -265,7 +302,8 @@ def visualize_attention_patterns(
     indices: List[int],
     viz_config: Dict,
     output_dir: Path,
-    device: torch.device
+    device: torch.device,
+    gradcam: 'SwinGradCAM | None' = None,
 ) -> Dict:
     """
     Generate attention visualizations for sample images.
@@ -418,6 +456,58 @@ def visualize_attention_patterns(
             except Exception as e:
                 logger.warning(f"  Failed to save all attention maps: {e}")
         
+        # ----- Grad-CAM visualizations (does NOT affect existing outputs) -----
+        if gradcam is not None:
+            try:
+                gradcam_stages = viz_config.get('gradcam_stages', [0, 1, 2])
+                heatmaps, predicted_class = gradcam.compute(
+                    image, stage_indices=gradcam_stages,
+                )
+                img_np = denormalize_image(image)
+
+                # A) Multi-stage Grad-CAM figure
+                gcam_path = sample_dir / "gradcam_multistage_analysis.png"
+                visualize_gradcam_multistage(
+                    image_np=img_np,
+                    heatmaps=heatmaps,
+                    stages=gradcam_stages,
+                    predicted_class=predicted_class,
+                    colormap=viz_config.get('colormap', 'jet'),
+                    overlay_alpha=viz_config.get('overlay_alpha', 0.6),
+                    save_path=str(gcam_path),
+                )
+                stats['num_visualizations'] += 1
+                logger.info("  Generated Grad-CAM multi-stage analysis")
+
+                # B) Attention vs Grad-CAM side-by-side comparison
+                comp_stage = viz_config.get('gradcam_comparison_stage', 2)
+                if comp_stage in heatmaps:
+                    attn_heatmap = _extract_attention_heatmap(
+                        visualizer, query_positions[0], comp_stage,
+                    )
+                    if attn_heatmap is not None:
+                        comp_path = sample_dir / f"attention_vs_gradcam_stage{comp_stage}.png"
+                        visualize_attention_vs_gradcam(
+                            image_np=img_np,
+                            attention_heatmap=attn_heatmap,
+                            gradcam_heatmap=heatmaps[comp_stage],
+                            stage_idx=comp_stage,
+                            colormap=viz_config.get('colormap', 'jet'),
+                            overlay_alpha=viz_config.get('overlay_alpha', 0.6),
+                            save_path=str(comp_path),
+                        )
+                        stats['num_visualizations'] += 1
+                        logger.info(
+                            f"  Generated attention vs Grad-CAM comparison (stage {comp_stage})"
+                        )
+                    else:
+                        logger.warning(
+                            f"  No attention maps for stage {comp_stage} — "
+                            f"skipping comparison"
+                        )
+            except Exception as e:
+                logger.warning(f"  Grad-CAM visualizations failed: {e}")
+
         # Compute attention statistics
         try:
             attn_stats = visualizer.compute_attention_statistics()
@@ -485,6 +575,19 @@ def run_explainability(
         device=device
     )
     
+    # Create Grad-CAM module (if enabled and TIMM weights are available)
+    gradcam = None
+    if viz_config.get('gradcam_enabled', False) and pretrained_weights:
+        try:
+            gradcam = SwinGradCAM.create_from_timm(
+                encoder=model,
+                timm_model_name=pretrained_weights,
+                device=device,
+            )
+            logger.info("Grad-CAM module initialised successfully")
+        except Exception as e:
+            logger.warning(f"Could not initialise Grad-CAM (will skip): {e}")
+    
     # Get sample images
     num_samples = viz_config.get('num_samples', 5)
     sampling_strategy = viz_config.get('sampling_strategy', 'first')
@@ -511,7 +614,8 @@ def run_explainability(
         indices=indices,
         viz_config=viz_config,
         output_dir=viz_dir,
-        device=device
+        device=device,
+        gradcam=gradcam,
     )
     
     # Save summary

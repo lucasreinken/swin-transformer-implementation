@@ -77,6 +77,11 @@ VIZ_CONFIG = {
     "per_head_stages": [1, 2],  # Stages for per-head viz (0 has too few heads to interpret)
     "combined_wmsa_swmsa_overlay": True,  # Overlay both W-MSA & SW-MSA windows on one image
     "attention_summary_plot": True,  # Bar-chart summary of entropy/sparsity per stage
+    
+    # Grad-CAM settings (class-discriminative saliency via gradient-weighted activations)
+    "gradcam_enabled": True,          # Generate Grad-CAM visualizations
+    "gradcam_stages": [0, 1, 2],     # Stages to include in the multi-stage Grad-CAM figure
+    "gradcam_comparison_stage": 2,    # Stage used for attention-vs-GradCAM side-by-side
 }
 
 # =============================================================================

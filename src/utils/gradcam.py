@@ -28,6 +28,46 @@ logger = logging.getLogger(__name__)
 IMAGENET_MEAN = np.array([0.485, 0.456, 0.406])
 IMAGENET_STD = np.array([0.229, 0.224, 0.225])
 
+# =====================================================================
+# ImageNet class-name lookup
+# =====================================================================
+
+_IMAGENET_NAMES: Optional[Dict[int, str]] = None
+
+
+def _load_imagenet_class_names() -> Dict[int, str]:
+    """Load ImageNet-1K class index → human-readable name mapping."""
+    # --- Try timm >= 0.9.12 built-in data ---
+    try:
+        from timm.data import ImageNetInfo          # type: ignore
+        info = ImageNetInfo()
+        return {
+            i: info.index_to_description(i, detailed=False)
+            for i in range(1000)
+        }
+    except Exception:
+        pass
+
+    # --- Try torchvision Weights API (>= 0.13) ---
+    try:
+        from torchvision.models import get_model_weights  # type: ignore
+        cats = get_model_weights('swin_t').DEFAULT.meta['categories']
+        return {i: cats[i] for i in range(len(cats))}
+    except Exception:
+        pass
+
+    logger.info("ImageNet class names not available (timm/torchvision); "
+                "using numeric indices")
+    return {}
+
+
+def get_imagenet_class_name(class_idx: int) -> str:
+    """Return human-readable ImageNet class name, e.g. 'tabby cat'."""
+    global _IMAGENET_NAMES
+    if _IMAGENET_NAMES is None:
+        _IMAGENET_NAMES = _load_imagenet_class_names()
+    return _IMAGENET_NAMES.get(class_idx, f"class {class_idx}")
+
 
 def denormalize_image(image_tensor: torch.Tensor) -> np.ndarray:
     """Convert an ImageNet-normalised [1, 3, H, W] tensor to [H, W, 3] numpy in [0, 1]."""
@@ -134,7 +174,7 @@ class SwinGradCAM:
         stage_indices: List[int] = (0, 1, 2),
         target_class: Optional[int] = None,
         img_size: int = 224,
-    ) -> Tuple[Dict[int, np.ndarray], int]:
+    ) -> Dict:
         """
         Compute Grad-CAM heatmaps for the requested stages.
 
@@ -145,8 +185,11 @@ class SwinGradCAM:
             img_size: Target spatial size for the upsampled heatmaps.
 
         Returns:
-            ``(heatmaps, predicted_class)`` where *heatmaps* maps
-            ``stage_idx → numpy array [img_size, img_size]`` in ``[0, 1]``.
+            Dictionary with keys:
+            - ``'heatmaps'``: ``{stage_idx: numpy [img_size, img_size]}`` in ``[0, 1]``
+            - ``'predicted_class'``: int
+            - ``'confidence'``: float (softmax probability for predicted class)
+            - ``'class_name'``: str (human-readable ImageNet name)
         """
         stage_indices = list(stage_indices)
         self._register_hooks(stage_indices)
@@ -165,6 +208,10 @@ class SwinGradCAM:
 
                 if target_class is None:
                     target_class = int(logits.argmax(dim=1).item())
+
+                probs = F.softmax(logits, dim=1)
+                confidence = float(probs[0, target_class].item())
+                class_name = get_imagenet_class_name(target_class)
 
                 self.encoder.zero_grad()
                 self.head.zero_grad()
@@ -208,7 +255,12 @@ class SwinGradCAM:
                     f"class={target_class}"
                 )
 
-            return heatmaps, target_class
+            return {
+                'heatmaps': heatmaps,
+                'predicted_class': target_class,
+                'confidence': confidence,
+                'class_name': class_name,
+            }
 
         finally:
             # Always restore state and clean up
@@ -294,6 +346,8 @@ def visualize_gradcam_multistage(
     heatmaps: Dict[int, np.ndarray],
     stages: List[int],
     predicted_class: int,
+    class_name: str = '',
+    confidence: float = 0.0,
     colormap: str = 'jet',
     overlay_alpha: float = 0.6,
     save_path: Optional[str] = None,
@@ -306,6 +360,8 @@ def visualize_gradcam_multistage(
         heatmaps: ``{stage_idx: heatmap}`` — each heatmap is ``[H, W]`` in ``[0, 1]``.
         stages: Ordered list of stage indices to display.
         predicted_class: Predicted ImageNet class index (shown in title).
+        class_name: Human-readable class name (e.g. ``'tabby cat'``).
+        confidence: Softmax probability for the predicted class.
         colormap: Matplotlib colourmap name.
         overlay_alpha: Heatmap overlay transparency.
         save_path: If given, save the figure as PNG.
@@ -336,8 +392,10 @@ def visualize_gradcam_multistage(
         axes[i + 1].set_title(f'Grad-CAM Stage {sid}\n{res}', fontsize=10)
         axes[i + 1].axis('off')
 
+    title_label = f'{class_name} ({predicted_class})' if class_name else str(predicted_class)
+    conf_str = f', conf {confidence:.1%}' if confidence > 0 else ''
     fig.suptitle(
-        f'Grad-CAM Multi-Stage Analysis  (predicted class {predicted_class})',
+        f'Grad-CAM Multi-Stage Analysis  —  {title_label}{conf_str}',
         fontsize=12, fontweight='bold',
     )
     plt.tight_layout(rect=[0, 0, 1, 0.93])
@@ -360,6 +418,8 @@ def visualize_attention_vs_gradcam(
     attention_heatmap: np.ndarray,
     gradcam_heatmap: np.ndarray,
     stage_idx: int,
+    class_name: str = '',
+    predicted_class: Optional[int] = None,
     colormap: str = 'jet',
     overlay_alpha: float = 0.6,
     save_path: Optional[str] = None,
@@ -372,6 +432,8 @@ def visualize_attention_vs_gradcam(
         attention_heatmap: Attention heatmap ``[H, W]`` in ``[0, 1]``.
         gradcam_heatmap: Grad-CAM heatmap ``[H, W]`` in ``[0, 1]``.
         stage_idx: Stage index (used for panel titles).
+        class_name: Human-readable class name.
+        predicted_class: Predicted class index.
         colormap: Matplotlib colourmap name.
         overlay_alpha: Heatmap overlay transparency.
         save_path: If given, save the figure as PNG.
@@ -404,8 +466,9 @@ def visualize_attention_vs_gradcam(
     axes[2].axis('off')
     plt.colorbar(im2, ax=axes[2], fraction=0.046, pad=0.04)
 
+    cls_str = f' — {class_name}' if class_name else ''
     fig.suptitle(
-        f'Self-Attention vs Grad-CAM — Stage {stage_idx}',
+        f'Self-Attention vs Grad-CAM — Stage {stage_idx}{cls_str}',
         fontsize=12, fontweight='bold',
     )
     plt.tight_layout(rect=[0, 0, 1, 0.93])

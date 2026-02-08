@@ -22,6 +22,7 @@ from src.utils.attention_visualization import AttentionVisualizer
 from src.utils.gradcam import (
     SwinGradCAM,
     denormalize_image,
+    get_imagenet_class_name,
     visualize_gradcam_multistage,
     visualize_attention_vs_gradcam,
 )
@@ -431,7 +432,7 @@ def visualize_attention_patterns(
         # Stage 3 is excluded because its single-window 7×7 attention is
         # near-uniform and per-stage normalisation amplifies noise).
         try:
-            evolution_stages = viz_config.get('evolution_stages', [0, 1, 2])
+            evolution_stages = viz_config.get('evolution_stages', [0, 1, 2, 3])
             evolution_path = sample_dir / "attention_evolution_across_stages.png"
             visualizer.visualize_stage_evolution(
                 query_position=query_positions[0],
@@ -457,12 +458,21 @@ def visualize_attention_patterns(
                 logger.warning(f"  Failed to save all attention maps: {e}")
         
         # ----- Grad-CAM visualizations (does NOT affect existing outputs) -----
+        # Variables updated by Grad-CAM and written into the JSON below
+        predicted_class = None
+        predicted_confidence = None
+        predicted_name = None
+
         if gradcam is not None:
             try:
-                gradcam_stages = viz_config.get('gradcam_stages', [0, 1, 2])
-                heatmaps, predicted_class = gradcam.compute(
+                gradcam_stages = viz_config.get('gradcam_stages', [0, 1, 2, 3])
+                gcam_result = gradcam.compute(
                     image, stage_indices=gradcam_stages,
                 )
+                heatmaps = gcam_result['heatmaps']
+                predicted_class = gcam_result['predicted_class']
+                predicted_confidence = gcam_result['confidence']
+                predicted_name = gcam_result['class_name']
                 img_np = denormalize_image(image)
 
                 # A) Multi-stage Grad-CAM figure
@@ -472,6 +482,8 @@ def visualize_attention_patterns(
                     heatmaps=heatmaps,
                     stages=gradcam_stages,
                     predicted_class=predicted_class,
+                    class_name=predicted_name,
+                    confidence=predicted_confidence,
                     colormap=viz_config.get('colormap', 'jet'),
                     overlay_alpha=viz_config.get('overlay_alpha', 0.6),
                     save_path=str(gcam_path),
@@ -492,6 +504,8 @@ def visualize_attention_patterns(
                             attention_heatmap=attn_heatmap,
                             gradcam_heatmap=heatmaps[comp_stage],
                             stage_idx=comp_stage,
+                            class_name=predicted_name,
+                            predicted_class=predicted_class,
                             colormap=viz_config.get('colormap', 'jet'),
                             overlay_alpha=viz_config.get('overlay_alpha', 0.6),
                             save_path=str(comp_path),
@@ -518,6 +532,18 @@ def visualize_attention_patterns(
                     key: [float(v) if isinstance(v, (np.floating, float)) else v for v in values]
                     for key, values in attn_stats.items()
                 }
+                # Add prediction info from Grad-CAM (if available)
+                json_stats['ground_truth_label'] = label
+                if predicted_class is not None:
+                    json_stats['predicted_class'] = predicted_class
+                    json_stats['predicted_name'] = predicted_name or get_imagenet_class_name(predicted_class)
+                    json_stats['confidence'] = round(predicted_confidence, 4) if predicted_confidence else None
+                    json_stats['correct'] = (predicted_class == label)
+                else:
+                    json_stats['predicted_class'] = None
+                    json_stats['predicted_name'] = None
+                    json_stats['confidence'] = None
+                    json_stats['correct'] = None
                 import json
                 json.dump(json_stats, f, indent=2)
             logger.info(f"  Saved attention statistics to {stats_path}")

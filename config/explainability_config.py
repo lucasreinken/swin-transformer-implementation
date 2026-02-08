@@ -60,7 +60,7 @@ VIZ_CONFIG = {
     
     # Which layers to visualize
     "target_stages": None,  # None = all stages [0, 1, 2, 3]
-    "evolution_stages": [0, 1, 2],  # Stages for evolution plot (Stage 3 excluded: near-uniform)
+    "evolution_stages": [0, 1, 2, 3],  # All stages; Stage 3 shows register artifact (not a bug)
     "comparison_stages": [0, 1, 2],  # Stages for W-MSA vs SW-MSA comparison
     
     # Query token selection (which tokens to visualize attention FROM)
@@ -80,7 +80,7 @@ VIZ_CONFIG = {
     
     # Grad-CAM settings (class-discriminative saliency via gradient-weighted activations)
     "gradcam_enabled": True,          # Generate Grad-CAM visualizations
-    "gradcam_stages": [0, 1, 2],     # Stages to include in the multi-stage Grad-CAM figure
+    "gradcam_stages": [0, 1, 2, 3],  # All stages; Stage 3 shows register artifact
     "gradcam_comparison_stage": 2,    # Stage used for attention-vs-GradCAM side-by-side
 }
 

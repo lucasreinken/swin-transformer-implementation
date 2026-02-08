@@ -367,11 +367,13 @@ class AttentionVisualizer:
         """
         Visualize how attention evolves across selected stages.
         
-        Stage 3 (7×7, single window) produces near-uniform attention
-        (~1/49 for every token) because 24 heads are averaged over a
-        single global window.  Per-stage normalisation amplifies this
-        tiny noise range into misleading colour patterns, so Stage 3
-        is excluded by default — pass ``stages=[0,1,2,3]`` to override.
+        Stage 3 (7×7, single window) often exhibits corner / edge
+        hot-spots.  This is the **register artifact** (Darcet et al.,
+        "Vision Transformers Need Registers", ICLR 2024): with only a
+        single global window the model parks aggregated class
+        information into relatively less-important background tokens
+        (typically corners).  This is a real model behaviour, not a
+        visualisation bug, and is included by default.
         
         Args:
             query_position: (h, w) query coordinates in image space (224×224)

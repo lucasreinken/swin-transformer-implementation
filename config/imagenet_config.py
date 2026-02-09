@@ -12,7 +12,7 @@ from .base_config import (
 )
 
 # Model type selection for comparison experiments
-MODEL_TYPE = "swin_hybrid"  # Options: "swin", "swin_v2", "swin_hybrid", "swin_improved", "swin_deformable", "vit", "resnet"
+MODEL_TYPE = "swin"  # Options: "swin", "swin_v2", "swin_hybrid", "swin_improved", "swin_deformable", "vit", "resnet"
 
 # Model configurations for all types
 MODEL_CONFIGS = {
@@ -30,7 +30,7 @@ MODEL_CONFIGS = {
         "projection_dropout": 0.0,
         "drop_path_rate": 0.08,
         "use_shifted_window": True,
-        "use_relative_bias": False,
+        "use_relative_bias": True,  # FIXED: Enable relative position bias (essential for Swin)
         "use_absolute_pos_embed": False,
         "use_hierarchical_merge": False,
         "use_gradient_checkpointing": False,  # Enable for memory efficiency during long training
@@ -49,7 +49,7 @@ MODEL_CONFIGS = {
         "projection_dropout": 0.0,
         "drop_path_rate": 0.08,
         "use_shifted_window": True,
-        "use_relative_bias": False,
+        "use_relative_bias": True,  # FIXED: Enable Log-CPB position bias (critical for V2)
         "use_absolute_pos_embed": False,
         "use_hierarchical_merge": False,
         "use_gradient_checkpointing": False,  # Enable for memory efficiency
@@ -68,7 +68,7 @@ MODEL_CONFIGS = {
         "projection_dropout": 0.0,
         "drop_path_rate": 0.08,
         "use_shifted_window": True,
-        "use_relative_bias": False,
+        "use_relative_bias": True,  # FIXED: Enable relative position bias (essential for Swin)
         "use_absolute_pos_embed": False,
         "use_hierarchical_merge": False,
         "use_gradient_checkpointing": False,  # Enable for memory efficiency
@@ -97,7 +97,7 @@ MODEL_CONFIGS = {
         "projection_dropout": 0.0,
         "drop_path_rate": 0.08,
         "use_shifted_window": True,
-        "use_relative_bias": False,
+        "use_relative_bias": True,  # FIXED: Enable relative position bias (essential for Swin)
         "use_absolute_pos_embed": False,
         "use_hierarchical_merge": False,
         "use_gradient_checkpointing": True,  # CRITICAL: Enable to prevent OOM
@@ -133,7 +133,7 @@ MODEL_CONFIGS = {
         "projection_dropout": 0.0,
         "drop_path_rate": 0.08,
         "use_shifted_window": True,
-        "use_relative_bias": False,
+        "use_relative_bias": True,  # FIXED: Enable relative position bias (essential for Swin)
         "use_absolute_pos_embed": False,
         "use_hierarchical_merge": False,
         "use_gradient_checkpointing": True,  # Enable for memory efficiency
@@ -215,11 +215,11 @@ DOWNSTREAM_CONFIG = {
 TRAINING_CONFIG = {
     "seed": 42,  # Random seed for reproducibility
     "deterministic": False,  # Set to True for fully reproducible (but slower) training
-    "learning_rate": 2e-4,  # Same as baseline
-    "num_epochs": 300,  # Match baseline: 300 epochs for full convergence
-    "warmup_epochs": 30,  # Match baseline: 30 warmup epochs
+    "learning_rate": 1e-3,  # Increased for faster convergence (20 epochs - aggressive)
+    "num_epochs": 20,  # Reduced to 20 for very fast comparison
+    "warmup_epochs": 2,  # Scaled down from 30 (10% warmup ratio)
     "warmup_start_factor": 0.01,  # Start from very low LR
-    "weight_decay": 0.02,  # Balanced regularization
+    "weight_decay": 0.05,  # Increased for shorter training (stronger regularization)
     "min_lr": 1e-5,  # Lower minimum LR for full cosine decay
     "lr_scheduler_type": "cosine",  # Pure cosine annealing as in Swin paper
     "mixed_precision": True,

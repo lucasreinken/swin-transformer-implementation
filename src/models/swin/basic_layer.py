@@ -78,6 +78,7 @@ class BasicLayer(nn.Module):
         use_shifted_window: bool = True,  # Ablation flag: True for alternating W-MSA/SW-MSA, False for W-MSA only
         use_relative_bias: bool = True,  # Ablation flag: True for learned bias, False for zero bias
         use_absolute_pos_embed: bool = False,  # Ablation flag: True for absolute pos embed (ViT-style)
+        return_attention: bool = False,  # Explainability flag: True to capture attention weights
     ):
         """
         Initialize Basic Layer.
@@ -142,6 +143,7 @@ class BasicLayer(nn.Module):
                     ),
                     use_relative_bias=use_relative_bias,  # Pass ablation flag
                     use_absolute_pos_embed=use_absolute_pos_embed,  # Pass ablation flag
+                    return_attention=return_attention,  # Pass explainability flag
                 )
                 for i in range(depth)
             ]

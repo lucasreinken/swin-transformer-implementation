@@ -19,6 +19,7 @@ MODEL_CONFIGS = {
     "swin": {
         "type": "swin",
         "variant": "tiny",
+        "img_size": 224,  # ImageNet standard resolution
         "patch_size": 4,
         "embed_dim": None,  # Auto-set from preset
         "depths": None,  # Auto-set from preset
@@ -30,7 +31,7 @@ MODEL_CONFIGS = {
         "projection_dropout": 0.0,
         "drop_path_rate": 0.08,
         "use_shifted_window": True,
-        "use_relative_bias": False,
+        "use_relative_bias": True,
         "use_absolute_pos_embed": False,
         "use_hierarchical_merge": False,
         "use_gradient_checkpointing": False,
@@ -83,7 +84,7 @@ if MODEL_TYPE == "swin":
 # Downstream Task Configuration
 # =============================================================================
 # Training mode: "linear_probe" or "from_scratch"
-_TRAINING_MODE = TrainingMode.FROM_SCRATCH
+_TRAINING_MODE = TrainingMode.LINEAR_PROBE
 _mode_settings = get_training_mode_settings(_TRAINING_MODE)
 
 DOWNSTREAM_CONFIG = {

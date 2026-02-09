@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --partition=gpu-teaching-7d    # 7-day partition for longer runs
+#SBATCH --partition=gpu-teaching-2d    # 2-day partition for shorter runs
 #SBATCH --gpus=1
-#SBATCH --time=168:00:00                 # 7 days for longer run
-#SBATCH --job-name=imagenet_swin_v2_300ep        # swin v2 300 epochs
+#SBATCH --time=48:00:00                 # 2 days for shorter run
+#SBATCH --job-name=imagenet_swin_hybrid_300ep        # swin hybrid 300 epochs
 #SBATCH --output=logs/%j_%x.out          # includes job name → easier to find
 #SBATCH --error=logs/%j_%x.err
 #SBATCH --array=1-1                      # Adjust as needed for multiple runs

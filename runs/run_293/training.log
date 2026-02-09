@@ -1198,3 +1198,23 @@
 2026-02-09 18:13:29,405 - INFO - Running first forward pass (torch.compile may take time)...
 2026-02-09 18:13:29,495 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
 2026-02-09 18:13:29,623 - INFO - First batch complete! Loss: 0.4502
+2026-02-09 18:33:46,451 - INFO - Epoch 189/300: LR: 0.000079
+2026-02-09 18:33:46,484 - INFO - Epoch 189/300: Train Loss: 0.4902, Val Loss: 4.4326, Val Acc: 33.63%
+2026-02-09 18:33:48,263 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-09 18:33:48,272 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-09 18:33:48,398 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-09 18:33:48,527 - INFO - First batch complete! Loss: 0.3355
+2026-02-09 18:53:08,259 - INFO - Epoch 190/300: LR: 0.000078
+2026-02-09 19:00:45,077 - INFO - Epoch 190/300: Train Loss: 0.4830, Val Loss: 4.4716, Val Acc: 33.45%, Test Loss: 4.4716, Test Acc: 33.45%
+2026-02-09 19:00:45,089 - INFO - Saving checkpoint for epoch 190...
+2026-02-09 19:00:45,945 - INFO - ✅ Checkpoint saved: runs/run_293/checkpoint_epoch_190.pth
+2026-02-09 19:00:47,610 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-09 19:00:47,613 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-09 19:00:47,737 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-09 19:00:47,861 - INFO - First batch complete! Loss: 0.5028
+2026-02-09 19:20:17,008 - INFO - Epoch 191/300: LR: 0.000077
+2026-02-09 19:20:17,023 - INFO - Epoch 191/300: Train Loss: 0.4793, Val Loss: 4.4423, Val Acc: 33.53%
+2026-02-09 19:20:18,665 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-09 19:20:18,673 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-09 19:20:18,795 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-09 19:20:18,925 - INFO - First batch complete! Loss: 0.4774

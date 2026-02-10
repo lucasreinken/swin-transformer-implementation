@@ -125,3 +125,48 @@ W0210 10:20:16.946000 3054657 site-packages/torch/_inductor/utils.py:1558] [0/0]
 2026-02-10 15:23:11,322 - INFO - Running first forward pass (torch.compile may take time)...
 2026-02-10 15:23:11,359 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
 2026-02-10 15:23:11,399 - INFO - First batch complete! Loss: 6.9055
+2026-02-10 15:41:21,264 - INFO - Epoch 15/20: LR: 0.000187
+2026-02-10 15:48:50,802 - INFO - Epoch 15/20: Train Loss: 6.9074, Val Loss: 6.9096, Val Acc: 0.10%, Test Loss: 6.9096, Test Acc: 0.10%
+2026-02-10 15:48:52,649 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-10 15:48:52,652 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-10 15:48:52,720 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-10 15:48:52,760 - INFO - First batch complete! Loss: 6.9082
+2026-02-10 16:07:28,493 - INFO - Epoch 16/20: LR: 0.000126
+2026-02-10 16:07:28,537 - INFO - Epoch 16/20: Train Loss: 6.9073, Val Loss: 6.9095, Val Acc: 0.10%
+2026-02-10 16:07:30,242 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-10 16:07:30,247 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-10 16:07:30,281 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-10 16:07:30,320 - INFO - First batch complete! Loss: 6.9072
+2026-02-10 16:28:26,356 - INFO - Epoch 17/20: LR: 0.000076
+2026-02-10 16:28:26,389 - INFO - Epoch 17/20: Train Loss: 6.9070, Val Loss: 6.9089, Val Acc: 0.10%
+2026-02-10 16:28:28,613 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-10 16:28:28,618 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-10 16:28:28,666 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-10 16:28:28,710 - INFO - First batch complete! Loss: 6.9041
+2026-02-10 16:49:27,158 - INFO - Epoch 18/20: LR: 0.000040
+2026-02-10 16:49:27,317 - INFO - Epoch 18/20: Train Loss: 6.9075, Val Loss: 6.9103, Val Acc: 0.10%
+2026-02-10 16:49:29,068 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-10 16:49:29,073 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-10 16:49:29,128 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-10 16:49:29,174 - INFO - First batch complete! Loss: 6.9131
+2026-02-10 17:11:03,860 - INFO - Epoch 19/20: LR: 0.000018
+2026-02-10 17:11:03,973 - INFO - Epoch 19/20: Train Loss: 6.9075, Val Loss: 6.9118, Val Acc: 0.10%
+2026-02-10 17:11:05,729 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-10 17:11:05,733 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-10 17:11:05,770 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-10 17:11:05,810 - INFO - First batch complete! Loss: 6.9043
+2026-02-10 17:31:17,524 - INFO - Epoch 20/20: LR: 0.000010
+2026-02-10 17:38:53,976 - INFO - Epoch 20/20: Train Loss: 6.9085, Val Loss: 6.9118, Val Acc: 0.10%, Test Loss: 6.9118, Test Acc: 0.10%
+2026-02-10 17:38:54,021 - INFO - Saving checkpoint for epoch 20...
+2026-02-10 17:38:54,752 - INFO - ✅ Checkpoint saved: runs/run_300/checkpoint_epoch_20.pth
+2026-02-10 17:38:54,755 - INFO - Training completed!
+2026-02-10 17:38:54,757 - INFO - Generating training curves...
+2026-02-10 17:38:56,538 - INFO - Too many classes (1000) for per-class plotting, skipping
+2026-02-10 17:38:56,540 - INFO - Training curves saved as separate images with base name 'runs/run_300/training_curves_from_scratch'
+2026-02-10 17:38:56,541 - INFO - Generating confusion matrix on test set...
+INFO:    Terminating squashfuse_ll after timeout
+INFO:    Timeouts can be caused by a running background process
+INFO:    Terminating squashfuse_ll after timeout
+INFO:    Timeouts can be caused by a running background process
+/var/spool/slurmd/spool/job4083493/slurm_script: line 62: 3054639 Killed                  apptainer run --nv --overlay /home/space/datasets-sqfs/imagenet2012.sqfs pml.sif python main.py
+[2026-02-10T17:47:35.208] error: Detected 1 oom_kill event in StepId=4083493.batch. Some of the step tasks have been OOM Killed.

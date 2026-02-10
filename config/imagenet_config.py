@@ -220,7 +220,7 @@ TRAINING_CONFIG = {
     "warmup_epochs": 2,  # Scaled down from 30 (10% warmup ratio)
     "warmup_start_factor": 0.01,  # Start from very low LR
     "weight_decay": 0.05,  # Increased for shorter training (stronger regularization)
-    "min_lr": 1e-5,  # Lower minimum LR for full cosine decay
+    "min_lr": 1e-4,  # CRITICAL: Higher min_lr for short 20-epoch training (was 1e-5, too aggressive decay)
     "lr_scheduler_type": "cosine",  # Pure cosine annealing as in Swin paper
     "mixed_precision": True,
     "compile": True,  # Re-enabled to match baseline configuration

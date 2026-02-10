@@ -143,3 +143,30 @@ W0210 03:12:01.263000 2245994 site-packages/torch/_inductor/utils.py:1558] [0/0]
 2026-02-10 09:05:57,181 - INFO - Running first forward pass (torch.compile may take time)...
 2026-02-10 09:05:57,262 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
 2026-02-10 09:05:57,306 - INFO - First batch complete! Loss: 6.8118
+2026-02-10 09:25:10,552 - INFO - Epoch 18/20: LR: 0.000040
+2026-02-10 09:25:10,559 - INFO - Epoch 18/20: Train Loss: 6.8243, Val Loss: 6.7795, Val Acc: 0.48%
+2026-02-10 09:25:12,333 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-10 09:25:12,338 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-10 09:25:12,388 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-10 09:25:12,438 - INFO - First batch complete! Loss: 6.9080
+2026-02-10 09:44:10,263 - INFO - Epoch 19/20: LR: 0.000018
+2026-02-10 09:44:10,265 - INFO - Epoch 19/20: Train Loss: 6.8162, Val Loss: 6.7720, Val Acc: 0.45%
+2026-02-10 09:44:11,905 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-10 09:44:11,910 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-10 09:44:11,976 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-10 09:44:12,022 - INFO - First batch complete! Loss: 6.8748
+2026-02-10 10:02:42,787 - INFO - Epoch 20/20: LR: 0.000010
+2026-02-10 10:10:13,218 - INFO - Epoch 20/20: Train Loss: 6.8081, Val Loss: 6.7655, Val Acc: 0.48%, Test Loss: 6.7655, Test Acc: 0.48%
+2026-02-10 10:10:13,220 - INFO - Saving checkpoint for epoch 20...
+2026-02-10 10:10:14,181 - INFO - ✅ Checkpoint saved: runs/run_298/checkpoint_epoch_20.pth
+2026-02-10 10:10:14,184 - INFO - Training completed!
+2026-02-10 10:10:14,185 - INFO - Generating training curves...
+2026-02-10 10:10:15,967 - INFO - Too many classes (1000) for per-class plotting, skipping
+2026-02-10 10:10:15,968 - INFO - Training curves saved as separate images with base name 'runs/run_298/training_curves_from_scratch'
+2026-02-10 10:10:15,969 - INFO - Generating confusion matrix on test set...
+INFO:    Terminating squashfuse_ll after timeout
+INFO:    Timeouts can be caused by a running background process
+INFO:    Terminating squashfuse_ll after timeout
+INFO:    Timeouts can be caused by a running background process
+/var/spool/slurmd/spool/job4083096/slurm_script: line 62: 2245976 Killed                  apptainer run --nv --overlay /home/space/datasets-sqfs/imagenet2012.sqfs pml.sif python main.py
+[2026-02-10T10:18:55.677] error: Detected 1 oom_kill event in StepId=4083096.batch. Some of the step tasks have been OOM Killed.

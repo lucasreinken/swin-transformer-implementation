@@ -12,7 +12,7 @@ from .base_config import (
 )
 
 # Model type selection for comparison experiments
-MODEL_TYPE = "swin_hybrid"  # Options: "swin", "swin_v2", "swin_hybrid", "swin_improved", "swin_deformable", "vit", "resnet"
+MODEL_TYPE = "swin"  # Options: "swin", "swin_v2", "swin_hybrid", "swin_improved", "swin_deformable", "vit", "resnet"
 
 # Model configurations for all types
 MODEL_CONFIGS = {
@@ -215,12 +215,12 @@ DOWNSTREAM_CONFIG = {
 TRAINING_CONFIG = {
     "seed": 42,  # Random seed for reproducibility
     "deterministic": False,  # Set to True for fully reproducible (but slower) training
-    "learning_rate": 1e-3,  # Increased for faster convergence (20 epochs - aggressive)
+    "learning_rate": 5e-4,  # Proven working LR for 20-epoch runs (from ticket3_ablation_baseline)
     "num_epochs": 20,  # Reduced to 20 for very fast comparison
-    "warmup_epochs": 2,  # Scaled down from 30 (10% warmup ratio)
+    "warmup_epochs": 3,  # Match successful 20-epoch run (from ticket3_ablation_baseline)
     "warmup_start_factor": 0.01,  # Start from very low LR
-    "weight_decay": 0.05,  # Increased for shorter training (stronger regularization)
-    "min_lr": 1e-4,  # CRITICAL: Higher min_lr for short 20-epoch training (was 1e-5, too aggressive decay)
+    "weight_decay": 0.02,  # Keep proven weight decay from 300-epoch runs
+    "min_lr": 1e-6,  # Low min_lr for cosine decay (from successful 20-epoch run)
     "lr_scheduler_type": "cosine",  # Pure cosine annealing as in Swin paper
     "mixed_precision": True,
     "compile": True,  # Re-enabled to match baseline configuration

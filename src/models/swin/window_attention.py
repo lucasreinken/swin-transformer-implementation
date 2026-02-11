@@ -488,7 +488,10 @@ class WindowAttentionV2(nn.Module):
         # Scale by learnable temperature τ
         # logit_scale is log(1/τ), so exp(logit_scale) = 1/τ
         # We clamp to avoid extreme values (max 100 = 1/0.01)
-        logit_scale = torch.clamp(self.logit_scale, max=torch.log(torch.tensor(100.0)))
+        logit_scale = torch.clamp(
+            self.logit_scale,
+            max=torch.log(torch.tensor(100.0, device=self.logit_scale.device)),
+        )
         scores = scores * logit_scale.exp()  # [wB, nH, N, N]
 
         # ─────────────────────────────────────────────────────────────

@@ -1,0 +1,214 @@
+/var/spool/slurmd/spool/job4090367/slurm_script: line 19: python: command not found
+INFO:    gocryptfs not found, will not be able to use gocryptfs
+2026-02-11 17:28:29,446 - INFO - Logging initialized. Log file: runs/run_309/training.log
+2026-02-11 17:28:29,464 - INFO - Experiment directory: runs/run_309
+2026-02-11 17:28:29,466 - INFO - Setting random seeds for reproducibility (seed: 42)...
+2026-02-11 17:28:29,486 - INFO - ✅ All seeds set to 42 (deterministic=False)
+2026-02-11 17:28:29,851 - INFO - GPU memory cleared at startup. Available: 23.5GB
+2026-02-11 17:28:29,853 - INFO - Using device: cuda
+2026-02-11 17:28:29,854 - INFO - Training configuration: epochs=20, warmup=3, lr=0.0005
+2026-02-11 17:28:29,855 - INFO - SWIN_V2 configuration: {'type': 'swin_v2', 'variant': 'tiny', 'patch_size': 4, 'embed_dim': 96, 'depths': [2, 2, 6, 2], 'num_heads': [3, 6, 12, 24], 'window_size': 7, 'mlp_ratio': 4.0, 'dropout': 0.0, 'attention_dropout': 0.0, 'projection_dropout': 0.0, 'drop_path_rate': 0.08, 'use_shifted_window': True, 'use_relative_bias': True, 'use_absolute_pos_embed': False, 'use_hierarchical_merge': False, 'use_gradient_checkpointing': False}
+2026-02-11 17:28:29,856 - INFO - Loading dataset...
+2026-02-11 17:28:29,858 - INFO - Starting ImageNet data loading from root: /
+2026-02-11 17:28:29,860 - INFO - Resolved root path: /
+2026-02-11 17:28:29,861 - INFO - Root path exists: True
+2026-02-11 17:28:29,862 - INFO - Root path is dir: True
+2026-02-11 17:28:29,867 - INFO - Contents of /: ['/.exec', '/.run', '/.shell', '/.singularity.d', '/.test', '/bin', '/boot', '/dev', '/environment', '/etc', '/home', '/lib', '/lib64', '/media', '/mnt', '/opt', '/proc', '/requirements.txt', '/root', '/run', '/sbin', '/singularity', '/srv', '/sys', '/tmp', '/usr', '/var', '/meta', '/train_set', '/train_set_small', '/val_set', '/val_set_unlabeled']
+2026-02-11 17:28:29,868 - INFO - Expected train_dir: /train_set, exists: True
+2026-02-11 17:28:29,869 - INFO - Expected val_dir: /val_set, exists: True
+2026-02-11 17:28:39,660 - INFO - Loaded ImageNet data from /: train=1281167, val=50000
+2026-02-11 17:28:40,443 - INFO - Dataset limits applied (stratified sampling enabled)
+2026-02-11 17:28:40,445 - INFO - Dataset loaded: train=100000 samples (782 batches), val=50000 samples (391 batches), test=50000 samples (391 batches)
+2026-02-11 17:28:41,289 - INFO - Training SWIN_V2 from scratch
+2026-02-11 17:28:41,291 - INFO - Initializing SWIN_V2 model from scratch...
+2026-02-11 17:28:41,292 - INFO - Model architecture: SWIN_V2
+2026-02-11 17:28:41,293 - INFO - Model config: {'type': 'swin_v2', 'variant': 'tiny', 'patch_size': 4, 'embed_dim': 96, 'depths': [2, 2, 6, 2], 'num_heads': [3, 6, 12, 24], 'window_size': 7, 'mlp_ratio': 4.0, 'dropout': 0.0, 'attention_dropout': 0.0, 'projection_dropout': 0.0, 'drop_path_rate': 0.08, 'use_shifted_window': True, 'use_relative_bias': True, 'use_absolute_pos_embed': False, 'use_hierarchical_merge': False, 'use_gradient_checkpointing': False}
+2026-02-11 17:28:41,956 - INFO - Model created with random initialization
+2026-02-11 17:28:41,957 - INFO - Total parameters: 31,507,666
+2026-02-11 17:28:41,958 - INFO - Trainable parameters: 31,507,666
+2026-02-11 17:28:42,011 - INFO - Compiling model with torch.compile()
+2026-02-11 17:28:43,610 - INFO - Mixed precision enabled → CUDA bf16 selected (hardware supported)
+2026-02-11 17:28:43,611 - INFO - Starting from-scratch training...
+2026-02-11 17:28:43,612 - INFO - Optimizer: training all model parameters
+2026-02-11 17:28:43,614 - INFO - LR Scheduler: cosine with 3 warmup epochs
+2026-02-11 17:28:43,615 - INFO - Starting training...
+2026-02-11 17:28:46,407 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-11 17:28:46,410 - INFO - Running first forward pass (torch.compile may take time)...
+/usr/local/lib/python3.12/site-packages/torch/backends/cuda/__init__.py:131: UserWarning: Please use the new API settings to control TF32 behavior, such as torch.backends.cudnn.conv.fp32_precision = 'tf32' or torch.backends.cuda.matmul.fp32_precision = 'ieee'. Old settings, e.g, torch.backends.cuda.matmul.allow_tf32 = True, torch.backends.cudnn.allow_tf32 = True, allowTF32CuDNN() and allowTF32CuBLAS() will be deprecated after Pytorch 2.9. Please see https://pytorch.org/docs/main/notes/cuda.html#tensorfloat-32-tf32-on-ampere-and-later-devices (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:80.)
+  return torch._C._get_cublas_allow_tf32()
+/usr/local/lib/python3.12/site-packages/torch/_inductor/compile_fx.py:2772: UserWarning: Quadro RTX 6000 does not support bfloat16 compilation natively, skipping
+  warnings.warn(
+/usr/local/lib/python3.12/site-packages/torch/_inductor/compile_fx.py:2772: UserWarning: Quadro RTX 6000 does not support bfloat16 compilation natively, skipping
+  warnings.warn(
+/usr/local/lib/python3.12/site-packages/torch/_inductor/compile_fx.py:2772: UserWarning: Quadro RTX 6000 does not support bfloat16 compilation natively, skipping
+  warnings.warn(
+/usr/local/lib/python3.12/site-packages/torch/_inductor/compile_fx.py:2772: UserWarning: Quadro RTX 6000 does not support bfloat16 compilation natively, skipping
+  warnings.warn(
+/usr/local/lib/python3.12/site-packages/torch/_inductor/compile_fx.py:2772: UserWarning: Quadro RTX 6000 does not support bfloat16 compilation natively, skipping
+  warnings.warn(
+/usr/local/lib/python3.12/site-packages/torch/_inductor/compile_fx.py:2772: UserWarning: Quadro RTX 6000 does not support bfloat16 compilation natively, skipping
+  warnings.warn(
+/usr/local/lib/python3.12/site-packages/torch/_inductor/compile_fx.py:2772: UserWarning: Quadro RTX 6000 does not support bfloat16 compilation natively, skipping
+  warnings.warn(
+2026-02-11 17:30:15,163 - ERROR - Experiment failed with error: Expected all tensors to be on the same device, but got max is on cpu, different from other tensors on cuda:0 (when checking argument in method wrapper_CUDA_clamp_Tensor)
+2026-02-11 17:30:15,165 - ERROR - Full traceback:
+Traceback (most recent call last):
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/main.py", line 237, in main
+    run_from_scratch(
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/pipelines/from_scratch.py", line 261, in run_from_scratch
+    criterion, lr_history, metrics_history = _train_single_model(
+                                             ^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/pipelines/from_scratch.py", line 155, in _train_single_model
+    run_training_loop(
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/training/trainer.py", line 200, in run_training_loop
+    train_loss = train_one_epoch(
+                 ^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/training/trainer.py", line 78, in train_one_epoch
+    outputs = model(inputs)
+              ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/_dynamo/eval_frame.py", line 414, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/_dynamo/eval_frame.py", line 832, in compile_wrapper
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/models/model_wrapper.py", line 35, in forward
+    features = self.encoder(x)
+               ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/models/swin/swin_v2_model.py", line 270, in forward
+    return self.forward_features(x)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/models/swin/swin_v2_model.py", line 245, in forward_features
+    x, H, W = layer(x, H, W)
+              ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/models/swin/basic_layer.py", line 288, in forward
+    x, H, W = block(x, H, W)
+              ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/models/swin/swin_transformer_block.py", line 431, in forward
+    attn_windows = self.attn(x_windows, attn_mask)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/models/swin/window_attention.py", line 491, in forward
+    logit_scale = torch.clamp(self.logit_scale, max=torch.log(torch.tensor(100.0)))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Expected all tensors to be on the same device, but got max is on cpu, different from other tensors on cuda:0 (when checking argument in method wrapper_CUDA_clamp_Tensor)
+Traceback (most recent call last):
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/main.py", line 237, in main
+    run_from_scratch(
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/pipelines/from_scratch.py", line 261, in run_from_scratch
+    criterion, lr_history, metrics_history = _train_single_model(
+                                             ^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/pipelines/from_scratch.py", line 155, in _train_single_model
+    run_training_loop(
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/training/trainer.py", line 200, in run_training_loop
+    train_loss = train_one_epoch(
+                 ^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/training/trainer.py", line 78, in train_one_epoch
+    outputs = model(inputs)
+              ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/_dynamo/eval_frame.py", line 414, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/_dynamo/eval_frame.py", line 832, in compile_wrapper
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/models/model_wrapper.py", line 35, in forward
+    features = self.encoder(x)
+               ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/models/swin/swin_v2_model.py", line 270, in forward
+    return self.forward_features(x)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/models/swin/swin_v2_model.py", line 245, in forward_features
+    x, H, W = layer(x, H, W)
+              ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/models/swin/basic_layer.py", line 288, in forward
+    x, H, W = block(x, H, W)
+              ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/models/swin/swin_transformer_block.py", line 431, in forward
+    attn_windows = self.attn(x_windows, attn_mask)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/models/swin/window_attention.py", line 491, in forward
+    logit_scale = torch.clamp(self.logit_scale, max=torch.log(torch.tensor(100.0)))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Expected all tensors to be on the same device, but got max is on cpu, different from other tensors on cuda:0 (when checking argument in method wrapper_CUDA_clamp_Tensor)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/main.py", line 262, in <module>
+    main()
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/main.py", line 258, in main
+    raise RuntimeError(f"Experiment failed: {e}") from e
+RuntimeError: Experiment failed: Expected all tensors to be on the same device, but got max is on cpu, different from other tensors on cuda:0 (when checking argument in method wrapper_CUDA_clamp_Tensor)
+[W211 17:30:40.496914468 AllocatorConfig.cpp:28] Warning: PYTORCH_CUDA_ALLOC_CONF is deprecated, use PYTORCH_ALLOC_CONF instead (function operator())

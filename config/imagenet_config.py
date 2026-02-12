@@ -12,7 +12,7 @@ from .base_config import (
 )
 
 # Model type selection for comparison experiments
-MODEL_TYPE = "swin_v2"  # Options: "swin", "swin_v2", "swin_hybrid", "swin_improved", "swin_deformable", "vit", "resnet"
+MODEL_TYPE = "swin_hybrid"  # Options: "swin", "swin_v2", "swin_hybrid", "swin_improved", "swin_deformable", "vit", "resnet"
 
 # Model configurations for all types
 MODEL_CONFIGS = {
@@ -100,7 +100,7 @@ MODEL_CONFIGS = {
         "use_relative_bias": True,  # FIXED: Enable relative position bias (essential for Swin)
         "use_absolute_pos_embed": False,
         "use_hierarchical_merge": False,
-        "use_gradient_checkpointing": True,  # CRITICAL: Enable to prevent OOM
+        "use_gradient_checkpointing": False,  # Match working swin/swin_v2 config
         # Convolutional stem (replaces vanilla patch embedding)
         "use_conv_stem": True,
         "conv_stem_config": {
@@ -136,7 +136,7 @@ MODEL_CONFIGS = {
         "use_relative_bias": True,  # FIXED: Enable relative position bias (essential for Swin)
         "use_absolute_pos_embed": False,
         "use_hierarchical_merge": False,
-        "use_gradient_checkpointing": True,  # Enable for memory efficiency
+        "use_gradient_checkpointing": False,  # Match working swin/swin_v2 config
         # Deformable hybrid attention configuration
         "use_deformable_attn": True,
         "deformable_config": {

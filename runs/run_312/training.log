@@ -96,3 +96,27 @@
 2026-02-12 17:32:05,326 - INFO - Running first forward pass (torch.compile may take time)...
 2026-02-12 17:32:05,442 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
 2026-02-12 17:32:05,563 - INFO - First batch complete! Loss: 6.6465
+2026-02-12 17:51:49,994 - INFO - Epoch 3/20: LR: 0.000500
+2026-02-12 17:51:49,996 - INFO - Epoch 3/20: Train Loss: 6.5431, Val Loss: 6.2058, Val Acc: 1.44%
+2026-02-12 17:51:51,746 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-12 17:51:51,754 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-12 17:51:51,862 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-12 17:51:51,973 - INFO - First batch complete! Loss: 6.3508
+2026-02-12 17:51:55,972 - INFO - Epoch 3/20: LR: 0.000500
+2026-02-12 17:51:55,974 - INFO - Epoch 3/20: Train Loss: 6.5196, Val Loss: 6.1791, Val Acc: 1.57%
+2026-02-12 17:51:57,735 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-12 17:51:57,743 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-12 17:51:57,821 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-12 17:51:57,926 - INFO - First batch complete! Loss: 6.3762
+2026-02-12 18:11:41,685 - INFO - Epoch 4/20: LR: 0.000496
+2026-02-12 18:11:41,701 - INFO - Epoch 4/20: Train Loss: 6.4153, Val Loss: 6.1533, Val Acc: 1.65%
+2026-02-12 18:11:43,407 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-12 18:11:43,415 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-12 18:11:43,544 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-12 18:11:43,652 - INFO - First batch complete! Loss: 6.4294
+2026-02-12 18:11:52,893 - INFO - Epoch 4/20: LR: 0.000496
+2026-02-12 18:11:52,896 - INFO - Epoch 4/20: Train Loss: 6.5211, Val Loss: 6.7792, Val Acc: 0.38%
+2026-02-12 18:11:54,601 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-12 18:11:54,609 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-12 18:11:54,724 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-12 18:11:54,829 - INFO - First batch complete! Loss: 6.8025

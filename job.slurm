@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --partition=gpu-teaching-5h    # 2-day partition for shorter runs
+#SBATCH --partition=gpu-teaching-7d    # 2-day partition for shorter runs
 #SBATCH --gpus=1
-#SBATCH --time=05:00:00                 # 2 days for 20 epochs
+#SBATCH --time=168:00:00                 # 2 days for 20 epochs
 #SBATCH --job-name=imagenet_swin_v2_20ep        # Updated for 20 epochs and model type
 #SBATCH --output=logs/%j_%x.out          # includes job name → easier to find
 #SBATCH --error=logs/%j_%x.err
@@ -21,7 +21,7 @@ import torch
 import gc
 import os
 
-# Force garbage collection
+# Force garbage collection^
 gc.collect()
 
 if torch.cuda.is_available():

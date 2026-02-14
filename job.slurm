@@ -1,12 +1,10 @@
 #!/bin/bash
-#SBATCH --partition=gpu-teaching-2h    # your long partition
+#SBATCH --partition=gpu-teaching-7d    # 7-day partition for longer runs
 #SBATCH --gpus=1
-#SBATCH --exclusive                      # ← NO sharing with other users → fixes node contention
-#SBATCH --time=02:00:00                 # 5 hours for 2-epoch training
-#SBATCH --job-name=imagenet_model_comparison_2ep        # job name
+#SBATCH --time=168:00:00                 # 7 days for 20 epochs
+#SBATCH --job-name=imagenet_swin_v2_20ep        # Updated for 20 epochs and model type
 #SBATCH --output=logs/%j_%x.out          # includes job name → easier to find
 #SBATCH --error=logs/%j_%x.err
-#SBATCH --chdir=/home/pml04/swin_transformer/Machine-Learning-Project
 #SBATCH --array=1-1                      # Adjust as needed for multiple runs
 
 mkdir -p logs
@@ -23,7 +21,7 @@ import torch
 import gc
 import os
 
-# Force garbage collection
+# Force garbage collection^
 gc.collect()
 
 if torch.cuda.is_available():
@@ -33,7 +31,7 @@ if torch.cuda.is_available():
     
     # Empty cache multiple times
     for _ in range(3):
-        torch.cuda.empty_cache()
+        torch.cuda.empty_cache()168
         torch.cuda.synchronize()
     
     # Check memory status

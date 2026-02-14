@@ -12,7 +12,7 @@ from .base_config import (
 )
 
 # Model type selection for comparison experiments
-MODEL_TYPE = "swin"  # Options: "swin", "vit", "resnet"
+MODEL_TYPE = "swin_improved"  # Options: "swin", "swin_v2", "swin_hybrid", "swin_improved", "swin_deformable", "vit", "resnet"
 
 # Model configurations for all types
 MODEL_CONFIGS = {
@@ -34,7 +34,115 @@ MODEL_CONFIGS = {
         "use_relative_bias": True,
         "use_absolute_pos_embed": False,
         "use_hierarchical_merge": False,
-        "use_gradient_checkpointing": False,
+        "use_gradient_checkpointing": False,  # Enable for memory efficiency during long training
+    },
+    "swin_v2": {
+        "type": "swin_v2",
+        "variant": "tiny",
+        "patch_size": 4,
+        "embed_dim": None,  # Auto-set from preset
+        "depths": None,  # Auto-set from preset
+        "num_heads": None,  # Auto-set from preset
+        "window_size": 7,
+        "mlp_ratio": 4.0,
+        "dropout": 0.0,
+        "attention_dropout": 0.0,
+        "projection_dropout": 0.0,
+        "drop_path_rate": 0.08,
+        "use_shifted_window": True,
+        "use_relative_bias": True,  # FIXED: Enable Log-CPB position bias (critical for V2)
+        "use_absolute_pos_embed": False,
+        "use_hierarchical_merge": False,
+        "use_gradient_checkpointing": False,  # Enable for memory efficiency
+    },
+    "swin_hybrid": {
+        "type": "swin_hybrid",
+        "variant": "tiny",
+        "patch_size": 4,
+        "embed_dim": None,  # Auto-set from preset
+        "depths": None,  # Auto-set from preset
+        "num_heads": None,  # Auto-set from preset
+        "window_size": 7,
+        "mlp_ratio": 4.0,
+        "dropout": 0.0,
+        "attention_dropout": 0.0,
+        "projection_dropout": 0.0,
+        "drop_path_rate": 0.08,
+        "use_shifted_window": True,
+        "use_relative_bias": True,  # FIXED: Enable relative position bias (essential for Swin)
+        "use_absolute_pos_embed": False,
+        "use_hierarchical_merge": False,
+        "use_gradient_checkpointing": False,  # Enable for memory efficiency
+        # CNN stem configuration for hybrid
+        "use_cnn_stem": True,  # Enable CNN-Swin early fusion
+        "cnn_stem_config": {
+            "channels": [32, 64],  # Intermediate channels before final projection
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1,
+            "activation": "gelu",  # GELU activation
+            "use_batch_norm": True,
+        },
+    },
+    "swin_improved": {
+        "type": "swin_improved",
+        "variant": "tiny",
+        "patch_size": 4,
+        "embed_dim": None,  # Auto-set from preset
+        "depths": None,  # Auto-set from preset
+        "num_heads": None,  # Auto-set from preset
+        "window_size": 7,
+        "mlp_ratio": 4.0,
+        "dropout": 0.0,
+        "attention_dropout": 0.0,
+        "projection_dropout": 0.0,
+        "drop_path_rate": 0.08,
+        "use_shifted_window": True,
+        "use_relative_bias": True,  # FIXED: Enable relative position bias (essential for Swin)
+        "use_absolute_pos_embed": False,
+        "use_hierarchical_merge": False,
+        "use_gradient_checkpointing": False,  # Match working swin/swin_v2 config
+        # Convolutional stem (replaces vanilla patch embedding)
+        "use_conv_stem": True,
+        "conv_stem_config": {
+            "channels": [48, 96],  # Overlapping conv stem channels
+            "kernel_sizes": [4, 3],  # First conv kernel size 4, second 3
+            "strides": [4, 2],  # Downsampling strides
+            "paddings": [0, 1],  # Corresponding paddings
+            "activation": "gelu",
+            "use_batch_norm": True,
+        },
+        # Inverted residual FFN configuration
+        "use_inverted_ffn": True,
+        "ffn_config": {
+            "expand_ratio": 4,  # Expansion ratio for inverted residual
+            "use_depthwise_conv": True,  # Enable depthwise convolution
+            "activation": "gelu",  # Activation function
+        },
+    },
+    "swin_deformable": {
+        "type": "swin_deformable",
+        "variant": "tiny",
+        "patch_size": 4,
+        "embed_dim": None,  # Auto-set from preset
+        "depths": None,  # Auto-set from preset
+        "num_heads": None,  # Auto-set from preset
+        "window_size": 7,
+        "mlp_ratio": 4.0,
+        "dropout": 0.0,
+        "attention_dropout": 0.0,
+        "projection_dropout": 0.0,
+        "drop_path_rate": 0.08,
+        "use_shifted_window": True,
+        "use_relative_bias": True,  # FIXED: Enable relative position bias (essential for Swin)
+        "use_absolute_pos_embed": False,
+        "use_hierarchical_merge": False,
+        "use_gradient_checkpointing": False,  # Match working swin/swin_v2 config
+        # Deformable hybrid attention configuration
+        "use_deformable_attn": True,
+        "deformable_config": {
+            "num_points": 4,  # Number of sampling points per query (4-8 typical)
+        },
     },
     "vit": {
         "type": "vit",
@@ -63,8 +171,8 @@ DATA_CONFIG = {
     "dataset": "ImageNet",
     "use_batch_for_val": False,
     "val_batch": 5,
-    "batch_size": 128,  # Increased for better gradient estimates on ImageNet
-    "num_workers": 8,  # Set to 0 to avoid worker process issues
+    "batch_size": 128,  # Match baseline: 128 batch size
+    "num_workers": 2,  # Reduced from 8 to match system recommendation and avoid slowness
     "root": "./datasets",
     "img_size": 224,
     # Subset configuration for faster training
@@ -76,9 +184,16 @@ DATA_CONFIG = {
 # Swin Transformer configuration (legacy - kept for compatibility)
 SWIN_CONFIG = MODEL_CONFIG if MODEL_TYPE == "swin" else {}
 
-# Apply preset values for None fields (only for Swin)
-if MODEL_TYPE == "swin":
-    apply_swin_preset(SWIN_CONFIG, SWIN_PRESETS)
+# Apply preset values for None fields (only for Swin variants)
+for model_type in [
+    "swin",
+    "swin_v2",
+    "swin_hybrid",
+    "swin_improved",
+    "swin_deformable",
+]:
+    if model_type in MODEL_CONFIGS:
+        apply_swin_preset(MODEL_CONFIGS[model_type], SWIN_PRESETS)
 
 # =============================================================================
 # Downstream Task Configuration
@@ -101,15 +216,15 @@ DOWNSTREAM_CONFIG = {
 TRAINING_CONFIG = {
     "seed": 42,  # Random seed for reproducibility
     "deterministic": False,  # Set to True for fully reproducible (but slower) training
-    "learning_rate": 3e-4,  # Optimal for batch_size=128, 50 epochs (scaled from Swin paper)
-    "num_epochs": 2,  # Full training duration for Swin Transformer
-    "warmup_epochs": 1,  # ~6% of 50 epochs for stability
+    "learning_rate": 5e-4,  # Proven working LR for 20-epoch runs (from ticket3_ablation_baseline)
+    "num_epochs": 20,  # Reduced to 20 for very fast comparison
+    "warmup_epochs": 3,  # Match successful 20-epoch run (from ticket3_ablation_baseline)
     "warmup_start_factor": 0.01,  # Start from very low LR
-    "weight_decay": 0.02,  # Balanced regularization
-    "min_lr": 5e-5,  # Lower minimum LR for full cosine decay
+    "weight_decay": 0.02,  # Keep proven weight decay from 300-epoch runs
+    "min_lr": 1e-6,  # Low min_lr for cosine decay (from successful 20-epoch run)
     "lr_scheduler_type": "cosine",  # Pure cosine annealing as in Swin paper
     "mixed_precision": True,
-    "compile": True,
+    "compile": True,  # Re-enabled to match baseline configuration
     # Early stopping configuration
     "early_stopping": {
         "enabled": False,  # Disabled for ablation studies to ensure consistent training duration

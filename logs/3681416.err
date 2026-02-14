@@ -1,0 +1,89 @@
+INFO:    gocryptfs not found, will not be able to use gocryptfs
+2025-11-27 09:48:01,295 - INFO - Logging initialized. Log file: runs/run_49/training.log
+2025-11-27 09:48:01,390 - INFO - Experiment directory: runs/run_49
+2025-11-27 09:48:01,391 - INFO - Setting random seeds for reproducibility (seed: 42)...
+2025-11-27 09:48:01,538 - INFO - Random seeds set to 42 (deterministic=False)
+2025-11-27 09:48:01,540 - INFO - Using device: cuda
+2025-11-27 09:48:01,541 - INFO - Training configuration: epochs=1, warmup=0, lr=0.001
+2025-11-27 09:48:01,542 - INFO - Loading dataset...
+/usr/local/lib/python3.12/site-packages/torch/utils/data/dataloader.py:627: UserWarning: This DataLoader will create 4 worker processes in total. Our suggested max number of worker in current system is 2, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(
+2025-11-27 09:48:04,635 - INFO - Dataset loaded: train=1303, val=261, test=313 batches
+2025-11-27 09:48:06,379 - INFO - Using pretrained model: swin_small_patch4_window7_224
+2025-11-27 09:48:06,380 - INFO - Model architecture: Swin-Small
+2025-11-27 09:48:06,382 - INFO - Initializing reference model...
+2025-11-27 09:48:06,383 - INFO - Loading TIMM model: swin_small_patch4_window7_224 with pretrained weights
+2025-11-27 09:48:07,184 - INFO - Loading pretrained weights from Hugging Face hub (timm/swin_small_patch4_window7_224.ms_in22k_ft_in1k)
+2025-11-27 09:48:07,407 - INFO - HTTP Request: HEAD https://huggingface.co/timm/swin_small_patch4_window7_224.ms_in22k_ft_in1k/resolve/main/model.safetensors "HTTP/1.1 302 Found"
+2025-11-27 09:48:07,508 - INFO - [timm/swin_small_patch4_window7_224.ms_in22k_ft_in1k] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+2025-11-27 09:48:08,986 - INFO - Successfully loaded swin_small_patch4_window7_224 from TIMM
+2025-11-27 09:48:08,987 - INFO - Encoder loaded: 768 output features
+2025-11-27 09:48:08,990 - INFO - Created classification head: 768 -> 100 classes
+2025-11-27 09:48:08,992 - INFO - Reference model created. Trainable params (head only): 78,436
+2025-11-27 09:48:09,383 - INFO - Detected Swin Transformer architecture
+2025-11-27 09:48:09,385 - INFO - Detected model size: small
+2025-11-27 09:48:09,386 - INFO - Initializing custom Swin model (size: small)...
+2025-11-27 09:48:09,388 - INFO - Custom model will match architecture: embed_dim=96, depths=[2, 2, 18, 2], num_heads=[3, 6, 12, 24]
+2025-11-27 09:48:10,002 - INFO - Transferring weights from reference to custom encoder...
+2025-11-27 09:48:10,003 - INFO - Weight transfer: SwinTransformer -> SwinTransformerModel
+2025-11-27 09:48:10,029 - INFO - Weight transfer: 325 layers transferred.
+2025-11-27 09:48:10,074 - INFO - Weight transfer completed: {'transferred': 325, 'missing': 0, 'size_mismatches': 0}
+2025-11-27 09:48:10,076 - INFO - ✓ All expected weights transferred successfully
+2025-11-27 09:48:10,078 - INFO - Custom model created. Trainable params (head only): 78,436
+2025-11-27 09:48:10,082 - INFO - Starting reference model training...
+2025-11-27 09:48:10,083 - INFO - Optimizer: training head parameters only (encoder frozen)
+2025-11-27 09:48:10,085 - INFO - Starting training...
+/usr/local/lib/python3.12/site-packages/torch/utils/data/dataloader.py:627: UserWarning: This DataLoader will create 4 worker processes in total. Our suggested max number of worker in current system is 2, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(
+2025-11-27 09:51:59,040 - INFO - Epoch 1/1: LR: 0.001100
+2025-11-27 09:51:59,042 - INFO - Epoch 1/1: Train Loss: 3.1751, Val Loss: 1.8980, Val Acc: 75.99%
+2025-11-27 09:51:59,043 - INFO - Training completed!
+2025-11-27 09:51:59,045 - INFO - Reference model training completed!
+2025-11-27 09:51:59,046 - INFO - Generating training curves...
+2025-11-27 09:52:00,740 - INFO - Training curves saved as separate images with base name 'runs/run_49/training_curves_reference'
+2025-11-27 09:52:00,742 - INFO - Generating confusion matrix on test set...
+/usr/local/lib/python3.12/site-packages/torch/utils/data/dataloader.py:627: UserWarning: This DataLoader will create 4 worker processes in total. Our suggested max number of worker in current system is 2, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(
+2025-11-27 09:53:31,172 - INFO - Performing final evaluation of reference model on test set...
+2025-11-27 09:54:49,723 - INFO - Final Test Results of reference model: Loss: 1.8914, Accuracy: 76.58%
+2025-11-27 09:54:49,724 - INFO - Generating LR schedule plot of reference model...
+2025-11-27 09:54:50,027 - INFO - LR schedule plot saved to 'runs/run_49/lr_schedule_reference.png'
+2025-11-27 09:54:50,029 - INFO - 
+Final Test Results:
+2025-11-27 09:54:50,030 - INFO - Loss: 1.8914
+2025-11-27 09:54:50,031 - INFO - Accuracy: 76.58%
+2025-11-27 09:54:50,032 - INFO - Precision: 77.66%
+2025-11-27 09:54:50,034 - INFO - Recall: 76.58%
+2025-11-27 09:54:50,035 - INFO - F1 Score: 76.21%
+2025-11-27 09:54:50,040 - INFO - Experiment completed. Results saved to runs/run_49/results_reference.json
+2025-11-27 09:54:50,043 - INFO - Experiment completed. Metadata saved to runs/run_49/metadata_reference.json
+2025-11-27 09:54:50,539 - INFO - ✅ Model weights saved: trained_models/CIFAR100_final_model_reference_weights.pth
+2025-11-27 09:54:50,540 - INFO - Starting custom model training...
+2025-11-27 09:54:50,542 - INFO - Optimizer: training head parameters only (encoder frozen)
+2025-11-27 09:54:50,543 - INFO - Starting training...
+2025-11-27 09:58:40,620 - INFO - Epoch 1/1: LR: 0.001100
+2025-11-27 09:58:40,621 - INFO - Epoch 1/1: Train Loss: 3.1572, Val Loss: 1.8603, Val Acc: 76.72%
+2025-11-27 09:58:40,623 - INFO - Training completed!
+2025-11-27 09:58:40,625 - INFO - Custom model training completed!
+2025-11-27 09:58:40,626 - INFO - Generating training curves...
+2025-11-27 09:58:42,210 - INFO - Training curves saved as separate images with base name 'runs/run_49/training_curves_custom'
+2025-11-27 09:58:42,211 - INFO - Generating confusion matrix on test set...
+2025-11-27 10:00:12,827 - INFO - Performing final evaluation of custom model on test set...
+2025-11-27 10:01:31,334 - INFO - Final Test Results of custom model: Loss: 1.8562, Accuracy: 77.19%
+2025-11-27 10:01:31,335 - INFO - Generating LR schedule plot of custom model...
+2025-11-27 10:01:31,633 - INFO - LR schedule plot saved to 'runs/run_49/lr_schedule_custom.png'
+2025-11-27 10:01:31,635 - INFO - 
+Final Test Results:
+2025-11-27 10:01:31,636 - INFO - Loss: 1.8562
+2025-11-27 10:01:31,638 - INFO - Accuracy: 77.19%
+2025-11-27 10:01:31,639 - INFO - Precision: 77.90%
+2025-11-27 10:01:31,641 - INFO - Recall: 77.19%
+2025-11-27 10:01:31,642 - INFO - F1 Score: 76.73%
+2025-11-27 10:01:31,649 - INFO - Experiment completed. Results saved to runs/run_49/results_custom.json
+2025-11-27 10:01:31,652 - INFO - Experiment completed. Metadata saved to runs/run_49/metadata_custom.json
+2025-11-27 10:01:32,116 - INFO - ✅ Model weights saved: trained_models/CIFAR100_final_model_custom_weights.pth
+2025-11-27 10:01:32,117 - INFO - === MODEL COMPARISON RESULTS (linear_probe on CIFAR100) ===
+2025-11-27 10:01:32,118 - INFO - Reference (TIMM): 76.58%
+2025-11-27 10:01:32,119 - INFO - Custom          : 77.19%
+2025-11-27 10:01:32,120 - INFO - Difference      : 0.61%
+2025-11-27 10:01:32,124 - INFO - linear_probe experiment completed successfully!

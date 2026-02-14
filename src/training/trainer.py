@@ -57,6 +57,10 @@ def train_one_epoch(
     running_loss = 0.0
 
     for batch_idx, (inputs, labels) in enumerate(train_loader):
+        if batch_idx == 0:
+            logger.info(
+                f"Processing first batch (shape: {inputs.shape if hasattr(inputs, 'shape') else 'unknown'})"
+            )
         inputs = inputs.to(device, non_blocking=True)
         labels = labels.to(device, non_blocking=True)
 
@@ -64,12 +68,18 @@ def train_one_epoch(
             inputs, labels_a, labels_b, lam = mixup(inputs, labels)
 
         optimizer.zero_grad()
+        if batch_idx == 0:
+            logger.info("Running first forward pass (torch.compile may take time)...")
         with torch.autocast(
             device_type=device.type,
             dtype=amp_dtype,
             enabled=bool(amp_dtype),
         ):
             outputs = model(inputs)
+            if batch_idx == 0:
+                logger.info(
+                    f"First forward pass complete (output shape: {outputs.shape if hasattr(outputs, 'shape') else 'unknown'})"
+                )
 
             if mixup:
                 loss = lam * criterion(outputs, labels_a) + (1 - lam) * criterion(
@@ -88,6 +98,9 @@ def train_one_epoch(
 
         running_loss += loss.item()
 
+        if batch_idx == 0:
+            logger.info(f"First batch complete! Loss: {loss.item():.4f}")
+
     return running_loss / len(train_loader)
 
 
@@ -98,7 +111,7 @@ def evaluate_model(
     device: torch.device,
     num_classes: int = 10,
     detailed_metrics: bool = True,
-    amp_dtype: Optional[torch.dtype] = None
+    amp_dtype: Optional[torch.dtype] = None,
 ) -> Union[Tuple[float, float], Tuple[float, float, Dict]]:
     """
     Evaluate the model on data.
@@ -192,17 +205,17 @@ def run_training_loop(
             device,
             mixup=mixup,
             scaler=scaler,
-            amp_dtype=amp_dtype
+            amp_dtype=amp_dtype,
         )
 
         # Validate every epoch
         val_loss, val_accuracy, val_metrics = evaluate_model(
-            model,
-            val_generator,
-            criterion,
-            device,
-            amp_dtype=amp_dtype
+            model, val_generator, criterion, device, amp_dtype=amp_dtype
         )
+
+        # Clear GPU cache after validation to prevent memory accumulation
+        if device.type == "cuda":
+            torch.cuda.empty_cache()
 
         # Store metrics
         metrics_history["train_loss"].append(train_loss)

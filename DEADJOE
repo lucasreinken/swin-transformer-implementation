@@ -31,3 +31,32 @@ Processing '/etc/joe/editorrc'...
 Processing '/etc/joe/ftyperc'...
 Finished processing /etc/joe/ftyperc
 Finished processing /etc/joe/editorrc
+
+*** These modified files were found in JOE when it aborted on Tue Feb 10 15:39:47 2026
+*** JOE was aborted because the terminal closed
+
+*** File '/home/pml04/swin_transformer/Machine-Learning-Project/.git/MERGE_MSG'
+
+
+# especially if it merges an updated upstream into a topic branch.
+#
+# Lines starting with '#' will be ignored, and an empty message aborts
+# the commit.
+
+*** File '(Unnamed)'
+:wq
+
+*** File '(Unnamed)'
+:wq
+
+*** File '(Unnamed)'
+/home/pml04/.gitconfig
+* Build Log *
+/home/pml04/swin_transformer/Machine-Learning-Project/.git/MERGE_MSG
+/home/pml04/swin_transformer/Machine-Learning-Project/.git/MERGE_MSG
+
+*** File '* Startup Log *'
+Processing '/etc/joe/editorrc'...
+Processing '/etc/joe/ftyperc'...
+Finished processing /etc/joe/ftyperc
+Finished processing /etc/joe/editorrc

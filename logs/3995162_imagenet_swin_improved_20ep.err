@@ -1,0 +1,73 @@
+/var/spool/slurmd/spool/job3995162/slurm_script: line 19: python: command not found
+INFO:    gocryptfs not found, will not be able to use gocryptfs
+2026-01-28 21:41:40,486 - INFO - Logging initialized. Log file: runs/run_281/training.log
+2026-01-28 21:41:40,508 - INFO - Experiment directory: runs/run_281
+2026-01-28 21:41:40,509 - INFO - Setting random seeds for reproducibility (seed: 42)...
+2026-01-28 21:41:40,518 - INFO - ✅ All seeds set to 42 (deterministic=False)
+2026-01-28 21:41:40,919 - INFO - GPU memory cleared at startup. Available: 39.2GB
+2026-01-28 21:41:40,920 - INFO - Using device: cuda
+2026-01-28 21:41:40,921 - INFO - Training configuration: epochs=20, warmup=4, lr=0.0002
+2026-01-28 21:41:40,921 - INFO - SWIN_IMPROVED configuration: {'type': 'swin_improved', 'variant': 'tiny', 'patch_size': 4, 'embed_dim': 96, 'depths': [2, 2, 6, 2], 'num_heads': [3, 6, 12, 24], 'window_size': 7, 'mlp_ratio': 4.0, 'dropout': 0.0, 'attention_dropout': 0.0, 'projection_dropout': 0.0, 'drop_path_rate': 0.08, 'use_shifted_window': True, 'use_relative_bias': False, 'use_absolute_pos_embed': False, 'use_hierarchical_merge': False, 'use_gradient_checkpointing': False, 'use_conv_stem': True, 'conv_stem_config': {'channels': [48, 96], 'kernel_sizes': [4, 3], 'strides': [4, 2], 'paddings': [0, 1], 'activation': 'gelu', 'use_batch_norm': True}, 'use_inverted_ffn': True, 'ffn_config': {'expand_ratio': 4, 'use_depthwise_conv': True, 'activation': 'gelu'}}
+2026-01-28 21:41:40,922 - INFO - Loading dataset...
+2026-01-28 21:41:40,923 - INFO - Starting ImageNet data loading from root: /
+2026-01-28 21:41:40,924 - INFO - Resolved root path: /
+2026-01-28 21:41:40,925 - INFO - Root path exists: True
+2026-01-28 21:41:40,926 - INFO - Root path is dir: True
+2026-01-28 21:41:40,929 - INFO - Contents of /: ['/.exec', '/.run', '/.shell', '/.singularity.d', '/.test', '/bin', '/boot', '/dev', '/environment', '/etc', '/home', '/lib', '/lib64', '/media', '/mnt', '/opt', '/proc', '/requirements.txt', '/root', '/run', '/sbin', '/singularity', '/srv', '/sys', '/tmp', '/usr', '/var', '/meta', '/train_set', '/train_set_small', '/val_set', '/val_set_unlabeled']
+2026-01-28 21:41:40,930 - INFO - Expected train_dir: /train_set, exists: True
+2026-01-28 21:41:40,931 - INFO - Expected val_dir: /val_set, exists: True
+2026-01-28 21:41:45,866 - INFO - Loaded ImageNet data from /: train=1281167, val=50000
+2026-01-28 21:41:46,605 - INFO - Dataset limits applied (stratified sampling enabled)
+/usr/local/lib/python3.12/site-packages/torch/utils/data/dataloader.py:627: UserWarning: This DataLoader will create 8 worker processes in total. Our suggested max number of worker in current system is 2, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(
+2026-01-28 21:41:46,609 - INFO - Dataset loaded: train=100000 samples (782 batches), val=50000 samples (391 batches), test=50000 samples (391 batches)
+2026-01-28 21:41:47,302 - INFO - Training SWIN_IMPROVED from scratch
+2026-01-28 21:41:47,303 - INFO - Initializing SWIN_IMPROVED model from scratch...
+2026-01-28 21:41:47,304 - INFO - Model architecture: SWIN_IMPROVED
+2026-01-28 21:41:47,305 - INFO - Model config: {'type': 'swin_improved', 'variant': 'tiny', 'patch_size': 4, 'embed_dim': 96, 'depths': [2, 2, 6, 2], 'num_heads': [3, 6, 12, 24], 'window_size': 7, 'mlp_ratio': 4.0, 'dropout': 0.0, 'attention_dropout': 0.0, 'projection_dropout': 0.0, 'drop_path_rate': 0.08, 'use_shifted_window': True, 'use_relative_bias': False, 'use_absolute_pos_embed': False, 'use_hierarchical_merge': False, 'use_gradient_checkpointing': False, 'use_conv_stem': True, 'conv_stem_config': {'channels': [48, 96], 'kernel_sizes': [4, 3], 'strides': [4, 2], 'paddings': [0, 1], 'activation': 'gelu', 'use_batch_norm': True}, 'use_inverted_ffn': True, 'ffn_config': {'expand_ratio': 4, 'use_depthwise_conv': True, 'activation': 'gelu'}}
+2026-01-28 21:41:47,698 - INFO - Model created with random initialization
+2026-01-28 21:41:47,699 - INFO - Total parameters: 28,518,706
+2026-01-28 21:41:47,700 - INFO - Trainable parameters: 28,518,706
+2026-01-28 21:41:47,747 - INFO - Mixed precision enabled → CUDA bf16 selected (hardware supported)
+2026-01-28 21:41:47,748 - INFO - Starting from-scratch training...
+2026-01-28 21:41:47,750 - INFO - Optimizer: training all model parameters
+2026-01-28 21:41:47,751 - INFO - LR Scheduler: cosine with 4 warmup epochs
+2026-01-28 21:41:47,752 - INFO - Starting training...
+/usr/local/lib/python3.12/site-packages/torch/utils/data/dataloader.py:627: UserWarning: This DataLoader will create 8 worker processes in total. Our suggested max number of worker in current system is 2, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(
+2026-01-28 21:41:57,204 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-01-28 21:41:57,208 - INFO - Running first forward pass (torch.compile may take time)...
+/home/pml04/swin_transformer/Machine-Learning-Project/src/models/model_factory.py:417: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+2026-01-28 21:42:10,033 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-01-28 21:42:14,746 - INFO - First batch complete! Loss: 7.0366
+2026-01-28 22:01:07,684 - INFO - Epoch 1/20: LR: 0.000052
+2026-01-28 22:01:07,703 - INFO - Epoch 1/20: Train Loss: 6.9411, Val Loss: 6.8694, Val Acc: 0.40%
+2026-01-28 22:01:14,758 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-01-28 22:01:14,761 - INFO - Running first forward pass (torch.compile may take time)...
+/home/pml04/swin_transformer/Machine-Learning-Project/src/models/model_factory.py:417: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+2026-01-28 22:01:14,968 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-01-28 22:01:15,117 - INFO - First batch complete! Loss: 6.9121
+2026-01-28 22:19:30,603 - INFO - Epoch 2/20: LR: 0.000101
+2026-01-28 22:19:30,620 - INFO - Epoch 2/20: Train Loss: 6.6830, Val Loss: 6.3804, Val Acc: 1.21%
+2026-01-28 22:19:37,313 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-01-28 22:19:37,315 - INFO - Running first forward pass (torch.compile may take time)...
+/home/pml04/swin_transformer/Machine-Learning-Project/src/models/model_factory.py:417: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+2026-01-28 22:19:37,418 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-01-28 22:19:37,533 - INFO - First batch complete! Loss: 6.4460
+2026-01-28 22:38:14,907 - INFO - Epoch 3/20: LR: 0.000151
+2026-01-28 22:38:14,927 - INFO - Epoch 3/20: Train Loss: 6.3934, Val Loss: 6.0909, Val Acc: 2.03%
+2026-01-28 22:38:22,227 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-01-28 22:38:22,234 - INFO - Running first forward pass (torch.compile may take time)...
+/home/pml04/swin_transformer/Machine-Learning-Project/src/models/model_factory.py:417: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+2026-01-28 22:38:22,421 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-01-28 22:38:22,795 - INFO - First batch complete! Loss: 6.2322
+INFO:    Terminating squashfuse_ll after timeout
+INFO:    Timeouts can be caused by a running background process
+INFO:    Terminating squashfuse_ll after timeout
+INFO:    Timeouts can be caused by a running background process
+/var/spool/slurmd/spool/job3995162/slurm_script: line 62: 3666734 Killed                  apptainer run --nv --overlay /home/space/datasets-sqfs/imagenet2012.sqfs pml.sif python main.py
+[2026-01-28T22:49:47.610] error: Detected 2 oom_kill events in StepId=3995162.batch. Some of the step tasks have been OOM Killed.

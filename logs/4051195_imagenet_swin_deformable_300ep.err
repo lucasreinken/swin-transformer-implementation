@@ -1,0 +1,102 @@
+/var/spool/slurmd/spool/job4051195/slurm_script: line 19: python: command not found
+INFO:    gocryptfs not found, will not be able to use gocryptfs
+2026-02-04 17:22:09,844 - INFO - Logging initialized. Log file: runs/run_291/training.log
+2026-02-04 17:22:09,857 - INFO - Experiment directory: runs/run_291
+2026-02-04 17:22:09,859 - INFO - Setting random seeds for reproducibility (seed: 42)...
+2026-02-04 17:22:09,870 - INFO - ✅ All seeds set to 42 (deterministic=False)
+2026-02-04 17:22:10,651 - INFO - GPU memory cleared at startup. Available: 39.2GB
+2026-02-04 17:22:10,652 - INFO - Using device: cuda
+2026-02-04 17:22:10,654 - INFO - Training configuration: epochs=300, warmup=30, lr=0.0002
+2026-02-04 17:22:10,655 - INFO - SWIN_DEFORMABLE configuration: {'type': 'swin_deformable', 'variant': 'tiny', 'patch_size': 4, 'embed_dim': 96, 'depths': [2, 2, 6, 2], 'num_heads': [3, 6, 12, 24], 'window_size': 7, 'mlp_ratio': 4.0, 'dropout': 0.0, 'attention_dropout': 0.0, 'projection_dropout': 0.0, 'drop_path_rate': 0.08, 'use_shifted_window': True, 'use_relative_bias': False, 'use_absolute_pos_embed': False, 'use_hierarchical_merge': False, 'use_gradient_checkpointing': True, 'use_deformable_attn': True, 'deformable_config': {'num_points': 4}}
+2026-02-04 17:22:10,657 - INFO - Loading dataset...
+2026-02-04 17:22:10,659 - INFO - Starting ImageNet data loading from root: /
+2026-02-04 17:22:10,660 - INFO - Resolved root path: /
+2026-02-04 17:22:10,662 - INFO - Root path exists: True
+2026-02-04 17:22:10,664 - INFO - Root path is dir: True
+2026-02-04 17:22:10,668 - INFO - Contents of /: ['/.exec', '/.run', '/.shell', '/.singularity.d', '/.test', '/bin', '/boot', '/dev', '/environment', '/etc', '/home', '/lib', '/lib64', '/media', '/mnt', '/opt', '/proc', '/requirements.txt', '/root', '/run', '/sbin', '/singularity', '/srv', '/sys', '/tmp', '/usr', '/var', '/meta', '/train_set', '/train_set_small', '/val_set', '/val_set_unlabeled']
+2026-02-04 17:22:10,669 - INFO - Expected train_dir: /train_set, exists: True
+2026-02-04 17:22:10,670 - INFO - Expected val_dir: /val_set, exists: True
+2026-02-04 17:22:16,539 - INFO - Loaded ImageNet data from /: train=1281167, val=50000
+2026-02-04 17:22:17,316 - INFO - Dataset limits applied (stratified sampling enabled)
+2026-02-04 17:22:17,318 - INFO - Dataset loaded: train=100000 samples (782 batches), val=50000 samples (391 batches), test=50000 samples (391 batches)
+2026-02-04 17:22:18,120 - INFO - Training SWIN_DEFORMABLE from scratch
+2026-02-04 17:22:18,121 - INFO - Initializing SWIN_DEFORMABLE model from scratch...
+2026-02-04 17:22:18,123 - INFO - Model architecture: SWIN_DEFORMABLE
+2026-02-04 17:22:18,124 - INFO - Model config: {'type': 'swin_deformable', 'variant': 'tiny', 'patch_size': 4, 'embed_dim': 96, 'depths': [2, 2, 6, 2], 'num_heads': [3, 6, 12, 24], 'window_size': 7, 'mlp_ratio': 4.0, 'dropout': 0.0, 'attention_dropout': 0.0, 'projection_dropout': 0.0, 'drop_path_rate': 0.08, 'use_shifted_window': True, 'use_relative_bias': False, 'use_absolute_pos_embed': False, 'use_hierarchical_merge': False, 'use_gradient_checkpointing': True, 'use_deformable_attn': True, 'deformable_config': {'num_points': 4}}
+2026-02-04 17:22:18,510 - INFO - Model created with random initialization
+2026-02-04 17:22:18,512 - INFO - Total parameters: 28,982,146
+2026-02-04 17:22:18,513 - INFO - Trainable parameters: 28,982,146
+2026-02-04 17:22:18,548 - INFO - Compiling model with torch.compile()
+2026-02-04 17:22:20,041 - INFO - Mixed precision enabled → CUDA bf16 selected (hardware supported)
+2026-02-04 17:22:20,043 - INFO - Starting from-scratch training...
+2026-02-04 17:22:20,045 - INFO - Optimizer: training all model parameters
+2026-02-04 17:22:20,048 - INFO - LR Scheduler: cosine with 30 warmup epochs
+2026-02-04 17:22:20,051 - INFO - Starting training...
+2026-02-04 17:22:22,599 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-04 17:22:22,602 - INFO - Running first forward pass (torch.compile may take time)...
+/usr/local/lib/python3.12/site-packages/torch/backends/cuda/__init__.py:131: UserWarning: Please use the new API settings to control TF32 behavior, such as torch.backends.cudnn.conv.fp32_precision = 'tf32' or torch.backends.cuda.matmul.fp32_precision = 'ieee'. Old settings, e.g, torch.backends.cuda.matmul.allow_tf32 = True, torch.backends.cudnn.allow_tf32 = True, allowTF32CuDNN() and allowTF32CuBLAS() will be deprecated after Pytorch 2.9. Please see https://pytorch.org/docs/main/notes/cuda.html#tensorfloat-32-tf32-on-ampere-and-later-devices (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:80.)
+  return torch._C._get_cublas_allow_tf32()
+W0204 17:22:50.202000 405623 site-packages/torch/_inductor/utils.py:1558] [0/0] Not enough SMs to use max_autotune_gemm mode
+/usr/local/lib/python3.12/site-packages/torch/_inductor/lowering.py:7242: UserWarning: 
+Online softmax is disabled on the fly since Inductor decides to
+split the reduction. Cut an issue to PyTorch if this is an
+important use case and you want to speed it up with online
+softmax.
+
+  warnings.warn(
+2026-02-04 17:23:42,435 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+/usr/local/lib/python3.12/site-packages/torch/_inductor/lowering.py:7242: UserWarning: 
+Online softmax is disabled on the fly since Inductor decides to
+split the reduction. Cut an issue to PyTorch if this is an
+important use case and you want to speed it up with online
+softmax.
+
+  warnings.warn(
+2026-02-04 17:24:53,219 - INFO - First batch complete! Loss: 6.9753
+/usr/local/lib/python3.12/site-packages/torch/_inductor/lowering.py:7242: UserWarning: 
+Online softmax is disabled on the fly since Inductor decides to
+split the reduction. Cut an issue to PyTorch if this is an
+important use case and you want to speed it up with online
+softmax.
+
+  warnings.warn(
+/usr/local/lib/python3.12/site-packages/torch/_inductor/lowering.py:7242: UserWarning: 
+Online softmax is disabled on the fly since Inductor decides to
+split the reduction. Cut an issue to PyTorch if this is an
+important use case and you want to speed it up with online
+softmax.
+
+  warnings.warn(
+/usr/local/lib/python3.12/site-packages/torch/_inductor/lowering.py:7242: UserWarning: 
+Online softmax is disabled on the fly since Inductor decides to
+split the reduction. Cut an issue to PyTorch if this is an
+important use case and you want to speed it up with online
+softmax.
+
+  warnings.warn(
+2026-02-04 17:51:29,005 - INFO - Epoch 1/300: LR: 0.000009
+2026-02-04 17:51:29,035 - INFO - Epoch 1/300: Train Loss: 6.9249, Val Loss: 6.8354, Val Acc: 0.39%
+2026-02-04 17:51:30,812 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-04 17:51:30,819 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-04 17:51:30,903 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-04 17:51:31,025 - INFO - First batch complete! Loss: 6.8196
+2026-02-04 18:11:58,023 - INFO - Epoch 2/300: LR: 0.000015
+2026-02-04 18:11:58,058 - INFO - Epoch 2/300: Train Loss: 6.8255, Val Loss: 6.7038, Val Acc: 0.69%
+2026-02-04 18:11:59,821 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-04 18:11:59,829 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-04 18:11:59,953 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-04 18:12:00,071 - INFO - First batch complete! Loss: 6.8201
+2026-02-04 18:31:55,608 - INFO - Epoch 3/300: LR: 0.000022
+2026-02-04 18:31:55,610 - INFO - Epoch 3/300: Train Loss: 6.7269, Val Loss: 6.5781, Val Acc: 0.91%
+2026-02-04 18:31:57,304 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-04 18:31:57,312 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-04 18:31:57,431 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-04 18:31:57,549 - INFO - First batch complete! Loss: 6.6875
+2026-02-04 18:53:08,179 - INFO - Epoch 4/300: LR: 0.000028
+2026-02-04 18:53:08,181 - INFO - Epoch 4/300: Train Loss: 6.6190, Val Loss: 6.4373, Val Acc: 1.40%
+2026-02-04 18:53:09,974 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-04 18:53:09,987 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-04 18:53:10,191 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-04 18:53:10,315 - INFO - First batch complete! Loss: 6.4419
+2026-02-04 19:14:08,268 - INFO - Epoch 5/300: LR: 0.000035
+[2026-02-04T19:22:17.049] error: *** JOB 4051195 ON head022 CANCELLED AT 2026-02-04T19:22:17 DUE TO TIME LIMIT ***

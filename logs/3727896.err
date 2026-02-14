@@ -1,0 +1,81 @@
+INFO:    gocryptfs not found, will not be able to use gocryptfs
+2025-12-06 10:57:23,005 - INFO - Logging initialized. Log file: runs/run_118/training.log
+2025-12-06 10:57:23,007 - INFO - Experiment directory: runs/run_118
+2025-12-06 10:57:23,008 - INFO - Setting random seeds for reproducibility (seed: 42)...
+2025-12-06 10:57:23,154 - INFO - Random seeds set to 42 (deterministic=False)
+2025-12-06 10:57:23,156 - INFO - Using device: cuda
+2025-12-06 10:57:23,157 - INFO - Training configuration: epochs=20, warmup=3, lr=0.0005
+2025-12-06 10:57:23,159 - INFO - SWIN configuration: variant=tiny, use_shifted_window=True, use_relative_bias=False
+2025-12-06 10:57:23,160 - INFO - SWIN details: embed_dim=96, depths=[2, 2, 6, 2], num_heads=[3, 6, 12, 24], window_size=7
+2025-12-06 10:57:23,161 - INFO - Loading dataset...
+2025-12-06 10:57:23,163 - INFO - Starting ImageNet data loading from root: /
+2025-12-06 10:57:23,165 - INFO - Resolved root path: /
+2025-12-06 10:57:23,166 - INFO - Root path exists: True
+2025-12-06 10:57:23,167 - INFO - Root path is dir: True
+2025-12-06 10:57:23,173 - INFO - Contents of /: ['/.exec', '/.run', '/.shell', '/.singularity.d', '/.test', '/bin', '/boot', '/dev', '/environment', '/etc', '/home', '/lib', '/lib64', '/media', '/mnt', '/opt', '/proc', '/requirements.txt', '/root', '/run', '/sbin', '/singularity', '/srv', '/sys', '/tmp', '/usr', '/var', '/meta', '/train_set', '/train_set_small', '/val_set', '/val_set_unlabeled']
+2025-12-06 10:57:23,174 - INFO - Expected train_dir: /train_set, exists: True
+2025-12-06 10:57:23,175 - INFO - Expected val_dir: /val_set, exists: True
+2025-12-06 10:57:29,462 - INFO - Loaded ImageNet data from /: train=1281167, val=50000
+2025-12-06 10:57:29,591 - INFO - Dataset loaded: train=50000 samples (391 batches), val=5000 samples (40 batches), test=5000 samples (40 batches)
+2025-12-06 10:57:32,439 - INFO - Training Swin-Tiny from scratch
+2025-12-06 10:57:32,440 - INFO - Initializing model from scratch...
+2025-12-06 10:57:32,442 - INFO - Model architecture: Swin-Tiny
+2025-12-06 10:57:32,443 - INFO - Model config: embed_dim=96, depths=[2, 2, 6, 2], num_heads=[3, 6, 12, 24], window_size=7, use_shifted_window=True, use_relative_bias=False
+2025-12-06 10:57:32,982 - INFO - Model created with random initialization
+2025-12-06 10:57:32,984 - INFO - Total parameters: 28,288,354
+2025-12-06 10:57:32,985 - INFO - Trainable parameters: 28,288,354
+2025-12-06 10:57:33,272 - INFO - Starting from-scratch training...
+2025-12-06 10:57:33,273 - INFO - Optimizer: training all model parameters
+2025-12-06 10:57:33,276 - INFO - Starting training...
+2025-12-06 11:20:35,077 - INFO - Epoch 1/20: LR: 0.000170
+2025-12-06 11:20:35,079 - INFO - Epoch 1/20: Train Loss: 6.9086, Val Loss: 6.8331, Val Acc: 0.40%
+2025-12-06 11:34:31,247 - INFO - Epoch 2/20: LR: 0.000335
+2025-12-06 11:34:31,283 - INFO - Epoch 2/20: Train Loss: 6.8198, Val Loss: 6.6899, Val Acc: 0.38%
+2025-12-06 11:49:33,450 - INFO - Epoch 3/20: LR: 0.000500
+2025-12-06 11:49:33,464 - INFO - Epoch 3/20: Train Loss: 6.7594, Val Loss: 6.6406, Val Acc: 0.54%
+2025-12-06 12:03:20,162 - INFO - Epoch 4/20: LR: 0.000496
+2025-12-06 12:03:20,164 - INFO - Epoch 4/20: Train Loss: 6.7044, Val Loss: 6.6471, Val Acc: 0.50%
+2025-12-06 12:17:00,541 - INFO - Epoch 5/20: LR: 0.000483
+2025-12-06 12:18:19,446 - INFO - Epoch 5/20: Train Loss: 6.5981, Val Loss: 6.5223, Val Acc: 0.68%, Test Loss: 6.5223, Test Acc: 0.68%
+2025-12-06 12:31:58,403 - INFO - Epoch 6/20: LR: 0.000463
+2025-12-06 12:31:58,404 - INFO - Epoch 6/20: Train Loss: 6.4862, Val Loss: 6.4087, Val Acc: 1.24%
+2025-12-06 12:45:36,532 - INFO - Epoch 7/20: LR: 0.000435
+2025-12-06 12:45:36,576 - INFO - Epoch 7/20: Train Loss: 6.4113, Val Loss: 6.3002, Val Acc: 1.42%
+2025-12-06 12:59:14,063 - INFO - Epoch 8/20: LR: 0.000401
+2025-12-06 12:59:14,104 - INFO - Epoch 8/20: Train Loss: 6.3294, Val Loss: 6.1355, Val Acc: 2.04%
+2025-12-06 13:12:42,557 - INFO - Epoch 9/20: LR: 0.000362
+2025-12-06 13:12:42,586 - INFO - Epoch 9/20: Train Loss: 6.2430, Val Loss: 6.0712, Val Acc: 2.50%
+2025-12-06 13:26:15,735 - INFO - Epoch 10/20: LR: 0.000319
+2025-12-06 13:27:33,731 - INFO - Epoch 10/20: Train Loss: 6.1724, Val Loss: 5.9612, Val Acc: 2.66%, Test Loss: 5.9612, Test Acc: 2.66%
+2025-12-06 13:27:33,733 - INFO - Saving checkpoint for epoch 10...
+2025-12-06 13:27:34,581 - INFO - ✅ Checkpoint saved: runs/run_118/checkpoint_epoch_10.pth
+2025-12-06 13:41:00,884 - INFO - Epoch 11/20: LR: 0.000274
+2025-12-06 13:41:00,935 - INFO - Epoch 11/20: Train Loss: 6.0976, Val Loss: 5.9112, Val Acc: 2.90%
+2025-12-06 13:54:37,933 - INFO - Epoch 12/20: LR: 0.000227
+2025-12-06 13:54:37,962 - INFO - Epoch 12/20: Train Loss: 6.0087, Val Loss: 5.7911, Val Acc: 3.80%
+2025-12-06 14:08:15,037 - INFO - Epoch 13/20: LR: 0.000182
+2025-12-06 14:08:15,073 - INFO - Epoch 13/20: Train Loss: 5.9297, Val Loss: 5.7314, Val Acc: 4.12%
+2025-12-06 14:21:53,936 - INFO - Epoch 14/20: LR: 0.000139
+2025-12-06 14:21:54,012 - INFO - Epoch 14/20: Train Loss: 5.8295, Val Loss: 5.6063, Val Acc: 5.06%
+2025-12-06 14:36:09,358 - INFO - Epoch 15/20: LR: 0.000100
+2025-12-06 14:37:28,680 - INFO - Epoch 15/20: Train Loss: 5.7529, Val Loss: 5.5701, Val Acc: 5.18%, Test Loss: 5.5701, Test Acc: 5.18%
+2025-12-06 14:51:50,564 - INFO - Epoch 16/20: LR: 0.000066
+2025-12-06 14:51:50,615 - INFO - Epoch 16/20: Train Loss: 5.6734, Val Loss: 5.5011, Val Acc: 5.70%
+2025-12-06 15:06:53,302 - INFO - Epoch 17/20: LR: 0.000038
+2025-12-06 15:06:53,327 - INFO - Epoch 17/20: Train Loss: 5.6115, Val Loss: 5.4361, Val Acc: 6.06%
+2025-12-06 15:21:02,688 - INFO - Epoch 18/20: LR: 0.000018
+2025-12-06 15:21:02,756 - INFO - Epoch 18/20: Train Loss: 5.5681, Val Loss: 5.4120, Val Acc: 6.04%
+2025-12-06 15:35:27,436 - INFO - Epoch 19/20: LR: 0.000005
+2025-12-06 15:35:27,488 - INFO - Epoch 19/20: Train Loss: 5.5266, Val Loss: 5.3958, Val Acc: 6.44%
+2025-12-06 15:49:11,217 - INFO - Epoch 20/20: LR: 0.000001
+2025-12-06 15:50:29,930 - INFO - Epoch 20/20: Train Loss: 5.5213, Val Loss: 5.3926, Val Acc: 6.36%, Test Loss: 5.3926, Test Acc: 6.36%
+2025-12-06 15:50:29,931 - INFO - Saving checkpoint for epoch 20...
+2025-12-06 15:50:30,603 - INFO - ✅ Checkpoint saved: runs/run_118/checkpoint_epoch_20.pth
+2025-12-06 15:50:30,604 - INFO - Training completed!
+2025-12-06 15:50:30,608 - INFO - Training completed!
+2025-12-06 15:50:30,609 - INFO - Generating training curves...
+2025-12-06 15:50:33,153 - WARNING - Inhomogeneous shapes in per-class F1 data: [(996,), (997,), (996,), (998,), (998,), (997,), (998,), (997,), (998,), (998,), (998,), (998,), (998,), (999,), (998,), (998,), (998,), (998,), (1000,), (999,)]. Skipping per-class plotting.
+2025-12-06 15:50:33,155 - INFO - Training curves saved as separate images with base name 'runs/run_118/training_curves_from_scratch'
+2025-12-06 15:50:33,156 - INFO - Generating confusion matrix on test set...
+/var/spool/slurmd/spool/job3727896/slurm_script: line 12: 1462657 Killed                  apptainer run --nv --overlay /home/space/datasets-sqfs/imagenet2012.sqfs pml.sif python main.py
+[2025-12-06T15:54:06.892] error: Detected 1 oom_kill event in StepId=3727896.batch. Some of the step tasks have been OOM Killed.

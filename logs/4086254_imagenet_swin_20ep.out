@@ -1,0 +1,12 @@
+Job started on node: head022
+Allocated GPU(s): 0
+Starting training at Tue Feb 10 15:45:02 CET 2026
+GPU Memory before training:
+1667, 79487, 81920
+27901, 53253, 81920
+7480, 73674, 81920
+18321, 62833, 81920
+1919, 79235, 81920
+34779, 46375, 81920
+21955, 59199, 81920
+12153, 69000, 81920

@@ -1,0 +1,56 @@
+/var/spool/slurmd/spool/job3995298/slurm_script: line 19: python: command not found
+INFO:    gocryptfs not found, will not be able to use gocryptfs
+2026-01-29 17:26:26,779 - INFO - Logging initialized. Log file: runs/run_287/training.log
+2026-01-29 17:26:26,781 - INFO - Experiment directory: runs/run_287
+2026-01-29 17:26:26,782 - INFO - Setting random seeds for reproducibility (seed: 42)...
+2026-01-29 17:26:26,792 - INFO - ✅ All seeds set to 42 (deterministic=False)
+2026-01-29 17:26:27,219 - INFO - GPU memory cleared at startup. Available: 39.2GB
+2026-01-29 17:26:27,220 - INFO - Using device: cuda
+2026-01-29 17:26:27,221 - INFO - Training configuration: epochs=10, warmup=2, lr=0.0002
+2026-01-29 17:26:27,222 - INFO - SWIN_IMPROVED configuration: {'type': 'swin_improved', 'variant': 'tiny', 'patch_size': 4, 'embed_dim': 96, 'depths': [2, 2, 6, 2], 'num_heads': [3, 6, 12, 24], 'window_size': 7, 'mlp_ratio': 4.0, 'dropout': 0.0, 'attention_dropout': 0.0, 'projection_dropout': 0.0, 'drop_path_rate': 0.08, 'use_shifted_window': True, 'use_relative_bias': False, 'use_absolute_pos_embed': False, 'use_hierarchical_merge': False, 'use_gradient_checkpointing': True, 'use_conv_stem': True, 'conv_stem_config': {'channels': [48, 96], 'kernel_sizes': [4, 3], 'strides': [4, 2], 'paddings': [0, 1], 'activation': 'gelu', 'use_batch_norm': True}, 'use_inverted_ffn': True, 'ffn_config': {'expand_ratio': 4, 'use_depthwise_conv': True, 'activation': 'gelu'}}
+2026-01-29 17:26:27,223 - INFO - Loading dataset...
+2026-01-29 17:26:27,224 - INFO - Starting ImageNet data loading from root: /
+2026-01-29 17:26:27,225 - INFO - Resolved root path: /
+2026-01-29 17:26:27,226 - INFO - Root path exists: True
+2026-01-29 17:26:27,226 - INFO - Root path is dir: True
+2026-01-29 17:26:27,229 - INFO - Contents of /: ['/.exec', '/.run', '/.shell', '/.singularity.d', '/.test', '/bin', '/boot', '/dev', '/environment', '/etc', '/home', '/lib', '/lib64', '/media', '/mnt', '/opt', '/proc', '/requirements.txt', '/root', '/run', '/sbin', '/singularity', '/srv', '/sys', '/tmp', '/usr', '/var', '/meta', '/train_set', '/train_set_small', '/val_set', '/val_set_unlabeled']
+2026-01-29 17:26:27,230 - INFO - Expected train_dir: /train_set, exists: True
+2026-01-29 17:26:27,231 - INFO - Expected val_dir: /val_set, exists: True
+2026-01-29 17:26:34,526 - INFO - Loaded ImageNet data from /: train=1281167, val=50000
+2026-01-29 17:26:35,255 - INFO - Dataset limits applied (stratified sampling enabled)
+2026-01-29 17:26:35,262 - INFO - Dataset loaded: train=100000 samples (782 batches), val=50000 samples (391 batches), test=50000 samples (391 batches)
+2026-01-29 17:26:36,962 - INFO - Training SWIN_IMPROVED from scratch
+2026-01-29 17:26:36,962 - INFO - Initializing SWIN_IMPROVED model from scratch...
+2026-01-29 17:26:36,963 - INFO - Model architecture: SWIN_IMPROVED
+2026-01-29 17:26:36,963 - INFO - Model config: {'type': 'swin_improved', 'variant': 'tiny', 'patch_size': 4, 'embed_dim': 96, 'depths': [2, 2, 6, 2], 'num_heads': [3, 6, 12, 24], 'window_size': 7, 'mlp_ratio': 4.0, 'dropout': 0.0, 'attention_dropout': 0.0, 'projection_dropout': 0.0, 'drop_path_rate': 0.08, 'use_shifted_window': True, 'use_relative_bias': False, 'use_absolute_pos_embed': False, 'use_hierarchical_merge': False, 'use_gradient_checkpointing': True, 'use_conv_stem': True, 'conv_stem_config': {'channels': [48, 96], 'kernel_sizes': [4, 3], 'strides': [4, 2], 'paddings': [0, 1], 'activation': 'gelu', 'use_batch_norm': True}, 'use_inverted_ffn': True, 'ffn_config': {'expand_ratio': 4, 'use_depthwise_conv': True, 'activation': 'gelu'}}
+2026-01-29 17:26:37,345 - INFO - Model created with random initialization
+2026-01-29 17:26:37,358 - INFO - Total parameters: 28,518,706
+2026-01-29 17:26:37,365 - INFO - Trainable parameters: 28,518,706
+2026-01-29 17:26:37,403 - INFO - Mixed precision enabled → CUDA bf16 selected (hardware supported)
+2026-01-29 17:26:37,414 - INFO - Starting from-scratch training...
+2026-01-29 17:26:37,426 - INFO - Optimizer: training all model parameters
+2026-01-29 17:26:37,431 - INFO - LR Scheduler: cosine with 2 warmup epochs
+2026-01-29 17:26:37,439 - INFO - Starting training...
+2026-01-29 17:26:39,678 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-01-29 17:26:39,680 - INFO - Running first forward pass (torch.compile may take time)...
+2026-01-29 17:26:50,984 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-01-29 17:26:56,486 - INFO - First batch complete! Loss: 7.0366
+2026-01-29 17:47:55,514 - INFO - Epoch 1/10: LR: 0.000101
+2026-01-29 17:47:55,516 - INFO - Epoch 1/10: Train Loss: 6.9422, Val Loss: 6.8701, Val Acc: 0.39%
+2026-01-29 17:47:57,230 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-01-29 17:47:57,233 - INFO - Running first forward pass (torch.compile may take time)...
+2026-01-29 17:47:57,296 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-01-29 17:47:57,361 - INFO - First batch complete! Loss: 6.9561
+2026-01-29 18:07:04,960 - INFO - Epoch 2/10: LR: 0.000200
+2026-01-29 18:07:04,997 - INFO - Epoch 2/10: Train Loss: 6.6637, Val Loss: 6.3545, Val Acc: 1.16%
+2026-01-29 18:07:06,613 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-01-29 18:07:06,618 - INFO - Running first forward pass (torch.compile may take time)...
+2026-01-29 18:07:06,662 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-01-29 18:07:06,727 - INFO - First batch complete! Loss: 6.4828
+2026-01-29 18:26:11,551 - INFO - Epoch 3/10: LR: 0.000193
+2026-01-29 18:26:11,570 - INFO - Epoch 3/10: Train Loss: 6.3598, Val Loss: 6.0767, Val Acc: 2.03%
+2026-01-29 18:26:13,101 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-01-29 18:26:13,106 - INFO - Running first forward pass (torch.compile may take time)...
+2026-01-29 18:26:13,193 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-01-29 18:26:13,261 - INFO - First batch complete! Loss: 6.2521
+[2026-01-29T18:33:21.486] error: *** JOB 3995298 ON head022 CANCELLED AT 2026-01-29T18:33:21 DUE to SIGNAL Terminated ***

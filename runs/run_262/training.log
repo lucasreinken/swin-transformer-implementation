@@ -1,0 +1,103 @@
+2026-01-25 13:40:31,964 - INFO - Logging initialized. Log file: runs/run_262/training.log
+2026-01-25 13:40:32,230 - INFO - Experiment directory: runs/run_262
+2026-01-25 13:40:32,231 - INFO - Setting random seeds for reproducibility (seed: 42)...
+2026-01-25 13:40:32,275 - INFO - ✅ All seeds set to 42 (deterministic=False)
+2026-01-25 13:40:32,672 - INFO - GPU memory cleared at startup. Available: 23.6GB
+2026-01-25 13:40:32,674 - INFO - Using device: cuda
+2026-01-25 13:40:32,675 - INFO - Training configuration: epochs=20, warmup=4, lr=0.0002
+2026-01-25 13:40:32,677 - INFO - SWIN_IMPROVED configuration: {'type': 'swin_improved', 'variant': 'tiny', 'patch_size': 4, 'embed_dim': 96, 'depths': [2, 2, 6, 2], 'num_heads': [3, 6, 12, 24], 'window_size': 7, 'mlp_ratio': 4.0, 'dropout': 0.0, 'attention_dropout': 0.0, 'projection_dropout': 0.0, 'drop_path_rate': 0.08, 'use_shifted_window': True, 'use_relative_bias': False, 'use_absolute_pos_embed': False, 'use_hierarchical_merge': False, 'use_gradient_checkpointing': True, 'use_conv_stem': True, 'conv_stem_config': {'channels': [48, 96], 'kernel_sizes': [4, 3], 'strides': [4, 2], 'paddings': [0, 1], 'activation': 'gelu', 'use_batch_norm': True}, 'use_inverted_ffn': True, 'ffn_config': {'expand_ratio': 4, 'use_depthwise_conv': True, 'activation': 'gelu'}}
+2026-01-25 13:40:32,679 - INFO - Loading dataset...
+2026-01-25 13:40:32,682 - INFO - Starting ImageNet data loading from root: /
+2026-01-25 13:40:32,684 - INFO - Resolved root path: /
+2026-01-25 13:40:32,685 - INFO - Root path exists: True
+2026-01-25 13:40:32,687 - INFO - Root path is dir: True
+2026-01-25 13:40:32,722 - INFO - Contents of /: ['/.exec', '/.run', '/.shell', '/.singularity.d', '/.test', '/bin', '/boot', '/dev', '/environment', '/etc', '/home', '/lib', '/lib64', '/media', '/mnt', '/opt', '/proc', '/requirements.txt', '/root', '/run', '/sbin', '/singularity', '/srv', '/sys', '/tmp', '/usr', '/var', '/meta', '/train_set', '/train_set_small', '/val_set', '/val_set_unlabeled']
+2026-01-25 13:40:32,724 - INFO - Expected train_dir: /train_set, exists: True
+2026-01-25 13:40:32,725 - INFO - Expected val_dir: /val_set, exists: True
+2026-01-25 13:40:46,962 - INFO - Loaded ImageNet data from /: train=1281167, val=50000
+2026-01-25 13:40:49,917 - INFO - Dataset limits applied (stratified sampling enabled)
+2026-01-25 13:40:49,920 - INFO - Dataset loaded: train=100000 samples (782 batches), val=50000 samples (391 batches), test=50000 samples (391 batches)
+2026-01-25 13:40:52,732 - INFO - Training SWIN_IMPROVED from scratch
+2026-01-25 13:40:52,734 - INFO - Initializing SWIN_IMPROVED model from scratch...
+2026-01-25 13:40:52,735 - INFO - Model architecture: SWIN_IMPROVED
+2026-01-25 13:40:52,737 - INFO - Model config: {'type': 'swin_improved', 'variant': 'tiny', 'patch_size': 4, 'embed_dim': 96, 'depths': [2, 2, 6, 2], 'num_heads': [3, 6, 12, 24], 'window_size': 7, 'mlp_ratio': 4.0, 'dropout': 0.0, 'attention_dropout': 0.0, 'projection_dropout': 0.0, 'drop_path_rate': 0.08, 'use_shifted_window': True, 'use_relative_bias': False, 'use_absolute_pos_embed': False, 'use_hierarchical_merge': False, 'use_gradient_checkpointing': True, 'use_conv_stem': True, 'conv_stem_config': {'channels': [48, 96], 'kernel_sizes': [4, 3], 'strides': [4, 2], 'paddings': [0, 1], 'activation': 'gelu', 'use_batch_norm': True}, 'use_inverted_ffn': True, 'ffn_config': {'expand_ratio': 4, 'use_depthwise_conv': True, 'activation': 'gelu'}}
+2026-01-25 13:40:53,913 - INFO - Model created with random initialization
+2026-01-25 13:40:53,915 - INFO - Total parameters: 12,004,210
+2026-01-25 13:40:53,917 - INFO - Trainable parameters: 12,004,210
+2026-01-25 13:40:53,990 - INFO - Compiling model with torch.compile()
+2026-01-25 13:40:57,977 - INFO - Mixed precision enabled → CUDA bf16 selected (hardware supported)
+2026-01-25 13:40:57,979 - INFO - Starting from-scratch training...
+2026-01-25 13:40:57,981 - INFO - Optimizer: training all model parameters
+2026-01-25 13:40:57,986 - INFO - LR Scheduler: cosine with 4 warmup epochs
+2026-01-25 13:40:57,988 - INFO - Starting training...
+2026-01-25 13:41:47,073 - ERROR - Experiment failed with error: InvertedResidualFFN.forward() missing 2 required positional arguments: 'H' and 'W'
+2026-01-25 13:41:47,075 - ERROR - Full traceback:
+Traceback (most recent call last):
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/main.py", line 237, in main
+    run_from_scratch(
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/pipelines/from_scratch.py", line 261, in run_from_scratch
+    criterion, lr_history, metrics_history = _train_single_model(
+                                             ^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/pipelines/from_scratch.py", line 155, in _train_single_model
+    run_training_loop(
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/training/trainer.py", line 187, in run_training_loop
+    train_loss = train_one_epoch(
+                 ^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/training/trainer.py", line 72, in train_one_epoch
+    outputs = model(inputs)
+              ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/_dynamo/eval_frame.py", line 414, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/_dynamo/eval_frame.py", line 832, in compile_wrapper
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/models/model_wrapper.py", line 35, in forward
+    features = self.encoder(x)
+               ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/models/model_factory.py", line 468, in forward
+    x, H, W = layer(x, H, W)
+              ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/models/swin/basic_layer.py", line 182, in forward
+    x = block(x, H, W)
+        ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pml04/swin_transformer/Machine-Learning-Project/src/models/swin/swin_transformer_block.py", line 240, in forward
+    x = x + self.drop_path2(self.mlp(self.norm2(x)))
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: InvertedResidualFFN.forward() missing 2 required positional arguments: 'H' and 'W'

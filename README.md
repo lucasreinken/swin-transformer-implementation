@@ -37,8 +37,15 @@ TRAINING_CONFIG = {
 #### Model Selection
 Choose which model to train from scratch:
 ```python
-MODEL_TYPE = "swin"  # Options: "swin", "vit", "resnet"
+MODEL_TYPE = "swin"  # Options: "swin", "swin_hybrid", "swin_improved", "vit", "resnet"
 ```
+
+**Model Descriptions:**
+- `"swin"`: Baseline Swin Transformer (vanilla implementation)
+- `"swin_hybrid"`: Hybrid CNN-Swin with early fusion (Milestone 3 - first improvement)
+- `"swin_improved"`: **NEW** Advanced Swin with conv stem + inverted residual FFN (Milestone 3 - second improvement)
+- `"vit"`: Vision Transformer baseline
+- `"resnet"`: ResNet-50 baseline
 
 #### Ablation Studies (Swin Transformer Only)
 Enable/disable architectural components for ablation experiments:
@@ -61,12 +68,67 @@ MODEL_CONFIGS = {
 #### Training Configuration
 ```python
 TRAINING_CONFIG = {
-    "learning_rate": 3e-4,    # Scaled for batch_size=128, 50 epochs
-    "num_epochs": 50,         # Full training duration
-    "warmup_epochs": 3,       # Learning rate warmup
+    "learning_rate": 2e-4,    # Conservative LR for testing
+    "num_epochs": 5,          # Quick test run (5 hours)
+    "warmup_epochs": 1,       # Learning rate warmup (~20%)
     "batch_size": 128,        # Optimized with gradient checkpointing
 }
 ```
+
+#### Hybrid CNN-Swin Model (Milestone 3)
+The `swin_hybrid` model implements **early fusion** between a lightweight CNN stem and Swin Transformer:
+
+```python
+MODEL_TYPE = "swin_hybrid"  # Enable hybrid architecture
+```
+
+**Architecture:**
+- **CNN Stem**: 3 convolutional layers (32→64→96 channels) with BatchNorm + GELU
+- **Fusion**: Cascaded (CNN output replaces vanilla patch embedding)
+- **Swin Backbone**: Standard hierarchical transformer with shifted windows
+- **Expected Gain**: +1-4% top-1 accuracy through better local inductive biases
+
+**Configuration:**
+```python
+"cnn_stem_config": {
+    "channels": [32, 64],      # Intermediate channels
+    "kernel_size": 3,          # 3×3 convolutions
+    "stride": 2,               # Downsampling by 8× total
+    "activation": "gelu",      # GELU activation
+    "use_batch_norm": True,    # Batch normalization
+}
+```
+
+#### Advanced Swin Model (Milestone 3 - Second Improvement)
+The `swin_improved` model implements **convolutional stem + inverted residual FFN** for enhanced local feature modeling:
+
+```python
+MODEL_TYPE = "swin_improved"  # Enable advanced architecture
+```
+
+**Architecture Components:**
+- **Convolutional Stem**: Overlapping conv layers (4×4 → 3×3) with BatchNorm + GELU
+- **Inverted Residual FFN**: MobileNetV2-style FFN with depthwise conv and residual connections
+- **Expansion Ratio**: 4× channel expansion with efficient depthwise mixing
+- **Residual Connections**: Around entire FFN blocks for better gradient flow
+
+**Configuration:**
+```python
+"conv_stem_config": {
+    "channels": [48, 96],        # Overlapping conv channels
+    "kernel_sizes": [4, 3],      # First conv kernel 4, second 3
+    "strides": [4, 2],           # Progressive downsampling
+    "activation": "gelu",        # GELU activation
+    "use_batch_norm": True,      # Batch normalization
+},
+"ffn_config": {
+    "expand_ratio": 4,           # Channel expansion ratio
+    "use_depthwise_conv": True,  # Enable depthwise convolution
+    "activation": "gelu",        # Activation function
+}
+```
+
+**Expected Gain**: +1-3% top-1 accuracy through stronger local inductive biases and better feature mixing.
 
 #### Common Ablation Configurations
 

@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from .mlp import MLP
-from .window_attention import WindowAttention
+from .window_attention import WindowAttention, WindowAttentionV2
 from .drop_path import DropPath
 from .window_utils import create_image_mask, window_partition, window_reverse
 
@@ -186,7 +186,9 @@ class SwinTransformerBlock(nn.Module):
         pad_l = pad_t = 0
         pad_r = (self.window_size - W % self.window_size) % self.window_size
         pad_b = (self.window_size - H % self.window_size) % self.window_size
-        x = F.pad(x, (0, 0, pad_l, pad_r, pad_t, pad_b))  # Pad (C, W, H) dimensions: (0, 0, left, right, top, bottom)
+        x = F.pad(
+            x, (0, 0, pad_l, pad_r, pad_t, pad_b)
+        )  # Pad (C, W, H) dimensions: (0, 0, left, right, top, bottom)
         _, Hp, Wp, _ = x.shape
 
         # Disable shifting when there is only one window (resolution <= window_size)
@@ -267,3 +269,220 @@ class SwinTransformerBlock(nn.Module):
         x = x + self.drop_path2(self.mlp(self.norm2(x)))
 
         return x
+
+
+class SwinV2TransformerBlock(nn.Module):
+    """
+    Swin Transformer V2 Block with Residual Post-Normalization.
+
+    Key difference from V1 (SwinTransformerBlock):
+    - V1 (Pre-Norm):  x = x + attn(LayerNorm(x))
+    - V2 (Post-Norm): x = LayerNorm(x + attn(x))
+
+    This change stabilizes activation magnitudes in deeper/larger models,
+    leading to better training stability and often small accuracy improvements.
+
+    Architecture:
+    ┌────────────────────── SWIN V2 BLOCK (POST-NORM) ────────────────────┐
+    │                                                                      │
+    │  Input: [B, H×W, C]                                                  │
+    │      │                                                               │
+    │      ├─────────────────────────┐                                     │
+    │      │                         │  (Residual Connection 1)            │
+    │      ▼                         │                                     │
+    │  Window / Shifted-Window       │                                     │
+    │  Multi-head Self Attention     │                                     │
+    │  (W-MSA or SW-MSA)             │                                     │
+    │      │                         │                                     │
+    │      ▼                         │                                     │
+    │  DropPath (Stochastic Depth)   │                                     │
+    │      │                         │                                     │
+    │      ▼                         │                                     │
+    │  ◄──(+)◄────────────────────────┘                                    │
+    │      │                                                               │
+    │      ▼                                                               │
+    │  LayerNorm (POST-NORM)         │                                     │
+    │      │                                                               │
+    │      ├─────────────────────────┐                                     │
+    │      │                         │  (Residual Connection 2)            │
+    │      ▼                         │                                     │
+    │  MLP (FC → GELU → FC)          │                                     │
+    │      │                         │                                     │
+    │      ▼                         │                                     │
+    │  DropPath (Stochastic Depth)   │                                     │
+    │      │                         │                                     │
+    │      ▼                         │                                     │
+    │  ◄──(+)◄────────────────────────┘                                    │
+    │      │                                                               │
+    │      ▼                                                               │
+    │  LayerNorm (POST-NORM)         │                                     │
+    │      │                                                               │
+    │      ▼                                                               │
+    │  Output: [B, H×W, C]                                                 │
+    │                                                                      │
+    └──────────────────────────────────────────────────────────────────────┘
+
+    Reference: Swin Transformer V2: Scaling Up Capacity and Resolution (Liu et al., 2022)
+    """
+
+    def __init__(
+        self,
+        dim: int,
+        num_heads: int,
+        window_size: int = 7,
+        shift_size: int = 0,
+        mlp_ratio: float = 4.0,
+        dropout: float = 0.0,
+        attention_dropout: float = 0.0,
+        projection_dropout: float = 0.0,
+        drop_path: float = 0.0,
+        use_relative_bias: bool = True,
+        use_absolute_pos_embed: bool = False,
+    ):
+        """
+        Initialize Swin V2 Transformer Block with post-normalization.
+
+        Args:
+            dim: Number of input channels
+            num_heads: Number of attention heads
+            window_size: Window size for local attention (default: 7)
+            shift_size: Shift size for SW-MSA (default: 0 for W-MSA, >0 for SW-MSA)
+            mlp_ratio: Ratio of mlp hidden dim to embedding dim (default: 4.0)
+            dropout: Dropout rate for MLP (default: 0.0)
+            attention_dropout: Dropout rate for attention weights (default: 0.0)
+            projection_dropout: Dropout rate for projection (default: 0.0)
+            drop_path: Stochastic depth rate (default: 0.0)
+            use_relative_bias: Whether to use relative position bias (default: True)
+            use_absolute_pos_embed: Whether to use absolute position embedding (default: False)
+        """
+        super().__init__()
+
+        self.dim = dim
+        self.num_heads = num_heads
+        self.window_size = window_size
+        self.shift_size = shift_size
+        self.mlp_ratio = mlp_ratio
+
+        # Window size validation
+        assert (
+            0 <= self.shift_size < self.window_size
+        ), f"shift_size must be in [0, window_size), got {self.shift_size}"
+
+        # ─────────────────────────────────────────────────────────────
+        # Components (same as V1, but used differently in forward)
+        # ─────────────────────────────────────────────────────────────
+
+        # Window attention module (V2 uses scaled cosine attention)
+        self.attn = WindowAttentionV2(
+            dim=dim,
+            window_size=(window_size, window_size),
+            num_heads=num_heads,
+            attn_dropout=attention_dropout,
+            proj_dropout=projection_dropout,
+            use_relative_bias=use_relative_bias,
+            use_absolute_pos_embed=use_absolute_pos_embed,
+        )
+
+        # MLP module
+        mlp_hidden_dim = int(dim * mlp_ratio)
+        self.mlp = MLP(
+            in_features=dim,
+            hidden_features=mlp_hidden_dim,
+            dropout=dropout,
+        )
+
+        # Layer normalization (applied AFTER residual in V2)
+        self.norm1 = nn.LayerNorm(dim)
+        self.norm2 = nn.LayerNorm(dim)
+
+        # Stochastic depth
+        self.drop_path1 = DropPath(drop_path) if drop_path > 0.0 else nn.Identity()
+        self.drop_path2 = DropPath(drop_path) if drop_path > 0.0 else nn.Identity()
+
+    def forward(self, x: torch.Tensor, H: int, W: int) -> tuple[torch.Tensor, int, int]:
+        """
+        Forward pass with residual post-normalization.
+
+        Args:
+            x: Input feature tensor [B, H*W, C]
+            H: Height of the input feature map
+            W: Width of the input feature map
+
+        Returns:
+            Output tensor [B, H*W, C], height H, width W
+        """
+        B, L, C = x.shape
+        assert L == H * W, f"Input feature has wrong size: L={L}, H*W={H*W}"
+
+        # ─────────────────────────────────────────────────────────────
+        # Block 1: Attention → Residual → LayerNorm (POST-NORM)
+        # ─────────────────────────────────────────────────────────────
+
+        shortcut = x
+        x = x.view(B, H, W, C)
+
+        # Pad feature maps to multiples of window_size
+        pad_l = pad_t = 0
+        pad_r = (self.window_size - W % self.window_size) % self.window_size
+        pad_b = (self.window_size - H % self.window_size) % self.window_size
+        x = F.pad(x, (0, 0, pad_l, pad_r, pad_t, pad_b))
+        _, Hp, Wp, _ = x.shape
+
+        # Cyclic shift for SW-MSA
+        if self.shift_size > 0:
+            shifted_x = torch.roll(
+                x, shifts=(-self.shift_size, -self.shift_size), dims=(1, 2)
+            )
+            # Create attention mask for SW-MSA
+            image_mask = create_image_mask(
+                (Hp, Wp),
+                self.window_size,
+                self.shift_size,
+                device=x.device,
+            )
+            mask_windows = window_partition(image_mask, self.window_size)
+            mask_windows = mask_windows.view(-1, self.window_size * self.window_size)
+            attn_mask = mask_windows.unsqueeze(1) - mask_windows.unsqueeze(2)
+            attn_mask = attn_mask.masked_fill(
+                attn_mask != 0, float(-100.0)
+            ).masked_fill(attn_mask == 0, float(0.0))
+        else:
+            shifted_x = x
+            attn_mask = None
+
+        # Partition windows
+        x_windows = window_partition(shifted_x, self.window_size)
+        x_windows = x_windows.view(-1, self.window_size * self.window_size, C)
+
+        # Apply window attention (NO pre-norm in V2)
+        attn_windows = self.attn(x_windows, attn_mask)
+
+        # Merge windows back
+        attn_windows = attn_windows.view(-1, self.window_size, self.window_size, C)
+        shifted_x = window_reverse(attn_windows, self.window_size, Hp, Wp)
+
+        # Reverse cyclic shift for SW-MSA
+        if self.shift_size > 0:
+            x = torch.roll(
+                shifted_x, shifts=(self.shift_size, self.shift_size), dims=(1, 2)
+            )
+        else:
+            x = shifted_x
+
+        # Remove padding
+        if pad_r > 0 or pad_b > 0:
+            x = x[:, :H, :W, :].contiguous()
+
+        x = x.view(B, H * W, C)
+
+        # V2: Residual first, THEN LayerNorm (post-norm)
+        x = self.norm1(shortcut + self.drop_path1(x))
+
+        # ─────────────────────────────────────────────────────────────
+        # Block 2: MLP → Residual → LayerNorm (POST-NORM)
+        # ─────────────────────────────────────────────────────────────
+
+        # V2: Residual first, THEN LayerNorm (post-norm)
+        x = self.norm2(x + self.drop_path2(self.mlp(x)))
+
+        return x, H, W

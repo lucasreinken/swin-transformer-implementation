@@ -173,14 +173,56 @@ In `config/__init__.py`:
 DATA_ROOT = "/home/space/datasets"  # ← Uncomment for cluster
 ```
 
-## 🏃 Running
+## 🏃 Running Experiments
+
+### **Milestone 3: Swin Architecture Comparison on ImageNet-1K**
+
+To compare different Swin architectural variants (baseline, V2, hybrid, improved), follow these steps:
+
+#### Step 1: Select Model Variant
+Edit `config/imagenet_config.py` and change the `MODEL_TYPE`:
+
+```python
+MODEL_TYPE = "swin"  # ← Change this line
+```
+
+**Available Models:**
+- `"swin"` - Baseline Swin-Tiny (28.3M params)
+- `"swin_v2"` - Swin V2 with post-norm, scaled cosine attention, Log-CPB (31.5M params)
+- `"swin_hybrid"` - CNN-Swin early fusion with 3-stage CNN stem (28.4M params)
+- `"swin_improved"` - Conv stem + inverted residual FFN (28.5M params)
+
+#### Step 2: Run Training
+Submit the job to the cluster:
+
+```bash
+sbatch job.slurm
+```
+
+Check job status:
+```bash
+squeue -u $USER
+```
+
+Monitor logs:
+```bash
+tail -f runs/run_XXX/training.log
+```
+
+#### Step 3: Repeat for All Variants
+To compare all architectures:
+1. Change `MODEL_TYPE` in `config/imagenet_config.py`
+2. Run `sbatch job.slurm`
+3. Repeat for each variant
+
+---
 
 ### Local
 ```bash
 python main.py
 ```
 
-### Cluster
+### Cluster (General)
 ```bash
 sbatch job.slurm
 squeue -u $USER  # Check status

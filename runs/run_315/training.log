@@ -64,3 +64,98 @@
 2026-02-14 11:04:53,037 - INFO - Running first forward pass (torch.compile may take time)...
 2026-02-14 11:04:53,193 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
 2026-02-14 11:04:53,293 - INFO - First batch complete! Loss: 5.8267
+2026-02-14 11:37:19,306 - INFO - Epoch 6/20: LR: 0.000463
+2026-02-14 11:37:19,308 - INFO - Epoch 6/20: Train Loss: 5.6964, Val Loss: 5.2781, Val Acc: 6.39%
+2026-02-14 11:37:23,273 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-14 11:37:23,278 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-14 11:37:23,328 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-14 11:37:23,382 - INFO - First batch complete! Loss: 5.5056
+2026-02-14 12:09:55,061 - INFO - Epoch 7/20: LR: 0.000435
+2026-02-14 12:09:55,088 - INFO - Epoch 7/20: Train Loss: 5.5379, Val Loss: 5.1598, Val Acc: 7.60%
+2026-02-14 12:09:57,617 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-14 12:09:57,622 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-14 12:09:57,672 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-14 12:09:57,732 - INFO - First batch complete! Loss: 5.5202
+2026-02-14 12:40:45,555 - INFO - Epoch 8/20: LR: 0.000401
+2026-02-14 12:40:45,570 - INFO - Epoch 8/20: Train Loss: 5.4066, Val Loss: 4.9646, Val Acc: 9.33%
+2026-02-14 12:40:48,383 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-14 12:40:48,388 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-14 12:40:48,439 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-14 12:40:48,498 - INFO - First batch complete! Loss: 5.2128
+2026-02-14 13:10:21,863 - INFO - Epoch 9/20: LR: 0.000362
+2026-02-14 13:10:21,887 - INFO - Epoch 9/20: Train Loss: 5.2837, Val Loss: 4.8606, Val Acc: 10.30%
+2026-02-14 13:10:24,679 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-14 13:10:24,683 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-14 13:10:24,731 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-14 13:10:24,782 - INFO - First batch complete! Loss: 5.2400
+2026-02-14 13:40:30,979 - INFO - Epoch 10/20: LR: 0.000319
+2026-02-14 13:52:41,306 - INFO - Epoch 10/20: Train Loss: 5.1617, Val Loss: 4.7241, Val Acc: 11.76%, Test Loss: 4.7241, Test Acc: 11.76%
+2026-02-14 13:52:41,312 - INFO - Saving checkpoint for epoch 10...
+2026-02-14 13:52:42,595 - INFO - ✅ Checkpoint saved: runs/run_315/checkpoint_epoch_10.pth
+2026-02-14 13:52:45,329 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-14 13:52:45,334 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-14 13:52:45,435 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-14 13:52:45,500 - INFO - First batch complete! Loss: 5.2271
+2026-02-14 14:22:43,958 - INFO - Epoch 11/20: LR: 0.000274
+2026-02-14 14:22:43,997 - INFO - Epoch 11/20: Train Loss: 5.0363, Val Loss: 4.6093, Val Acc: 13.06%
+2026-02-14 14:22:47,583 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-14 14:22:47,588 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-14 14:22:47,642 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-14 14:22:47,692 - INFO - First batch complete! Loss: 4.8345
+2026-02-14 14:55:18,593 - INFO - Epoch 12/20: LR: 0.000227
+2026-02-14 14:55:18,596 - INFO - Epoch 12/20: Train Loss: 4.9176, Val Loss: 4.5621, Val Acc: 13.55%
+2026-02-14 14:55:21,257 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-14 14:55:21,262 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-14 14:55:21,329 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-14 14:55:21,409 - INFO - First batch complete! Loss: 4.7393
+2026-02-14 15:24:49,985 - INFO - Epoch 13/20: LR: 0.000182
+2026-02-14 15:24:50,018 - INFO - Epoch 13/20: Train Loss: 4.8000, Val Loss: 4.4077, Val Acc: 15.51%
+2026-02-14 15:24:53,345 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-14 15:24:53,350 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-14 15:24:53,428 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-14 15:24:53,485 - INFO - First batch complete! Loss: 4.7157
+2026-02-14 15:59:26,582 - INFO - Epoch 14/20: LR: 0.000139
+2026-02-14 15:59:26,610 - INFO - Epoch 14/20: Train Loss: 4.6888, Val Loss: 4.3457, Val Acc: 16.33%
+2026-02-14 15:59:29,247 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-14 15:59:29,253 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-14 15:59:29,375 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-14 15:59:29,462 - INFO - First batch complete! Loss: 4.5708
+2026-02-14 16:29:17,234 - INFO - Epoch 15/20: LR: 0.000100
+2026-02-14 16:41:27,815 - INFO - Epoch 15/20: Train Loss: 4.5735, Val Loss: 4.2236, Val Acc: 17.83%, Test Loss: 4.2236, Test Acc: 17.83%
+2026-02-14 16:41:30,781 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-14 16:41:30,785 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-14 16:41:30,909 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-14 16:41:31,034 - INFO - First batch complete! Loss: 4.1913
+2026-02-14 17:18:05,957 - INFO - Epoch 16/20: LR: 0.000066
+2026-02-14 17:18:05,960 - INFO - Epoch 16/20: Train Loss: 4.4851, Val Loss: 4.1779, Val Acc: 18.45%
+2026-02-14 17:18:08,439 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-14 17:18:08,446 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-14 17:18:08,535 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-14 17:18:08,591 - INFO - First batch complete! Loss: 4.7627
+2026-02-14 17:47:45,774 - INFO - Epoch 17/20: LR: 0.000038
+2026-02-14 17:47:45,777 - INFO - Epoch 17/20: Train Loss: 4.4063, Val Loss: 4.1328, Val Acc: 19.16%
+2026-02-14 17:47:48,315 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-14 17:47:48,319 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-14 17:47:48,373 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-14 17:47:48,429 - INFO - First batch complete! Loss: 4.4732
+2026-02-14 18:16:57,334 - INFO - Epoch 18/20: LR: 0.000018
+2026-02-14 18:16:57,337 - INFO - Epoch 18/20: Train Loss: 4.3410, Val Loss: 4.0914, Val Acc: 19.70%
+2026-02-14 18:17:00,113 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-14 18:17:00,118 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-14 18:17:00,204 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-14 18:17:00,268 - INFO - First batch complete! Loss: 4.2033
+2026-02-14 18:46:08,947 - INFO - Epoch 19/20: LR: 0.000005
+2026-02-14 18:46:08,949 - INFO - Epoch 19/20: Train Loss: 4.2915, Val Loss: 4.0806, Val Acc: 19.84%
+2026-02-14 18:46:11,648 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-14 18:46:11,653 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-14 18:46:11,705 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-14 18:46:11,763 - INFO - First batch complete! Loss: 4.1085
+2026-02-14 19:15:15,928 - INFO - Epoch 20/20: LR: 0.000001
+2026-02-14 19:27:20,460 - INFO - Epoch 20/20: Train Loss: 4.2733, Val Loss: 4.0695, Val Acc: 20.02%, Test Loss: 4.0695, Test Acc: 20.02%
+2026-02-14 19:27:20,465 - INFO - Saving checkpoint for epoch 20...
+2026-02-14 19:27:21,682 - INFO - ✅ Checkpoint saved: runs/run_315/checkpoint_epoch_20.pth
+2026-02-14 19:27:21,686 - INFO - Training completed!
+2026-02-14 19:27:21,688 - INFO - Generating training curves...
+2026-02-14 19:27:25,198 - INFO - Too many classes (1000) for per-class plotting, skipping
+2026-02-14 19:27:25,199 - INFO - Training curves saved as separate images with base name 'runs/run_315/training_curves_from_scratch'
+2026-02-14 19:27:25,200 - INFO - Generating confusion matrix on test set...

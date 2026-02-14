@@ -1,6 +1,6 @@
 Job started on node: head022
 Allocated GPU(s): 0
-Starting training at Sat Feb 14 21:47:22 CET 2026
+Starting training at Sat Feb 14 21:47:43 CET 2026
 GPU Memory before training:
 10741, 70413, 81920
 9267, 71887, 81920
@@ -10,7 +10,7 @@ GPU Memory before training:
 33149, 48005, 81920
 12682, 68472, 81920
 19357, 61797, 81920
-Training completed at Sat Feb 14 21:47:43 CET 2026
+Training completed at Sat Feb 14 21:48:04 CET 2026
 GPU Memory after training:
 10741, 70413, 81920
 9267, 71887, 81920

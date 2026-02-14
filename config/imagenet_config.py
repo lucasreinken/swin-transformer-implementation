@@ -39,6 +39,7 @@ MODEL_CONFIGS = {
     "swin_v2": {
         "type": "swin_v2",
         "variant": "tiny",
+        "img_size": 224,  # ImageNet standard resolution
         "patch_size": 4,
         "embed_dim": None,  # Auto-set from preset
         "depths": None,  # Auto-set from preset
@@ -58,6 +59,7 @@ MODEL_CONFIGS = {
     "swin_hybrid": {
         "type": "swin_hybrid",
         "variant": "tiny",
+        "img_size": 224,  # ImageNet standard resolution
         "patch_size": 4,
         "embed_dim": None,  # Auto-set from preset
         "depths": None,  # Auto-set from preset
@@ -87,6 +89,7 @@ MODEL_CONFIGS = {
     "swin_improved": {
         "type": "swin_improved",
         "variant": "tiny",
+        "img_size": 224,  # ImageNet standard resolution
         "patch_size": 4,
         "embed_dim": None,  # Auto-set from preset
         "depths": None,  # Auto-set from preset
@@ -123,6 +126,7 @@ MODEL_CONFIGS = {
     "swin_deformable": {
         "type": "swin_deformable",
         "variant": "tiny",
+        "img_size": 224,  # ImageNet standard resolution
         "patch_size": 4,
         "embed_dim": None,  # Auto-set from preset
         "depths": None,  # Auto-set from preset

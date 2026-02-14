@@ -124,3 +124,24 @@
 2025-12-31 11:51:08,309 - INFO - Epoch 42/50: Train Loss: 2.3701, Val Loss: 2.7374, Val Acc: 41.57%
 2025-12-31 12:13:12,044 - INFO - Epoch 43/50: LR: 0.000063
 2025-12-31 12:13:12,048 - INFO - Epoch 43/50: Train Loss: 2.3354, Val Loss: 2.7035, Val Acc: 42.28%
+2025-12-31 12:34:29,492 - INFO - Epoch 44/50: LR: 0.000060
+2025-12-31 12:34:29,523 - INFO - Epoch 44/50: Train Loss: 2.3078, Val Loss: 2.7141, Val Acc: 42.14%
+2025-12-31 12:55:22,667 - INFO - Epoch 45/50: LR: 0.000057
+2025-12-31 13:06:48,956 - INFO - Epoch 45/50: Train Loss: 2.3148, Val Loss: 2.7749, Val Acc: 41.12%, Test Loss: 2.7749, Test Acc: 41.12%
+2025-12-31 13:29:46,815 - INFO - Epoch 46/50: LR: 0.000054
+2025-12-31 13:29:46,837 - INFO - Epoch 46/50: Train Loss: 2.2860, Val Loss: 2.6888, Val Acc: 42.61%
+2025-12-31 13:51:08,531 - INFO - Epoch 47/50: LR: 0.000053
+2025-12-31 13:51:08,536 - INFO - Epoch 47/50: Train Loss: 2.2353, Val Loss: 2.6897, Val Acc: 43.01%
+2025-12-31 14:11:28,046 - INFO - Epoch 48/50: LR: 0.000051
+2025-12-31 14:11:28,051 - INFO - Epoch 48/50: Train Loss: 2.2134, Val Loss: 2.7083, Val Acc: 42.68%
+2025-12-31 14:31:54,472 - INFO - Epoch 49/50: LR: 0.000050
+2025-12-31 14:31:54,491 - INFO - Epoch 49/50: Train Loss: 2.1958, Val Loss: 2.6813, Val Acc: 43.12%
+2025-12-31 14:52:19,009 - INFO - Epoch 50/50: LR: 0.000050
+2025-12-31 15:03:27,856 - INFO - Epoch 50/50: Train Loss: 2.1852, Val Loss: 2.7170, Val Acc: 42.82%, Test Loss: 2.7170, Test Acc: 42.82%
+2025-12-31 15:03:27,861 - INFO - Saving checkpoint for epoch 50...
+2025-12-31 15:03:28,944 - INFO - ✅ Checkpoint saved: runs/run_248/checkpoint_epoch_50.pth
+2025-12-31 15:03:28,950 - INFO - Training completed!
+2025-12-31 15:03:28,952 - INFO - Generating training curves...
+2025-12-31 15:03:32,172 - INFO - Too many classes (1000) for per-class plotting, skipping
+2025-12-31 15:03:32,173 - INFO - Training curves saved as separate images with base name 'runs/run_248/training_curves_from_scratch'
+2025-12-31 15:03:32,175 - INFO - Generating confusion matrix on test set...

@@ -7,7 +7,7 @@ This validates that our custom Swin implementation matches the official one.
 
 import logging
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
 
 import torch
 import torch.nn as nn
@@ -30,6 +30,8 @@ from src.models import (
     LinearClassificationHead,
 )
 
+import torch.amp
+
 from src.training import run_training_loop
 from src.utils.experiment import ExperimentTracker
 from src.utils.load_weights import transfer_weights
@@ -43,6 +45,38 @@ from src.pipelines.utils import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def setup_mixed_precision(device: torch.device) -> Tuple[Optional[torch.dtype], Optional[torch.amp.GradScaler]]:
+    """
+    Configure mixed-precision settings for the current training device.
+
+    Args:
+        device: Target device on which the model will run.
+
+    Returns:
+        Tuple of (amp_dtype, scaler)
+    """
+    use_mp = TRAINING_CONFIG.get("mixed_precision", False)
+
+    if not use_mp:
+        logger.info("Mixed precision disabled → training in float32 precision")
+        return None, None
+
+    if device.type == "cuda":
+        if torch.cuda.is_bf16_supported():
+            logger.info("Mixed precision enabled → CUDA bf16 selected (hardware supported)")
+            return torch.bfloat16, None
+
+        logger.info("Mixed precision enabled → CUDA float16 selected (bf16 unsupported)")
+        return torch.float16, torch.amp.GradScaler(device.type)
+
+    if device.type == "cpu":
+        logger.info("Mixed precision enabled → CPU bf16 selected")
+        return torch.bfloat16, None
+
+    logger.info("Mixed precision requested, but device unsupported → falling back to float32")
+    return None, None
 
 
 def create_reference_model(pretrained_model: str, device: torch.device) -> nn.Module:
@@ -260,6 +294,9 @@ def _train_single_model(
     lr_history = []
     mixup = None
 
+    # Setup mixed precision
+    amp_dtype, scaler = setup_mixed_precision(device)
+
     run_training_loop(
         model,
         train_generator,
@@ -274,6 +311,8 @@ def _train_single_model(
         lr_history,
         mixup,
         device,
+        amp_dtype,
+        scaler,
     )
 
     return criterion, lr_history, metrics_history

@@ -201,6 +201,7 @@ class WindowAttention(nn.Module):
         proj_dropout: float = 0.0,
         use_relative_bias: bool = True,  # Ablation flag: True for learned bias, False for zero bias
         use_absolute_pos_embed: bool = False,  # Ablation flag: True for absolute pos embed (ViT-style)
+        return_attention: bool = False,  # Explainability flag: True to capture attention weights
     ):
         """
         Initialize W-MSA (/ SW-MSA).
@@ -225,6 +226,10 @@ class WindowAttention(nn.Module):
         self.num_heads = num_heads
         self.use_relative_bias = use_relative_bias
         self.use_absolute_pos_embed = use_absolute_pos_embed
+        self.return_attention = return_attention
+        
+        # Storage for attention weights (only used when return_attention=True)
+        self._last_attention_weights = None
 
         self.attn_dropout = nn.Dropout(attn_dropout)
         self.proj_dropout = nn.Dropout(proj_dropout)
@@ -324,6 +329,11 @@ class WindowAttention(nn.Module):
             scores = scores.view(-1, self.num_heads, N, N)  # [wB, nH, N, N]
 
         attn = F.softmax(scores, dim=-1)
+        
+        # Store attention weights if requested (for visualization)
+        if self.return_attention:
+            self._last_attention_weights = attn.detach().clone()
+        
         attn = self.attn_dropout(attn)
         attn_out = torch.matmul(attn, v)  # [wB, nH, N, head_dim]
 

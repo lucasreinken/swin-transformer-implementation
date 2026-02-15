@@ -7,12 +7,14 @@ Training pipelines for different training modes.
 """
 
 from .linear_probing import run_linear_probing
+from .fine_tuning import run_fine_tuning
 from .from_scratch import run_from_scratch
 from .segmentation import run_segmentation_pipeline
 from .simmim import run_simmim_pipeline
 
 __all__ = [
     "run_linear_probing",
+    "run_fine_tuning",
     "run_from_scratch",
     "run_segmentation_pipeline",
     "run_simmim_pipeline",

@@ -14,11 +14,15 @@ class TrainingMode:
     LINEAR_PROBE: Load pretrained weights, freeze encoder, train only classification head.
                   Used for validating model implementation matches reference (milestone 1).
 
+    FINE_TUNE: Load pretrained weights, train full model.
+                  Used for fine-tuning our own ssl model (milestone 3).
+
     FROM_SCRATCH: Random initialization, train full model.
                   Used for training our own baseline model (milestone 2).
     """
 
     LINEAR_PROBE = "linear_probe"
+    FINE_TUNE    = "fine_tune"
     FROM_SCRATCH = "from_scratch"
 
 
@@ -35,6 +39,10 @@ def get_training_mode_settings(mode: str) -> dict:
     settings = {
         TrainingMode.LINEAR_PROBE: {
             "freeze_encoder": True,
+            "use_pretrained": True,
+        },
+        TrainingMode.FINE_TUNE: {
+            "freeze_encoder": False,
             "use_pretrained": True,
         },
         TrainingMode.FROM_SCRATCH: {

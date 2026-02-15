@@ -36,6 +36,8 @@ from src.training import run_training_loop
 from src.utils.experiment import ExperimentTracker
 from src.utils.load_weights import transfer_weights
 
+from src.training.checkpoints import load_model_weights
+
 # Import shared utilities
 from src.pipelines.utils import (
     validate_pretrained_model_name,
@@ -150,7 +152,7 @@ def create_reference_model(pretrained_model: str, device: torch.device) -> nn.Mo
         raise RuntimeError(f"Model creation failed: {e}") from e
 
 
-def create_custom_model(
+def create_custom_model_timm(
     reference_model: nn.Module, model_size: str, device: torch.device
 ) -> nn.Module:
     """Initialize and setup the custom Swin model, then transfer weights."""
@@ -264,6 +266,85 @@ def create_custom_model(
         raise RuntimeError(f"Custom model creation failed: {e}") from e
 
 
+def create_custom_model_checkpoint(
+    checkpoint_path: str | Path,
+    model_size: str,
+    device: torch.device,
+    num_classes: int | None = None,
+    freeze_encoder: bool | None = None,
+) -> nn.Module:
+    """Initialize and setup the custom Swin model, then transfer checkpoint weights."""
+    checkpoint_path = Path(checkpoint_path)
+    if not checkpoint_path.exists():
+        raise FileNotFoundError(f"Checkpoint not found: {checkpoint_path}")
+
+    # Inspect checkpoint structure
+    checkpoint = torch.load(checkpoint_path, map_location='cpu', weights_only=False)
+    if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
+        state_dict = checkpoint["model_state_dict"]
+    else:
+        state_dict = checkpoint
+    
+    logger.info(f"Checkpoint has {len(state_dict)} keys")
+    sample_keys = list(state_dict.keys())[:5]
+    logger.info(f"Sample keys: {sample_keys}")
+    
+    # Check key patterns
+    has_encoder_prefix = any(k.startswith("encoder.") for k in state_dict.keys())
+    has_decoder_keys = any(k.startswith("decoder") for k in state_dict.keys())
+    logger.info(f"Has 'encoder.' prefix: {has_encoder_prefix}")
+    logger.info(f"Has decoder keys: {has_decoder_keys}")
+
+    if model_size not in SWIN_PRESETS:
+        raise ValueError(f"Invalid model_size '{model_size}'. Available: {list(SWIN_PRESETS.keys())}")
+
+    if num_classes is None:
+        num_classes = int(DOWNSTREAM_CONFIG["num_classes"])
+    if freeze_encoder is None:
+        freeze_encoder = bool(DOWNSTREAM_CONFIG["freeze_encoder"])
+
+    logger.info(f"Creating custom Swin encoder (size={model_size}) for downstream task...")
+    encoder = SwinTransformerModel(
+        img_size=SWIN_CONFIG["img_size"],
+        patch_size=SWIN_CONFIG["patch_size"],
+        window_size=SWIN_CONFIG["window_size"],
+        embedding_dim=SWIN_CONFIG["embed_dim"],
+        depths=SWIN_CONFIG["depths"],
+        num_heads=SWIN_CONFIG["num_heads"],
+        mlp_ratio=SWIN_CONFIG["mlp_ratio"],
+        drop_path_rate=SWIN_CONFIG["drop_path_rate"],
+    )
+
+    if not hasattr(encoder, "num_features"):
+        raise AttributeError("Encoder missing 'num_features' attribute")
+
+    logger.info(f"Creating linear head: in_features={encoder.num_features}, num_classes={num_classes}")
+    head = LinearClassificationHead(
+        num_features=encoder.num_features,
+        num_classes=num_classes,
+    )
+
+    model = ModelWrapper(
+        encoder=encoder,
+        pred_head=head,
+        freeze=freeze_encoder,
+    ).to(device)
+
+    logger.info(f"Loading encoder weights from: {checkpoint_path}")
+    model = load_model_weights(
+        model=model,
+        filepath=str(checkpoint_path),
+        device=device,
+        encoder_only=True,
+    )
+
+    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    mode_desc = "head only" if freeze_encoder else "full model"
+    logger.info(f"Custom model ready. Trainable params ({mode_desc}): {trainable_params:,}")
+
+    return model
+    
+
 def _train_single_model(
     model: nn.Module,
     train_generator: DataLoader,
@@ -338,6 +419,7 @@ def _finalize_validation(
         lr_history,
         metrics_history,
         device,
+        None,
         run_dir,
         None,
     )
@@ -406,7 +488,7 @@ def run_linear_probing(
             )
 
         logger.info(f"Detected model size: {model_size}")
-        custom_model = create_custom_model(reference_model, model_size, device)
+        custom_model = create_custom_model_timm(reference_model, model_size, device)
 
     # Train reference model
     reference_tracker = ExperimentTracker(run_dir)

@@ -38,7 +38,7 @@ from src.training.metrics import (
     plot_model_validation_comparison,
 )
 
-from src.utils.visualization import CIFAR100_CLASSES, IMAGENET_CLASSES
+from src.utils.visualization import CIFAR10_CLASSES, CIFAR100_CLASSES, IMAGENET_CLASSES
 
 logger = logging.getLogger(__name__)
 
@@ -89,23 +89,67 @@ def setup_training_components(
 
     For linear probing (freeze_encoder=True): only train the classification head.
     For from-scratch (freeze_encoder=False): train the full model.
+    For LLRD Finetuning (freeze_encoder=False, layer_decay<1.0): train the full model with different learning rates.
     """
     criterion = nn.CrossEntropyLoss()
+
+    # Get LLRD factor from config, default to 1.0 (no decay / standard training)
+    layer_decay = TRAINING_CONFIG.get("layer_decay", 1.0)
+
+    weight_decay = TRAINING_CONFIG.get("weight_decay", 0.05)
 
     # Select parameters to train based on mode
     if DOWNSTREAM_CONFIG["freeze_encoder"]:
         # Linear probing: only train the head
         params_to_train = model.pred_head.parameters()
         logger.info("Optimizer: training head parameters only (encoder frozen)")
+    elif layer_decay < 1.0:
+        logger.info(f"Optimizer: LLRD Enabled (decay rate: {layer_decay})")
+        params_to_train = []
+        
+        # 1. Get Access to Modules
+        encoder = model.encoder if hasattr(model, 'encoder') else model.backbone
+        pred_head = model.pred_head if hasattr(model, 'pred_head') else model.head
+
+        # 2. Define Groups (From Input -> Output)
+        layer_groups = [
+            encoder.patch_embed,
+            encoder.layers[0],
+            encoder.layers[1],
+            encoder.layers[2],
+            encoder.layers[3],
+            pred_head.norm
+        ]
+        
+        num_decay_layers = len(layer_groups) + 1 # +1 for the final linear layer
+        
+        # 3. Apply Decay to Encoder + Norm
+        for i, layer_module in enumerate(layer_groups):
+            decay_power = num_decay_layers - i - 1
+            
+            layer_lr = learning_rate * (layer_decay ** decay_power)
+            
+            params_to_train.append({
+                'params': layer_module.parameters(),
+                'lr': layer_lr,
+                'weight_decay': weight_decay
+            })
+
+        # 4. Apply Base LR to the Final Linear Layer
+        params_to_train.append({
+            'params': pred_head.head["fc"].parameters(),
+            'lr': learning_rate,
+            'weight_decay': weight_decay
+        })
     else:
         # From-scratch: train full model
         params_to_train = model.parameters()
-        logger.info("Optimizer: training all model parameters")
+        logger.info("Optimizer: Standard Full Training (Uniform LR)")
 
     optimizer = torch.optim.AdamW(
         params_to_train,
         lr=learning_rate,
-        weight_decay=TRAINING_CONFIG["weight_decay"],
+        weight_decay=weight_decay,
     )
 
     warmup_start_factor = TRAINING_CONFIG.get("warmup_start_factor", 0.1)
@@ -195,15 +239,16 @@ def generate_reports(
         detailed_metrics=True,
         amp_dtype=amp_dtype
     )
-    plot_confusion_matrix(
-        final_test_metrics["confusion_matrix"],
-        (
-            IMAGENET_CLASSES
-            if DOWNSTREAM_CONFIG["num_classes"] == 1000
-            else CIFAR100_CLASSES
-        ),
-        save_path=str(run_dir / f"confusion_matrix_{variant}.png"),
-    )
+    if DOWNSTREAM_CONFIG["num_classes"] <= 100:
+        plot_confusion_matrix(
+            final_test_metrics["confusion_matrix"],
+            (
+                IMAGENET_CLASSES
+                if DOWNSTREAM_CONFIG["num_classes"] == 1000
+                else CIFAR100_CLASSES
+            ),
+            save_path=str(run_dir / f"confusion_matrix_{variant}.png"),
+        )
 
     # Final evaluation on test set
     logger.info(f"Performing final evaluation of {variant} model on test set...")

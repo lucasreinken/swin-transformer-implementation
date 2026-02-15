@@ -12,22 +12,27 @@ import logging
 
 import torch
 
+import os
+
+import json
+
+from pathlib import Path
+
 from src.data import load_data
 from src.data.transforms import get_default_transforms
 from src.utils.seeds import set_all_seeds, get_worker_init_fn
 from src.utils.experiment import setup_run_directory, setup_logging
 
-from config.imagenet_config import (
-    MODEL_TYPE,
-    MODEL_CONFIGS,
-    TRAINING_CONFIG,
-    SEED_CONFIG,
-)
 from config import (
+    AUGMENTATION_CONFIG,
+    MODEL_TYPE,
     DATA_CONFIG,
     SWIN_CONFIG,
+    MODEL_CONFIGS,
+    TRAINING_CONFIG,
     SWIN_PRESETS,
     DOWNSTREAM_CONFIG,
+    SEED_CONFIG,
     TrainingMode,
 )
 
@@ -211,11 +216,17 @@ def main():
             img_size=DATA_CONFIG["img_size"],
             worker_init_fn=get_worker_init_fn(SEED_CONFIG["seed"]),
         )
-        logger.info(
-            f"Dataset loaded: train={len(train_generator.dataset)} samples ({len(train_generator)} batches), "
-            f"val={len(val_generator.dataset)} samples ({len(val_generator)} batches), "
-            f"test={len(test_generator.dataset)} samples ({len(test_generator)} batches)"
-        )
+        if val_generator:
+            logger.info(
+                f"Dataset loaded: train={len(train_generator.dataset)} samples ({len(train_generator)} batches), "
+                f"val={len(val_generator.dataset)} samples ({len(val_generator)} batches), "
+                f"test={len(test_generator.dataset)} samples ({len(test_generator)} batches)"
+            )
+        else:
+            logger.info(
+                f"Dataset loaded: train={len(train_generator.dataset)} samples ({len(train_generator)} batches), "
+                f"test={len(test_generator.dataset)} samples ({len(test_generator)} batches)"
+            )
 
         # Run mode-specific training pipeline
         if mode == TrainingMode.LINEAR_PROBE:
@@ -235,6 +246,19 @@ def main():
             from src.pipelines import run_from_scratch
 
             run_from_scratch(
+                train_generator,
+                val_generator,
+                test_generator,
+                total_epochs,
+                warmup_epochs,
+                learning_rate,
+                device,
+                run_dir,
+            )
+        elif mode == TrainingMode.FINE_TUNE:
+            from src.pipelines import run_fine_tuning
+
+            run_fine_tuning(
                 train_generator,
                 val_generator,
                 test_generator,

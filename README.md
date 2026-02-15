@@ -466,3 +466,68 @@ Performance on **ADE20K validation** (ImageNet-1K pretrained backbones, UPerNet 
 - Swin-T achieves best performance with hierarchical features
 - DeiT-S requires MultiLevelNeck for pseudo-hierarchical features
 - ResNet-101 provides strong convolutional baseline
+
+---
+
+## 🔍 Attention Analysis & Explainability (Milestone 3)
+
+Visualize and analyze the internal attention patterns and class-discriminative regions of Swin Transformer using self-attention visualization and Grad-CAM.
+
+> **Note:** Uses a separate entry point (`main_explainability.py`) and configuration (`config/explainability_config.py`). Requires ImageNet-1K validation set and pretrained Swin-Tiny weights (loaded automatically from `timm`).
+
+---
+
+### 1. Configuration
+
+All settings are in `config/explainability_config.py`:
+
+**Key Parameters:**
+
+| Parameter | Description | Default |
+| :--- | :--- | :--- |
+| `num_samples` | Total images to analyze | `30` (10 classes × 3 each) |
+| `sampling_strategy` | How to select images | `"diverse_classes"` |
+| `query_strategy` | Which token to use as query | `"center"` |
+| `gradcam_enabled` | Generate Grad-CAM heatmaps | `True` |
+| `per_head_viz` | Per-head attention grids | `True` |
+| `evolution_stages` | Stages for attention evolution | `[0, 1, 2, 3]` |
+| `gradcam_stages` | Stages for Grad-CAM | `[0, 1, 2, 3]` |
+
+---
+
+### 2. Execution
+
+#### Local
+```bash
+python main_explainability.py
+```
+
+#### Cluster (Slurm)
+```bash
+sbatch job_explainability.slurm
+squeue -u $USER
+```
+
+---
+
+### 3. Output & Artifacts
+
+Runs saved to `runs/Attention-analysis-explainability/visualizations/`:
+
+**Per-Sample Directory Structure:**
+```text
+runs/Attention-analysis-explainability/
+└── visualizations/
+    └── sample_{id}_label_{class}/
+        ├── attention_evolution_across_stages.png   # Stages 0–3 heatmaps
+        ├── wmsa_vs_swmsa_stage{N}_center.png       # W-MSA vs SW-MSA comparison
+        ├── combined_wmsa_swmsa_stage{N}.png         # Combined overlay (blue/red/magenta)
+        ├── per_head_stage1.png                      # Individual head attention (Stage 1)
+        ├── per_head_stage2.png                      # Individual head attention (Stage 2)
+        ├── gradcam_multistage_analysis.png          # Grad-CAM across all stages
+        ├── attention_vs_gradcam_stage2.png          # Self-attention vs Grad-CAM side-by-side
+        ├── attention_summary.png                    # Entropy/sparsity bar chart
+        └── attention_statistics.json                # Quantitative metrics + prediction metadata
+```
+
+**Outputs per sample:** 13 files including heatmaps, per-head grids, Grad-CAM overlays, and a JSON file with attention statistics (entropy, sparsity, average distance, max weight) and prediction metadata (class name, confidence, correctness).

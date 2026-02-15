@@ -13,6 +13,7 @@ from .checkpoints import (
 from .metrics import (
     plot_confusion_matrix,
     plot_training_curves,
+    plot_loss_curves,
     plot_lr_schedule,
     plot_model_validation_comparison,
     # Segmentation metrics
@@ -46,6 +47,7 @@ __all__ = [
     "load_model_weights",
     "plot_confusion_matrix",
     "plot_training_curves",
+    "plot_loss_curves",
     "EarlyStopping",
     "plot_lr_schedule",
     "plot_model_validation_comparison",

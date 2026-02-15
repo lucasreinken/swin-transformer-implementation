@@ -77,7 +77,7 @@ def main():
         val_transform = get_default_transforms(dataset_name, img_size=img_size, is_training=False)
         
         # Load data
-        print(f"Loading dataset: {dataset_name}...")
+        logger.info(f"Loading dataset: {dataset_name}...")
         
         train_loader, val_loader, test_loader = load_data(
             dataset=dataset_name,
@@ -95,7 +95,7 @@ def main():
             worker_init_fn=get_worker_init_fn(seed),
         )
         
-        print(f"Dataset loaded: train={len(train_loader.dataset)}, val={len(val_loader.dataset)}")
+        logger.info(f"Dataset loaded: train={len(train_loader.dataset)}, val={len(val_loader.dataset)}")
 
         logger.info(f"Experiment directory: {run_dir}")
         
@@ -122,12 +122,12 @@ def main():
         logger.info(f"Best val loss: {final_metrics.get('best_val_loss', 'N/A')}")
 
     except KeyboardInterrupt:
-        logger.warning("Grid search interrupted by user")
+        logger.warning("Training interrupted by user")
         raise
     except Exception as e:
-        logger.error(f"Grid search failed with error: {e}")
+        logger.error(f"Training failed with error: {e}")
         logger.exception("Full traceback:")
-        raise RuntimeError(f"SimMIM grid search failed: {e}") from e
+        raise RuntimeError(f"SimMIM training search failed: {e}") from e
 
 
 if __name__ == "__main__":

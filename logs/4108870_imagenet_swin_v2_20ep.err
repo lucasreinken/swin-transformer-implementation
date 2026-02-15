@@ -100,3 +100,21 @@ INFO:    gocryptfs not found, will not be able to use gocryptfs
 2026-02-15 19:13:36,255 - INFO - Running first forward pass (torch.compile may take time)...
 2026-02-15 19:13:36,288 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
 2026-02-15 19:13:36,313 - INFO - First batch complete! Loss: 4.5918
+2026-02-15 19:32:01,748 - INFO - Epoch 11/20: LR: 0.000274
+2026-02-15 19:32:01,749 - INFO - Epoch 11/20: Train Loss: 4.9418, Val Loss: 4.5773, Val Acc: 13.49%
+2026-02-15 19:32:03,398 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-15 19:32:03,402 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-15 19:32:03,458 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-15 19:32:03,510 - INFO - First batch complete! Loss: 5.0588
+2026-02-15 19:50:30,620 - INFO - Epoch 12/20: LR: 0.000227
+2026-02-15 19:50:30,622 - INFO - Epoch 12/20: Train Loss: 4.8152, Val Loss: 4.4476, Val Acc: 14.46%
+2026-02-15 19:50:32,311 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-15 19:50:32,315 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-15 19:50:32,349 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-15 19:50:32,376 - INFO - First batch complete! Loss: 4.8079
+2026-02-15 20:08:54,056 - INFO - Epoch 13/20: LR: 0.000182
+2026-02-15 20:08:54,057 - INFO - Epoch 13/20: Train Loss: 4.6882, Val Loss: 4.3591, Val Acc: 15.64%
+2026-02-15 20:08:55,755 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-15 20:08:55,760 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-15 20:08:55,815 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-15 20:08:55,860 - INFO - First batch complete! Loss: 4.3802

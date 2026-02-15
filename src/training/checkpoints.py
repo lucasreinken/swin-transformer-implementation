@@ -9,6 +9,8 @@ from typing import Tuple, Optional
 import os
 import logging
 
+from config import DOWNSTREAM_CONFIG, TrainingMode
+
 logger = logging.getLogger(__name__)
 
 
@@ -161,7 +163,9 @@ def load_model_weights(
     else:
         model.load_state_dict(state_dict, strict=False)
         logger.info(f"Full model weights loaded from {filepath}")
-
-    model.eval()
+    
+    mode = DOWNSTREAM_CONFIG.get("mode", None)
+    if not mode or mode is not TrainingMode.LINEAR_PROBE:
+        model.eval()
     
     return model

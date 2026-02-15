@@ -176,8 +176,8 @@ def run_training_loop(
     lr_history,
     mixup,
     device,
-    amp_dtype,
-    scaler,
+    amp_dtype: Optional[torch.dtype] = None,
+    scaler: Optional[torch.amp.GradScaler] = None,
     start_epoch=0,
     run_dir=None,
     checkpoint_frequency=10,
@@ -209,9 +209,10 @@ def run_training_loop(
         )
 
         # Validate every epoch
-        val_loss, val_accuracy, val_metrics = evaluate_model(
-            model, val_generator, criterion, device, amp_dtype=amp_dtype
-        )
+        if val_generator:
+            val_loss, val_accuracy, val_metrics = evaluate_model(
+                model, val_generator, criterion, device, amp_dtype=amp_dtype
+            )
 
         # Clear GPU cache after validation to prevent memory accumulation
         if device.type == "cuda":
@@ -219,16 +220,17 @@ def run_training_loop(
 
         # Store metrics
         metrics_history["train_loss"].append(train_loss)
-        metrics_history["val_loss"].append(val_loss)
-        metrics_history["val_accuracy"].append(val_accuracy)
-        if "f1_score" in val_metrics:
-            metrics_history["val_f1"].append(val_metrics["f1_score"])
-        if "precision" in val_metrics:
-            metrics_history["val_precision"].append(val_metrics["precision"])
-        if "recall" in val_metrics:
-            metrics_history["val_recall"].append(val_metrics["recall"])
-        if "f1_per_class" in val_metrics:
-            metrics_history["val_f1_per_class"].append(val_metrics["f1_per_class"])
+        if val_generator:
+            metrics_history["val_loss"].append(val_loss)
+            metrics_history["val_accuracy"].append(val_accuracy)
+            if "f1_score" in val_metrics:
+                metrics_history["val_f1"].append(val_metrics["f1_score"])
+            if "precision" in val_metrics:
+                metrics_history["val_precision"].append(val_metrics["precision"])
+            if "recall" in val_metrics:
+                metrics_history["val_recall"].append(val_metrics["recall"])
+            if "f1_per_class" in val_metrics:
+                metrics_history["val_f1_per_class"].append(val_metrics["f1_per_class"])
 
         if scheduler:
             scheduler.step()
@@ -252,16 +254,30 @@ def run_training_loop(
             metrics_history["test_loss"].append(test_loss)
             metrics_history["test_accuracy"].append(test_accuracy)
 
-            logger.info(
-                f"Epoch {epoch+1}/{num_epochs}: "
-                f"Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Val Acc: {val_accuracy:.2f}%, "
-                f"Test Loss: {test_loss:.4f}, Test Acc: {test_accuracy:.2f}%"
-            )
+            if val_generator:
+                logger.info(
+                    f"Epoch {epoch+1}/{num_epochs}: "
+                    f"Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Val Acc: {val_accuracy:.2f}%, "
+                    f"Test Loss: {test_loss:.4f}, Test Acc: {test_accuracy:.2f}%"
+                )
+            else:
+                logger.info(
+                    f"Epoch {epoch+1}/{num_epochs}: "
+                    f"Train Loss: {train_loss:.4f}, "
+                    f"Test Loss: {test_loss:.4f}, Test Acc: {test_accuracy:.2f}%"
+                )
         else:
-            logger.info(
-                f"Epoch {epoch+1}/{num_epochs}: "
-                f"Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Val Acc: {val_accuracy:.2f}%"
-            )
+            if val_generator:
+                logger.info(
+                    f"Epoch {epoch+1}/{num_epochs}: "
+                    f"Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Val Acc: {val_accuracy:.2f}%"
+                )
+            else:
+                logger.info(
+                    f"Epoch {epoch+1}/{num_epochs}: "
+                    f"Train Loss: {train_loss:.4f}"
+                )
+
 
         if run_dir and (epoch + 1) % checkpoint_frequency == 0:
             checkpoint_path = run_dir / f"checkpoint_epoch_{epoch+1}.pth"

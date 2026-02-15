@@ -219,3 +219,92 @@ class SCINDataset(Dataset):
             return img_tensor, case_idx, image_key
 
         return img_tensor
+
+
+class SD198Dataset(Dataset):
+    """
+    SD-198 classification dataset.
+
+    Args:
+        root: dataset root folder (either the global root, or directly sd198 root)
+        split: "train" | "val" | "test"
+        transform: torchvision-style transform applied to PIL image
+        class_to_idx: optional mapping to enforce consistent class indices across splits
+    """
+
+    def __init__(
+        self,
+        root: str,
+        split: str = "train",
+        transform: Optional[callable] = None,
+        class_to_idx: Optional[dict] = None,
+    ):
+        self.root = Path(root)
+        self.split = split
+        self.transform = transform
+
+        # Allow passing either ".../datasets" or ".../datasets/sd198"
+        sd198_root = self.root if self.root.name.lower() == "sd198" else (self.root / "sd198")
+
+        # Two possible layouts
+        candidates = [
+            sd198_root / split,
+            sd198_root / "images" / split,
+        ]
+
+        self.split_dir = None
+        for c in candidates:
+            if c.exists() and c.is_dir():
+                self.split_dir = c
+                break
+
+        if self.split_dir is None:
+            raise RuntimeError(
+                f"SD198 split folder not found. Tried: {candidates}"
+            )
+
+        # Class discovery
+        class_dirs = sorted([p for p in self.split_dir.iterdir() if p.is_dir()])
+        if not class_dirs:
+            raise RuntimeError(f"No class folders found in {self.split_dir}")
+
+        if class_to_idx is None:
+            classes = [p.name for p in class_dirs]
+            self.class_to_idx = {cls_name: i for i, cls_name in enumerate(classes)}
+        else:
+            self.class_to_idx = dict(class_to_idx)
+
+        # Collect samples
+        exts = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
+        samples: List[Tuple[Path, int]] = []
+
+        for cls_dir in class_dirs:
+            cls_name = cls_dir.name
+            if cls_name not in self.class_to_idx:
+                # If user provided a mapping that doesn't include this class, skip
+                continue
+
+            label = int(self.class_to_idx[cls_name])
+            for img_path in cls_dir.rglob("*"):
+                if img_path.is_file() and img_path.suffix.lower() in exts:
+                    samples.append((img_path, label))
+
+        if not samples:
+            raise RuntimeError(f"No images found in {self.split_dir}")
+
+        self.samples = samples
+
+    def __len__(self) -> int:
+        return len(self.samples)
+
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, int]:
+        img_path, label = self.samples[idx]
+        image = Image.open(img_path).convert("RGB")
+
+        if self.transform:
+            image = self.transform(image)
+        else:
+            from torchvision.transforms import functional as TF
+            image = TF.to_tensor(image)
+
+        return image, label

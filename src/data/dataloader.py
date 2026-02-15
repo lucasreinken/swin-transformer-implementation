@@ -23,7 +23,7 @@ from huggingface_hub.utils import logging as hf_logging
 
 from config import DATA_CONFIG, SEED_CONFIG
 
-from .datasets import CIFAR10Dataset, ADE20KDataset, SCINDataset
+from .datasets import CIFAR10Dataset, ADE20KDataset, SCINDataset, SD198Dataset
 from .transforms import get_default_transforms
 from ..utils.seeds import set_worker_seeds
 
@@ -401,6 +401,283 @@ def _load_scin_data(
     return train_dataset, val_dataset, test_dataset
 
 
+# ---------------------------------------------------------------------
+# SD-198 helper functions
+# ---------------------------------------------------------------------
+def _looks_like_class_dir(p: Path) -> bool:
+    if not p.is_dir():
+        return False
+    for f in p.rglob("*"):
+        if f.is_file() and f.suffix.lower() in {".jpg", ".jpeg", ".png", ".webp", ".bmp"}:
+            return True
+    return False
+
+
+def _find_imagefolder_root(root: Path) -> Path:
+    """
+    Find a directory that looks like an ImageFolder root:
+    it has many subdirs, each containing images.
+    """
+    best = None
+    best_score = -1
+
+    for d in root.rglob("*"):
+        if not d.is_dir():
+            continue
+
+        subdirs = [x for x in d.iterdir() if x.is_dir()]
+        if len(subdirs) < 20:
+            continue
+
+        # score = how many of the first N subdirs contain images
+        good = 0
+        probe = subdirs[:200]
+        for sd in probe:
+            if _looks_like_class_dir(sd):
+                good += 1
+
+        if good > best_score:
+            best_score = good
+            best = d
+
+    if best is None:
+        raise RuntimeError(
+            "Could not auto-detect SD-198 ImageFolder root. "
+            "Inspect sd198_raw/ and set the path manually."
+        )
+
+    return best
+
+
+def _safe_link_or_copy(src: Path, dst: Path) -> None:
+    """
+    Try symlink first (fast, no duplication). If not possible, copy.
+    """
+    dst.parent.mkdir(parents=True, exist_ok=True)
+
+    # If already exists, do nothing
+    if dst.exists():
+        return
+
+    try:
+        os.symlink(src, dst)
+    except Exception:
+        shutil.copy2(src, dst)
+
+
+def _materialize_splits(
+    imagefolder_root: Path,
+    out_root: Path,
+    val_frac: float,
+    test_frac: float,
+    seed: int,
+) -> None:
+    """
+    Create on-disk splits:
+      out_root/train/<class>/*
+      out_root/val/<class>/*
+      out_root/test/<class>/*
+    using per-class stratified splitting (deterministic).
+    """
+
+    marker = out_root / ".splits_ok"
+    if marker.exists():
+        logger.info(f"SD-198 splits already prepared at {out_root}")
+        return
+
+    class_dirs = sorted([p for p in imagefolder_root.iterdir() if p.is_dir()])
+    if not class_dirs:
+        raise RuntimeError(f"No class folders found in {imagefolder_root}")
+
+    logger.info(f"Preparing SD-198 splits from {len(class_dirs)} classes...")
+
+    # Ensure clean target (avoid partial split states)
+    if out_root.exists():
+        shutil.rmtree(out_root)
+    out_root.mkdir(parents=True, exist_ok=True)
+
+    rng = np.random.RandomState(seed)
+
+    for cls_dir in class_dirs:
+        cls_name = cls_dir.name
+        imgs = sorted([p for p in cls_dir.rglob("*") if p.is_file() and p.suffix.lower() in {".jpg", ".jpeg", ".png", ".webp", ".bmp"}])
+
+        if len(imgs) == 0:
+            continue
+
+        idx = np.arange(len(imgs))
+
+        # test split
+        if test_frac > 0:
+            idx_trainval, idx_test = train_test_split(
+                idx, test_size=test_frac, random_state=seed, shuffle=True
+            )
+        else:
+            idx_trainval, idx_test = idx, np.array([], dtype=int)
+
+        # val split from trainval
+        if val_frac > 0:
+            idx_train, idx_val = train_test_split(
+                idx_trainval, test_size=val_frac, random_state=seed, shuffle=True
+            )
+        else:
+            idx_train, idx_val = idx_trainval, np.array([], dtype=int)
+
+        # Link/copy files into split dirs
+        for split_name, split_idx in [("train", idx_train), ("val", idx_val), ("test", idx_test)]:
+            for i in split_idx:
+                src = imgs[int(i)]
+                dst = out_root / split_name / cls_name / src.name
+                _safe_link_or_copy(src, dst)
+
+    # Write marker + metadata
+    meta = {
+        "imagefolder_root": str(imagefolder_root),
+        "val_frac": float(val_frac),
+        "test_frac": float(test_frac),
+        "seed": int(seed),
+    }
+    (out_root / "split_meta.json").write_text(json.dumps(meta, indent=2))
+    marker.write_text("ok")
+    logger.info(f"SD-198 splits prepared at {out_root}")
+
+
+def _download_sd198(data_dir: Path) -> None:
+    """
+    Download + extract SD-198 zip into:
+      data_dir/sd198_raw/...
+    """
+    logger.info(f"Downloading SD-198 zip to {data_dir}...")
+    data_dir.mkdir(parents=True, exist_ok=True)
+
+    # detect zip file name in repo
+    repo_files = list_repo_files(repo_id="resyhgerwshshgdfghsdfgh/SD-198", repo_type="dataset")
+    zip_name = None
+    for cand in ("sd-198.zip", "sd198.zip", "SD-198.zip", "sd_198.zip"):
+        if cand in repo_files:
+            zip_name = cand
+            break
+    if zip_name is None:
+        # fallback: first .zip in repo
+        zips = [f for f in repo_files if f.lower().endswith(".zip")]
+        if not zips:
+            raise FileNotFoundError(
+                f"No zip found in HF repo {"resyhgerwshshgdfghsdfgh/SD-198"}. Files: {repo_files[:20]}"
+            )
+        zip_name = zips[0]
+
+    logger.info(f"Detected SD-198 zip in repo: {zip_name}")
+
+    zip_path = hf_hub_download(
+        repo_id="resyhgerwshshgdfghsdfgh/SD-198",
+        filename=zip_name,
+        repo_type="dataset",
+    )
+
+    extract_root = data_dir / "sd198_raw"
+    extract_root.mkdir(parents=True, exist_ok=True)
+    marker = extract_root / ".extracted_ok"
+
+    if not marker.exists():
+        logger.info(f"Extracting SD-198 zip to {extract_root}...")
+        with zipfile.ZipFile(zip_path, "r") as z:
+            z.extractall(extract_root)
+        marker.write_text("ok")
+        logger.info("Extraction complete.")
+    else:
+        logger.info(f"Extraction marker found. Reusing existing extraction at {extract_root}.")
+
+
+def _load_sd198_data(
+    train_transformation: Callable,
+    val_transformation: Callable,
+    root: str,
+    val_frac: float = 0.10,
+    test_frac: float = 0.10,
+) -> Tuple[
+    "torch.utils.data.Dataset",
+    "torch.utils.data.Dataset",
+    "torch.utils.data.Dataset",
+]:
+    """
+    Load SD-198 for classification (filesystem-based).
+
+    Then:
+    - extract zip to <data_root>/sd198_raw
+    - auto-detect ImageFolder root (198 class dirs)
+    - create split folders under <data_root>/sd198/{train,val,test}/<class>
+    - return SD198Dataset(train/val/test)
+    """
+
+    shared_path = Path("/home/space/datasets/sd198")
+    user_path = Path.home() / "datasets" / "sd198"
+    local_path = Path(root) / "sd198"
+
+    if shared_path.exists():
+        data_root = shared_path
+        logger.info(f"Using shared SD-198 dataset from {data_root}")
+    elif user_path.exists():
+        data_root = user_path
+        logger.info(f"Using user SD-198 dataset from {data_root}")
+    elif local_path.exists():
+        data_root = local_path
+        logger.info(f"Using local SD-198 dataset from {data_root}")
+    else:
+        data_root = user_path
+        logger.info(f"SD-198 dataset not found. Downloading to {data_root}...")
+        _download_sd198(data_root)
+
+    # Ensure extracted
+    _download_sd198(data_root)
+
+    extract_root = data_root / "sd198_raw"
+    imagefolder_root = _find_imagefolder_root(extract_root)
+    logger.info(f"Detected SD-198 ImageFolder root: {imagefolder_root}")
+
+    # Materialize split folders expected by SD198Dataset
+    split_root = data_root / "sd198"
+    seed = int(SEED_CONFIG.get("seed", 42))
+    _materialize_splits(
+        imagefolder_root=imagefolder_root,
+        out_root=split_root,
+        val_frac=val_frac,
+        test_frac=test_frac,
+        seed=seed,
+    )
+
+    # Build datasets
+    train_dataset = SD198Dataset(
+        root=str(split_root),
+        split="train",
+        transform=train_transformation,
+    )
+    if val_frac > 0.0:
+        val_dataset = SD198Dataset(
+            root=str(split_root),
+            split="val",
+            transform=val_transformation,
+            class_to_idx=train_dataset.class_to_idx,
+        )
+    else:
+        val_dataset = None
+    if test_frac > 0.0:
+        test_dataset = SD198Dataset(
+            root=str(split_root),
+            split="test",
+            transform=val_transformation,
+            class_to_idx=train_dataset.class_to_idx,
+        )
+    else:
+        test_dataset = None
+    
+    logger.info(
+        f"Loaded SD-198 from {split_root}: "
+        f"train={len(train_dataset)}, val=0, test={len(test_dataset)}"
+    )
+
+    return train_dataset, val_dataset, test_dataset
+
+
 def _load_imagenet_data(
     transformation: Callable,
     val_transformation: Callable,
@@ -476,26 +753,31 @@ def _create_dataloaders(
         persistent_workers=True if num_workers > 0 else False,
         worker_init_fn=set_worker_seeds if num_workers > 0 else None,
     )
+    if val_dataset:
+        val_loader = DataLoader(
+            val_dataset,
+            batch_size=batch_size,
+            shuffle=False,
+            num_workers=num_workers,
+            pin_memory=True,
+            persistent_workers=True if num_workers > 0 else False,
+            worker_init_fn=set_worker_seeds if num_workers > 0 else None,
+        )
+    else:
+        val_loader = None
 
-    val_loader = DataLoader(
-        val_dataset,
-        batch_size=batch_size,
-        shuffle=False,
-        num_workers=num_workers,
-        pin_memory=True,
-        persistent_workers=True if num_workers > 0 else False,
-        worker_init_fn=set_worker_seeds if num_workers > 0 else None,
-    )
-
-    test_loader = DataLoader(
-        test_dataset,
-        batch_size=batch_size,
-        shuffle=False,
-        num_workers=num_workers,
-        pin_memory=True,
-        persistent_workers=True if num_workers > 0 else False,
-        worker_init_fn=set_worker_seeds if num_workers > 0 else None,
-    )
+    if test_dataset:
+        test_loader = DataLoader(
+            test_dataset,
+            batch_size=batch_size,
+            shuffle=False,
+            num_workers=num_workers,
+            pin_memory=True,
+            persistent_workers=True if num_workers > 0 else False,
+            worker_init_fn=set_worker_seeds if num_workers > 0 else None,
+        )
+    else:
+        test_loader = None
 
     return train_loader, val_loader, test_loader
 
@@ -625,6 +907,14 @@ def load_data(
             root,
             val_frac=DATA_CONFIG.get("val_frac", 0.10),
             test_frac=DATA_CONFIG.get("test_frac", 0.00),
+        )
+    elif dataset == "SD198":
+        train_dataset, val_dataset, test_dataset = _load_sd198_data(
+            transformation,
+            val_transformation,
+            root,
+            val_frac=DATA_CONFIG.get("val_frac", 0.10),
+            test_frac=DATA_CONFIG.get("test_frac", 0.10),
         )
     else:
         raise ValueError(f"Dataset {dataset} not supported.")

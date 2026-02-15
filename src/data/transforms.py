@@ -181,7 +181,7 @@ def get_default_transforms(
     if is_training:
         if dataset in ["CIFAR10", "CIFAR100"]:
             return get_cifar_training_transforms(img_size)
-        if dataset in ["SCIN"]:
+        if dataset in ["SCIN", "SD198"]:
             return get_derm_training_transforms(img_size)
         else:
             return get_imagenet_training_transforms(img_size)

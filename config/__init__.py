@@ -15,6 +15,7 @@ from .base_config import (
 # DATASET = "cifar100"
 # DATASET = "ade20k"
 # DATASET = "scin"
+# DATASET = "sd198"
 DATASET = "imagenet"
 
 # Data root configuration - choose one based on environment
@@ -93,6 +94,17 @@ def _load_config():
             MODEL_TYPE
         )
         from .imagenet_config import (
+            MODEL_CONFIGS
+        )
+    elif DATASET == "sd198":
+        from .sd198_config import (
+            AUGMENTATION_CONFIG,
+            DATA_CONFIG,
+            DOWNSTREAM_CONFIG,
+            TRAINING_CONFIG,
+            VALIDATION_CONFIG,
+            SWIN_CONFIG,
+            MODEL_TYPE,
             MODEL_CONFIGS
         )
     else:

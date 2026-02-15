@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --partition=gpu-teaching-5h    # 5-hour partition for shorter runs
+#SBATCH --partition=gpu-teaching-7d    # 7-day partition for longer runs
 #SBATCH --gpus=1
-#SBATCH --time=05:00:00                 # 5 hours for 20 epochs
+#SBATCH --time=168:00:00                 # 7 days for 20 epochs
 #SBATCH --job-name=imagenet_swin_v2_20ep        # Updated for 20 epochs and model type
 #SBATCH --output=logs/%j_%x.out          # includes job name → easier to find
 #SBATCH --error=logs/%j_%x.err

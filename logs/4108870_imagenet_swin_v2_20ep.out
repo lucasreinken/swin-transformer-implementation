@@ -3,3 +3,7 @@ Allocated GPU(s): 0
 Starting training at Sun Feb 15 15:45:56 CET 2026
 GPU Memory before training:
 0, 81153, 81920
+Training completed at Sun Feb 15 22:42:32 CET 2026
+GPU Memory after training:
+1603, 79550, 81920
+Job finished

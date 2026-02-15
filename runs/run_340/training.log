@@ -144,3 +144,18 @@
 2026-02-15 21:49:01,408 - INFO - Running first forward pass (torch.compile may take time)...
 2026-02-15 21:49:01,460 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
 2026-02-15 21:49:01,487 - INFO - First batch complete! Loss: 4.0909
+2026-02-15 22:07:19,578 - INFO - Epoch 19/20: LR: 0.000005
+2026-02-15 22:07:19,595 - INFO - Epoch 19/20: Train Loss: 4.1393, Val Loss: 3.9598, Val Acc: 21.19%
+2026-02-15 22:07:21,213 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-15 22:07:21,217 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-15 22:07:21,281 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-15 22:07:21,325 - INFO - First batch complete! Loss: 4.0112
+2026-02-15 22:26:14,181 - INFO - Epoch 20/20: LR: 0.000001
+2026-02-15 22:33:38,563 - INFO - Epoch 20/20: Train Loss: 4.1140, Val Loss: 3.9564, Val Acc: 21.22%, Test Loss: 3.9564, Test Acc: 21.22%
+2026-02-15 22:33:38,565 - INFO - Saving checkpoint for epoch 20...
+2026-02-15 22:33:39,500 - INFO - ✅ Checkpoint saved: runs/run_340/checkpoint_epoch_20.pth
+2026-02-15 22:33:39,504 - INFO - Training completed!
+2026-02-15 22:33:39,505 - INFO - Generating training curves...
+2026-02-15 22:33:41,577 - INFO - Too many classes (1000) for per-class plotting, skipping
+2026-02-15 22:33:41,578 - INFO - Training curves saved as separate images with base name 'runs/run_340/training_curves_from_scratch'
+2026-02-15 22:33:41,579 - INFO - Generating confusion matrix on test set...

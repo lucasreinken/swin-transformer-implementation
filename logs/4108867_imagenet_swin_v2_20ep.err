@@ -149,3 +149,9 @@ W0215 15:42:03.955000 574456 site-packages/torch/_inductor/utils.py:1558] [0/0] 
 2026-02-15 22:00:14,487 - INFO - Running first forward pass (torch.compile may take time)...
 2026-02-15 22:00:14,563 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
 2026-02-15 22:00:14,606 - INFO - First batch complete! Loss: 4.1829
+2026-02-15 22:19:59,121 - INFO - Epoch 19/20: LR: 0.000005
+2026-02-15 22:19:59,141 - INFO - Epoch 19/20: Train Loss: 4.1280, Val Loss: 3.9538, Val Acc: 21.25%
+2026-02-15 22:20:01,105 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-15 22:20:01,114 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-15 22:20:01,151 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-15 22:20:01,192 - INFO - First batch complete! Loss: 3.9866

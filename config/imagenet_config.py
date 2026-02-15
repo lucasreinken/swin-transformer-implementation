@@ -12,7 +12,7 @@ from .base_config import (
 )
 
 # Model type selection for comparison experiments
-MODEL_TYPE = "swin_improved"  # Options: "swin", "swin_v2", "swin_hybrid", "swin_improved", "swin_deformable", "vit", "resnet"
+MODEL_TYPE = "swin_hybrid"  # Options: "swin", "swin_v2", "swin_hybrid", "swin_improved", "swin_deformable", "vit", "resnet"
 
 # Model configurations for all types
 MODEL_CONFIGS = {
@@ -39,6 +39,7 @@ MODEL_CONFIGS = {
     "swin_v2": {
         "type": "swin_v2",
         "variant": "tiny",
+        "img_size": 224,  # ImageNet standard resolution
         "patch_size": 4,
         "embed_dim": None,  # Auto-set from preset
         "depths": None,  # Auto-set from preset
@@ -58,6 +59,7 @@ MODEL_CONFIGS = {
     "swin_hybrid": {
         "type": "swin_hybrid",
         "variant": "tiny",
+        "img_size": 224,  # ImageNet standard resolution
         "patch_size": 4,
         "embed_dim": None,  # Auto-set from preset
         "depths": None,  # Auto-set from preset
@@ -87,6 +89,7 @@ MODEL_CONFIGS = {
     "swin_improved": {
         "type": "swin_improved",
         "variant": "tiny",
+        "img_size": 224,  # ImageNet standard resolution
         "patch_size": 4,
         "embed_dim": None,  # Auto-set from preset
         "depths": None,  # Auto-set from preset
@@ -123,6 +126,7 @@ MODEL_CONFIGS = {
     "swin_deformable": {
         "type": "swin_deformable",
         "variant": "tiny",
+        "img_size": 224,  # ImageNet standard resolution
         "patch_size": 4,
         "embed_dim": None,  # Auto-set from preset
         "depths": None,  # Auto-set from preset
@@ -181,9 +185,6 @@ DATA_CONFIG = {
     "stratified": True,  # Maintain class distribution in train/test split for balanced sampling
 }
 
-# Swin Transformer configuration (legacy - kept for compatibility)
-SWIN_CONFIG = MODEL_CONFIG if MODEL_TYPE == "swin" else {}
-
 # Apply preset values for None fields (only for Swin variants)
 for model_type in [
     "swin",
@@ -194,6 +195,10 @@ for model_type in [
 ]:
     if model_type in MODEL_CONFIGS:
         apply_swin_preset(MODEL_CONFIGS[model_type], SWIN_PRESETS)
+
+# Swin Transformer configuration (legacy - kept for compatibility)
+# Set SWIN_CONFIG to current model config for all Swin variants
+SWIN_CONFIG = MODEL_CONFIG
 
 # =============================================================================
 # Downstream Task Configuration

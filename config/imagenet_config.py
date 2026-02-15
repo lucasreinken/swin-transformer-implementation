@@ -204,7 +204,7 @@ SWIN_CONFIG = MODEL_CONFIG
 # Downstream Task Configuration
 # =============================================================================
 # Training mode: "linear_probe" or "from_scratch"
-_TRAINING_MODE = TrainingMode.LINEAR_PROBE
+_TRAINING_MODE = TrainingMode.FROM_SCRATCH
 _mode_settings = get_training_mode_settings(_TRAINING_MODE)
 
 DOWNSTREAM_CONFIG = {

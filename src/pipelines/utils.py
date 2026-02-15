@@ -9,7 +9,7 @@ from datetime import datetime
 import json
 import logging
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional, Callable
 
 import torch
 import torch.nn as nn
@@ -436,3 +436,233 @@ def generate_segmentation_reports(
     logger.info(f"Final metrics saved to {metrics_path}")
     
     return final_metrics
+
+# =============================================================================
+# SimMIM-Specific Functions (SimMIM / MAE-style)
+# =============================================================================
+
+class RandomMaskGenerator:
+    """
+    Generates a binary mask at patch-grid resolution.
+
+    Output shape: [B, Gh, Gw] with values in {0,1}
+    1 = masked, 0 = visible
+    """
+    def __init__(self, mask_ratio: float):
+        if not (0.0 < mask_ratio < 1.0):
+            raise ValueError("mask_ratio must be in (0,1)")
+        self.mask_ratio = float(mask_ratio)
+
+    @torch.no_grad()
+    def __call__(self, batch_size: int, grid_h: int, grid_w: int, device: torch.device) -> torch.Tensor:
+        L = grid_h * grid_w
+        num_mask = int(round(L * self.mask_ratio))
+
+        # Per-sample random permutation, take first num_mask positions
+        noise = torch.rand(batch_size, L, device=device)
+        ids = torch.argsort(noise, dim=1)
+
+        mask = torch.zeros(batch_size, L, device=device, dtype=torch.float32)
+        mask.scatter_(1, ids[:, :num_mask], 1.0)
+        return mask.view(batch_size, grid_h, grid_w)
+
+
+def _build_param_groups_with_wd_exclusions(
+    model: nn.Module,
+    base_lr: float,
+    weight_decay: float,
+):
+    """
+    Split parameters into AdamW decay and no_decay groups.
+
+    no_decay includes:
+    - all bias terms
+    - all LayerNorm parameters (anything with 'norm' in name)
+    - relative position bias tables
+    - absolute position embeddings (if present)
+    - SimMIM mask token
+    """
+    decay, no_decay = [], []
+
+    for name, p in model.named_parameters():
+        if not p.requires_grad:
+            continue
+
+        name_l = name.lower()
+        if (
+            name.endswith(".bias")
+            or "norm" in name_l
+            or "relative_position_bias" in name_l
+            or "absolute_pos" in name_l
+            or "mask_token" in name_l
+        ):
+            no_decay.append(p)
+        else:
+            decay.append(p)
+
+    logger.info(
+        f"AdamW param groups: decay={len(decay)} tensors, no_decay={len(no_decay)} tensors"
+    )
+
+    return [
+        {"params": decay, "lr": base_lr, "weight_decay": weight_decay},
+        {"params": no_decay, "lr": base_lr, "weight_decay": 0.0},
+    ]
+
+
+def setup_simmim_training_components(
+    model: nn.Module,
+    total_epochs: int,
+    warmup_epochs: int,
+    learning_rate: float,
+    weight_decay: float = 0.05,
+    training_config: Optional[Dict] = None,
+    simmim_config: Optional[Dict] = None,
+) -> Tuple[
+    Optional[nn.Module],
+    torch.optim.Optimizer,
+    torch.optim.lr_scheduler._LRScheduler,
+    Callable,
+]:
+    """
+    Setup optimizer, scheduler, and mask generator for SimMIM.
+
+    Notes:
+    - criterion is None because SimMIM forward returns the loss directly.
+    - returns mask_generator so training loop can do:
+        mask = mask_generator(B, Gh, Gw, device)
+        loss = model(images, mask)
+
+    Returns:
+        (criterion=None, optimizer, scheduler, mask_generator)
+    """
+    training_config = training_config or {}
+    simmim_config = simmim_config or {}
+
+    # Criterion not used for SimMIM-style forward(loss)
+    criterion = None
+
+    # Optimizer with proper weight-decay exclusions
+    param_groups = _build_param_groups_with_wd_exclusions(
+        model=model,
+        base_lr=learning_rate,
+        weight_decay=weight_decay,
+    )
+    optimizer = torch.optim.AdamW(
+        param_groups,
+        lr=learning_rate,
+        weight_decay=weight_decay
+    )
+
+    # Warmup + cosine schedule
+    warmup_start_factor = float(training_config.get("warmup_start_factor", 0.1))
+    min_lr_factor = float(training_config.get("min_lr_factor", 0.01))
+    min_lr = learning_rate * min_lr_factor
+
+    warmup_epochs = int(warmup_epochs)
+    total_epochs = int(total_epochs)
+
+    warmup_scheduler = LinearLR(
+        optimizer,
+        start_factor=warmup_start_factor,
+        total_iters=max(1, warmup_epochs),
+    )
+    main_scheduler = CosineAnnealingLR(
+        optimizer,
+        T_max=max(1, total_epochs - warmup_epochs),
+        eta_min=min_lr,
+    )
+    scheduler = SequentialLR(
+        optimizer,
+        schedulers=[warmup_scheduler, main_scheduler],
+        milestones=[warmup_epochs],
+    )
+
+    logger.info(f"LR Scheduler: cosine with {warmup_epochs} warmup epochs")
+    logger.info(f"Learning rate: {learning_rate}, min_lr: {min_lr}")
+
+    # Mask generator (expects to return [B, Gh, Gw] with 0/1)
+    mask_ratio = simmim_config.get("mask_ratio", 0.9)
+
+    mask_generator = RandomMaskGenerator(mask_ratio=mask_ratio)
+    logger.info(f"Mask generator: RandomMaskGenerator(mask_ratio={mask_ratio})")
+
+    return criterion, optimizer, scheduler, mask_generator
+
+
+def generate_simmim_reports(
+    model,
+    variant: str,
+    val_loader,
+    lr_history: List[float],
+    metrics_history: Dict[str, List],
+    device,
+    amp_dtype,
+    run_dir,
+):
+    """
+    Generate SimMIM training reports.
+
+    Uses already-recorded metrics_history. Does not re-run evaluation.
+    """
+    from src.training import (
+        plot_loss_curves,
+        plot_lr_schedule,
+    )
+
+    # Curves
+    logger.info("Generating SimMIM training curves...")
+    epochs = range(1, len(metrics_history.get("train_loss", [])) + 1)
+    plot_loss_curves(
+        epochs=epochs,
+        metrics_history=metrics_history,
+        base_path=str(run_dir / f"simmim_curves_{variant}"),
+    )
+
+    # LR schedule
+    if lr_history:
+        logger.info("Generating LR schedule plot...")
+        plot_lr_schedule(
+            lr_history,
+            save_path=str(run_dir / f"lr_schedule_{variant}.png"),
+        )
+
+    # Final losses from history
+    final_train_loss = None
+    if metrics_history.get("train_loss"):
+        final_train_loss = float(metrics_history["train_loss"][-1])
+
+    final_val_loss = None
+    best_val_loss = None
+    best_epoch = None
+
+    if metrics_history.get("val_loss"):
+        # val_loss may contain nan if val_loader was None, filter those out
+        vals = metrics_history["val_loss"]
+        valid = [(i, v) for i, v in enumerate(vals) if v is not None]
+        if valid:
+            best_i, best_v = min(valid, key=lambda t: t[1])
+            best_epoch = int(best_i + 1)
+            best_val_loss = float(best_v)
+            final_val_loss = float(vals[-1]) if vals[-1] is not None else None
+
+    logger.info(f"Final train loss (last epoch): {final_train_loss:.6f}" if final_train_loss is not None else "Final train loss: None")
+    if best_val_loss is not None:
+        logger.info(f"Best val loss: {best_val_loss:.6f} (epoch {best_epoch})")
+    else:
+        logger.info("Best val loss: None")
+
+    metrics_json = {
+        "train_loss": final_train_loss,
+        "val_loss": final_val_loss,
+        "best_val_loss": best_val_loss,
+        "best_epoch": best_epoch,
+        "epochs": int(len(metrics_history.get("train_loss", [])) or 0),
+    }
+
+    metrics_path = run_dir / f"final_metrics_{variant}.json"
+    with open(metrics_path, "w") as f:
+        json.dump(metrics_json, f, indent=2)
+    logger.info(f"Final metrics saved to {metrics_path}")
+
+    return metrics_json

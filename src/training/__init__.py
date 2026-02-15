@@ -28,6 +28,11 @@ from .segmentation_trainer import (
     evaluate_segmentation,
     run_segmentation_training_loop,
 )
+from .simmim_trainer import (
+    train_one_epoch_simmim,
+    evaluate_simmim,
+    run_simmim_training_loop,
+)
 from .early_stopping import EarlyStopping
 
 
@@ -55,4 +60,8 @@ __all__ = [
     "train_one_epoch_segmentation",
     "evaluate_segmentation",
     "run_segmentation_training_loop",
+    # SimMIM trainer
+    "train_one_epoch_simmim",
+    "evaluate_simmim",
+    "run_simmim_training_loop",
 ]

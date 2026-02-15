@@ -14,6 +14,7 @@ from .base_config import (
 # DATASET = "cifar10"
 # DATASET = "cifar100"
 # DATASET = "ade20k"
+# DATASET = "scin"
 DATASET = "imagenet"
 
 # Data root configuration - choose one based on environment
@@ -27,6 +28,7 @@ def _load_config():
     """Load the appropriate config based on DATASET environment variable."""
     global AUGMENTATION_CONFIG, DATA_CONFIG, DOWNSTREAM_CONFIG, TRAINING_CONFIG
     global VALIDATION_CONFIG, SWIN_CONFIG
+    global MODEL_TYPE, MODEL_CONFIGS, MODEL_CONFIGS
 
     if DATASET == "cifar10":
         from .cifar10_config import (
@@ -37,6 +39,10 @@ def _load_config():
             VALIDATION_CONFIG,
             SWIN_CONFIG,
         )
+        from .imagenet_config import (
+            MODEL_TYPE,
+            MODEL_CONFIGS
+        )
     elif DATASET == "cifar100":
         from .cifar100_config import (
             AUGMENTATION_CONFIG,
@@ -45,6 +51,10 @@ def _load_config():
             TRAINING_CONFIG,
             VALIDATION_CONFIG,
             SWIN_CONFIG,
+        )
+        from .imagenet_config import (
+            MODEL_TYPE,
+            MODEL_CONFIGS
         )
     elif DATASET == "imagenet":
         from .imagenet_config import (
@@ -55,6 +65,10 @@ def _load_config():
             VALIDATION_CONFIG,
             SWIN_CONFIG,
         )
+        from .imagenet_config import (
+            MODEL_TYPE,
+            MODEL_CONFIGS
+        )
     elif DATASET == "ade20k":
         from .ade20k_config import (
             AUGMENTATION_CONFIG,
@@ -63,6 +77,23 @@ def _load_config():
             TRAINING_CONFIG,
             VALIDATION_CONFIG,
             SWIN_CONFIG,
+        )
+        from .imagenet_config import (
+            MODEL_TYPE,
+            MODEL_CONFIGS
+        )
+    elif DATASET == "scin":
+        from .simmim_config import (
+            AUGMENTATION_CONFIG,
+            DATA_CONFIG,
+            DOWNSTREAM_CONFIG,
+            TRAINING_CONFIG,
+            VALIDATION_CONFIG,
+            SWIN_CONFIG,
+            MODEL_TYPE
+        )
+        from .imagenet_config import (
+            MODEL_CONFIGS
         )
     else:
         raise ValueError(
@@ -98,5 +129,7 @@ __all__ = [
     "VALIDATION_CONFIG",
     "SWIN_CONFIG",
     "TrainingMode",
+    "MODEL_TYPE",
+    "MODEL_CONFIGS",
     "get_pretrained_swin_name",
 ]

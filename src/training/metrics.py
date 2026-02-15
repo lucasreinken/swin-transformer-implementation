@@ -488,14 +488,21 @@ def plot_loss_curves(
     epochs: range,
     metrics_history: Dict[str, List[float]],
     base_path: str,
-    figsize: Tuple[int, int],
+    figsize: Tuple[int, int] = (10, 6),
 ):
     """Plot training and validation loss curves."""
     plt.figure(figsize=figsize)
     plt.plot(
         epochs, metrics_history["train_loss"], "b-", label="Train Loss", linewidth=2
     )
-    plt.plot(epochs, metrics_history["val_loss"], "r-", label="Val Loss", linewidth=2)
+    if "val_loss" in metrics_history and metrics_history["val_loss"]:
+        plt.plot(
+            epochs,
+            metrics_history["val_loss"],
+            "r-",
+            label="Val Loss",
+            linewidth=2,
+        )
     plt.title("Loss Curves")
     plt.xlabel("Epochs")
     plt.ylabel("Loss")

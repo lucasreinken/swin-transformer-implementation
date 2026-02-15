@@ -90,14 +90,78 @@ def load_model_weights(
     model: nn.Module,
     filepath: str = "trained_models/model_weights.pth",
     device: Optional[torch.device] = None,
+    encoder_only: bool = False,
 ) -> nn.Module:
-    """Load model weights for inference."""
+    """
+    Load model weights robustly.
+    Handles 'encoder.', 'backbone.', or no-prefix keys for SimMIM compatibility.
+    """
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"Weights file not found: {filepath}")
 
-    state_dict = torch.load(filepath, map_location=device, weights_only=True)
-    model.load_state_dict(state_dict)
-    model.eval()
+    # Load checkpoint
+    checkpoint = torch.load(filepath, map_location=device or 'cpu', weights_only=False)
+    
+    # Handle wrapping (e.g. {'model': ...} or {'state_dict': ...})
+    if isinstance(checkpoint, dict):
+        if "model" in checkpoint:
+            state_dict = checkpoint["model"]
+        elif "model_state_dict" in checkpoint:
+            state_dict = checkpoint["model_state_dict"]
+        elif "state_dict" in checkpoint:
+            state_dict = checkpoint["state_dict"]
+        else:
+            state_dict = checkpoint
+    else:
+        state_dict = checkpoint
 
-    logger.info(f"✅ Model weights loaded: {filepath}")
+    if encoder_only:
+        if not hasattr(model, "encoder"):
+            raise AttributeError("Model has no 'encoder' attribute")
+
+        new_state_dict = {}
+        
+        # 1. Check if keys generally have prefixes
+        has_encoder_prefix = any(k.startswith("encoder.") for k in state_dict.keys())
+        has_backbone_prefix = any(k.startswith("backbone.") for k in state_dict.keys())
+        
+        for k, v in state_dict.items():
+            # Skip decoder/head keys entirely
+            if "decoder" in k or "head" in k or "mask_token" in k:
+                continue
+
+            # Standardize keys to match timm (remove prefixes)
+            new_k = k
+            if has_encoder_prefix and k.startswith("encoder."):
+                new_k = k.replace("encoder.", "", 1)
+            elif has_backbone_prefix and k.startswith("backbone."):
+                new_k = k.replace("backbone.", "", 1)
+            
+            # Skip relative_position_index (causes shape mismatch errors in Swin)
+            if "relative_position_index" in new_k:
+                continue
+                
+            new_state_dict[new_k] = v
+
+        if not new_state_dict:
+            # Try loading directly if keys match loosely
+            logger.warning("No prefixed keys found. Attempting to load state_dict directly into encoder.")
+            new_state_dict = {k: v for k, v in state_dict.items() if "decoder" not in k}
+
+        # Load into the encoder submodule
+        missing, unexpected = model.encoder.load_state_dict(
+            new_state_dict,
+            strict=False,
+        )
+
+        logger.info(
+            f"Encoder weights loaded from {filepath} "
+            f"(missing={len(missing)}, unexpected={len(unexpected)})"
+        )
+    else:
+        model.load_state_dict(state_dict, strict=False)
+        logger.info(f"Full model weights loaded from {filepath}")
+
+    model.eval()
+    
     return model

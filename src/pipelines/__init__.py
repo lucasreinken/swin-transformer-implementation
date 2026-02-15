@@ -9,9 +9,11 @@ Training pipelines for different training modes.
 from .linear_probing import run_linear_probing
 from .from_scratch import run_from_scratch
 from .segmentation import run_segmentation_pipeline
+from .simmim import run_simmim_pipeline
 
 __all__ = [
     "run_linear_probing",
     "run_from_scratch",
     "run_segmentation_pipeline",
+    "run_simmim_pipeline",
 ]

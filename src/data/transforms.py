@@ -84,6 +84,54 @@ def get_imagenet_training_transforms(img_size: int) -> Callable:
         ]
     )
 
+def get_derm_training_transforms(img_size: int) -> Callable:
+    """
+    Generic training transforms for dermatologic classification datasets.
+    """
+    
+    # 1. Base Geometric Transforms
+    transforms_list = [
+        transforms.Resize(256),
+        transforms.RandomResizedCrop(
+            img_size,
+            scale=AUGMENTATION_CONFIG.get("crop_scale", (0.7, 1.0)),
+        ),
+    ]
+
+    # 2. Flips / Rotation (Skin has no orientation)
+    if AUGMENTATION_CONFIG.get("horizontal_flip", False):
+        transforms_list.append(transforms.RandomHorizontalFlip(p=0.5))
+
+    if AUGMENTATION_CONFIG.get("vertical_flip", False):
+        transforms_list.append(transforms.RandomVerticalFlip(p=0.5))
+
+    rotation_deg = AUGMENTATION_CONFIG.get("rotation", 0)
+    if rotation_deg > 0:
+        transforms_list.append(transforms.RandomRotation(rotation_deg))
+
+    # 3. Color Augmentation
+    if AUGMENTATION_CONFIG.get("color_jitter", 0.0) > 0:
+        cj = AUGMENTATION_CONFIG["color_jitter"]
+        transforms_list.append(
+            transforms.ColorJitter(
+                brightness=cj,
+                contrast=cj,
+                saturation=cj,
+                hue=0.0  # Keep hue fixed to preserve diagnostic color features
+            )
+        )
+
+    # 4. Normalization
+    transforms_list += [
+        transforms.ToTensor(),
+        transforms.Normalize(
+            mean=AUGMENTATION_CONFIG["mean"],
+            std=AUGMENTATION_CONFIG["std"],
+        ),
+    ]
+
+    return transforms.Compose(transforms_list)
+
 
 def get_validation_transforms(img_size: int) -> Callable:
     """Get validation/test transforms (same for all datasets)."""
@@ -133,6 +181,8 @@ def get_default_transforms(
     if is_training:
         if dataset in ["CIFAR10", "CIFAR100"]:
             return get_cifar_training_transforms(img_size)
+        if dataset in ["SCIN"]:
+            return get_derm_training_transforms(img_size)
         else:
             return get_imagenet_training_transforms(img_size)
     else:

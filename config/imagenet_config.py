@@ -212,6 +212,8 @@ DOWNSTREAM_CONFIG = {
     "head_type": "linear_classification",
     "num_classes": 1000,
     "hidden_dim": None,
+    "use_reference_model": True,   # True only when you want the timm-vs-custom sanity check
+    "pretrained_path": None,
     # Auto-set based on mode
     "freeze_encoder": _mode_settings["freeze_encoder"],
     "use_pretrained": _mode_settings["use_pretrained"],

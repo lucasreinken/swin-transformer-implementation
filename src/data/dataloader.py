@@ -5,21 +5,38 @@ Data loading utilities for different datasets.
 import torch
 from torch.utils.data import DataLoader
 import pickle
+import zipfile
 import numpy as np
 import os
-from typing import Optional, Tuple, Callable
+import json
+import shutil
+from typing import Callable, Tuple, Optional, Dict, List
 from pathlib import Path
 from torchvision import datasets
 from torch.utils.data import Subset
 from sklearn.model_selection import train_test_split
 
-from config import DATA_CONFIG
+from datasets import load_dataset as hf_load_dataset
+from datasets.utils.logging import set_verbosity_error, disable_progress_bar
+from huggingface_hub import hf_hub_download, list_repo_files
+from huggingface_hub.utils import logging as hf_logging
 
-from .datasets import CIFAR10Dataset, ADE20KDataset
+from config import DATA_CONFIG, SEED_CONFIG
+
+from .datasets import CIFAR10Dataset, ADE20KDataset, SCINDataset
 from .transforms import get_default_transforms
 from ..utils.seeds import set_worker_seeds
 
 import logging
+
+set_verbosity_error()
+disable_progress_bar()
+hf_logging.set_verbosity_error()
+
+logging.getLogger("urllib3").setLevel(logging.ERROR)
+logging.getLogger("httpx").setLevel(logging.ERROR)
+logging.getLogger("datasets").setLevel(logging.ERROR)
+logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
 
 logger = logging.getLogger(__name__)
 
@@ -143,13 +160,12 @@ def _load_cifar100_data(
     train_dataset, _ = torch.utils.data.random_split(
         train_dataset,
         [train_size, val_size],
-        generator=torch.Generator().manual_seed(42),
+        generator=torch.Generator().manual_seed(SEED_CONFIG.get("seed", 42)),
     )
-
     _, val_dataset = torch.utils.data.random_split(
         val_full_dataset,
         [train_size, val_size],
-        generator=torch.Generator().manual_seed(42),
+       generator=torch.Generator().manual_seed(SEED_CONFIG.get("seed", 42)),
     )
 
     return train_dataset, val_dataset, test_dataset
@@ -290,8 +306,99 @@ def _load_ade20k_data(
     return train_dataset, val_dataset, test_dataset
 
 
-# src/data/dataloader.py
-# ... existing code ...
+def _download_scin(data_dir: Path):
+    """
+    Force download SCIN into a controlled cache directory.
+    """
+    logger.info(f"Downloading SCIN dataset to {data_dir}...")
+    data_dir.mkdir(parents=True, exist_ok=True)
+
+    # force_download ensures full materialization
+    hf_load_dataset(
+        "google/scin",
+        split="train",
+        cache_dir=str(data_dir),
+        download_mode="force_redownload"
+    )
+
+    logger.info("SCIN dataset download complete.")
+
+def _load_scin_data(
+    train_transformation,
+    val_transformation,
+    root: str,
+    val_frac: float = 0.10,
+    test_frac: float = 0.0,
+):
+    """
+    Load SCIN with explicit storage control.
+    """
+
+    shared_path = Path("/home/space/datasets/scin")
+    user_path = Path.home() / "datasets" / "scin"
+    local_path = Path(root) / "scin"
+
+    data_root = None
+
+    # 1) Shared storage
+    if shared_path.exists():
+        data_root = shared_path
+        logger.info(f"Using shared SCIN dataset from {data_root}")
+
+    # 2) User directory
+    elif user_path.exists():
+        data_root = user_path
+        logger.info(f"Using user SCIN dataset from {data_root}")
+
+    # 3) Local project directory
+    elif local_path.exists():
+        data_root = local_path
+        logger.info(f"Using local SCIN dataset from {data_root}")
+
+    # 4) Download if none found
+    else:
+        data_root = user_path
+        logger.info(f"SCIN dataset not found. Downloading to {data_root}...")
+        _download_scin(data_root)
+
+    # Load without re-downloading
+    hf = hf_load_dataset(
+        "google/scin",
+        split="train",
+        cache_dir=str(data_root),
+        download_mode="reuse_dataset_if_exists"
+    )
+
+    # ---- Case split (no leakage) ----
+
+    n_cases = len(hf)
+    idx = np.arange(n_cases)
+
+    if test_frac > 0:
+        train_idx, test_idx = train_test_split(idx, test_size=test_frac, random_state=SEED_CONFIG.get("seed", 42))
+    else:
+        train_idx, test_idx = idx, np.array([], dtype=int)
+
+    if val_frac > 0:
+        train_idx, val_idx = train_test_split(train_idx, test_size=val_frac, random_state=SEED_CONFIG.get("seed", 42))
+    else:
+        val_idx = np.array([], dtype=int)
+
+    hf_train = hf.select(train_idx.tolist())
+    hf_val = hf.select(val_idx.tolist()) if len(val_idx) > 0 else hf.select(train_idx[:1].tolist())
+    hf_test = hf.select(test_idx.tolist()) if len(test_idx) > 0 else hf.select(val_idx.tolist())
+
+    train_dataset = SCINDataset(hf_train, transform=train_transformation)
+    val_dataset = SCINDataset(hf_val, transform=val_transformation)
+    test_dataset = SCINDataset(hf_test, transform=val_transformation)
+
+    logger.info(
+        f"Loaded SCIN from {data_root}: "
+        f"cases train={len(hf_train)}, val={len(hf_val)}, test={len(hf_test)} | "
+        f"images train={len(train_dataset)}, val={len(val_dataset)}, test={len(test_dataset)}"
+    )
+
+    return train_dataset, val_dataset, test_dataset
 
 
 def _load_imagenet_data(
@@ -339,7 +446,7 @@ def _load_imagenet_data(
         val_dataset, _ = torch.utils.data.random_split(
             val_dataset,
             [val_size, len(val_dataset) - val_size],
-            generator=torch.Generator().manual_seed(42),
+            generator=torch.Generator().manual_seed(SEED_CONFIG.get("seed", 42)),
         )
 
     # Use the official ImageNet validation set as our test set
@@ -393,7 +500,7 @@ def _create_dataloaders(
     return train_loader, val_loader, test_loader
 
 
-def _subset(dataset, n, stratified, seed=42):
+def _subset(dataset, n, stratified):
     """
     Return a subset of size n from a dataset,
     optionally preserving class distribution when stratified.
@@ -402,7 +509,7 @@ def _subset(dataset, n, stratified, seed=42):
         subset, _ = torch.utils.data.random_split(
             dataset,
             [n, len(dataset) - n],
-            generator=torch.Generator().manual_seed(seed),
+            generator=torch.Generator().manual_seed(SEED_CONFIG.get("seed", 42)),
         )
         return subset
 
@@ -415,7 +522,7 @@ def _subset(dataset, n, stratified, seed=42):
         idx,
         train_size=n,
         stratify=targets,
-        random_state=seed,
+        random_state=SEED_CONFIG.get("seed", 42),
     )
     return Subset(dataset, idx_sub)
 
@@ -510,13 +617,23 @@ def load_data(
         train_dataset, val_dataset, test_dataset = _load_ade20k_data(
             transformation, val_transformation, root
         )
+    elif dataset == "SCIN":
+        # For SSL, stratified is not used (no labels).
+        train_dataset, val_dataset, test_dataset = _load_scin_data(
+            transformation,
+            val_transformation,
+            root,
+            val_frac=DATA_CONFIG.get("val_frac", 0.10),
+            test_frac=DATA_CONFIG.get("test_frac", 0.00),
+        )
     else:
         raise ValueError(f"Dataset {dataset} not supported.")
 
-    # Apply dataset size limits if specified
-    train_dataset, val_dataset, test_dataset = _apply_dataset_limits(
-        train_dataset, val_dataset, test_dataset, n_train, n_test, stratified
-    )
+    if n_train or n_test:
+        # Apply dataset size limits if specified
+        train_dataset, val_dataset, test_dataset = _apply_dataset_limits(
+            train_dataset, val_dataset, test_dataset, n_train, n_test, stratified
+        )
 
     # Create DataLoaders
     return _create_dataloaders(

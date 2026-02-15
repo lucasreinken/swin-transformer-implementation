@@ -12,6 +12,8 @@ from .segmentation_wrapper import SegmentationModelWrapper
 from .resnet_encoder import ResNetFeatureExtractor, ResNetSegmentationWrapper
 from .deit_encoder import DeiTFeatureExtractor, DeiTSegmentationWrapper
 from .heads import LinearClassificationHead, UperNetHead
+from .simmim import SwinTransformerForSimMIM
+from .simmim_wrapper import SimMIM
 
 
 def create_model(config):
@@ -1260,5 +1262,52 @@ def create_deit_segmentation_model(deit_config, downstream_config):
         f"head={param_counts['head']:,}, total={param_counts['total']:,}, "
         f"trainable={param_counts['trainable']:,}"
     )
+
+    return model
+
+def create_simmim_model(
+    swin_config: dict,
+    simmim_config: dict,
+    load_pretrained: bool = False,
+    downstream_config: dict | None = None,
+):
+    # 1) Build encoder
+    encoder = SwinTransformerForSimMIM(
+        img_size=swin_config["img_size"],
+        patch_size=swin_config["patch_size"],
+        embedding_dim=swin_config["embed_dim"],
+        depths=swin_config["depths"],
+        num_heads=swin_config["num_heads"],
+        window_size=swin_config["window_size"],
+        mlp_ratio=swin_config["mlp_ratio"],
+        dropout_rate=swin_config.get("dropout", 0.0),
+        attention_dropout_rate=swin_config.get("attention_dropout", 0.0),
+        projection_dropout_rate=swin_config.get("projection_dropout", 0.0),
+        drop_path_rate=swin_config.get("drop_path_rate", 0.0),
+        use_gradient_checkpointing=swin_config.get("use_gradient_checkpointing", False),
+    )
+
+    # 2) Wrap into SimMIM model
+    model = SimMIM(
+        config=simmim_config,
+        encoder=encoder,
+        encoder_stride=32,
+        in_chans=3,
+        patch_size=swin_config["patch_size"],
+    )
+
+    # 3) Load ImageNet weights into encoder
+    if downstream_config is None:
+        downstream_config = {}
+
+    if load_pretrained and downstream_config.get("use_pretrained", True):
+        from src.utils.load_weights import transfer_weights
+
+        pretrained_model_name = f"swin_{swin_config['variant']}_patch{swin_config['patch_size']}_window{swin_config['window_size']}_224"
+        stats = transfer_weights(
+            custom_model=model,
+            model_name=pretrained_model_name,
+            encoder_only=True,
+        )
 
     return model

@@ -88,3 +88,11 @@
 2026-02-15 18:47:37,844 - INFO - Running first forward pass (torch.compile may take time)...
 2026-02-15 18:47:37,908 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
 2026-02-15 18:47:37,940 - INFO - First batch complete! Loss: 4.7838
+2026-02-15 19:06:04,767 - INFO - Epoch 10/20: LR: 0.000319
+2026-02-15 19:13:33,416 - INFO - Epoch 10/20: Train Loss: 5.0769, Val Loss: 4.6433, Val Acc: 12.23%, Test Loss: 4.6433, Test Acc: 12.23%
+2026-02-15 19:13:33,417 - INFO - Saving checkpoint for epoch 10...
+2026-02-15 19:13:34,413 - INFO - ✅ Checkpoint saved: runs/run_340/checkpoint_epoch_10.pth
+2026-02-15 19:13:36,253 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-15 19:13:36,255 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-15 19:13:36,288 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-15 19:13:36,313 - INFO - First batch complete! Loss: 4.5918

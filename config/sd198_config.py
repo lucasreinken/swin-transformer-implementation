@@ -105,6 +105,7 @@ DOWNSTREAM_CONFIG = {
 
     # SimMIM checkpoint path (None: timm pretrained weights; "random": random initialized weights)
     "pretrained_path": "/home/pml17/Machine-Learning-Project/runs/run_438/best_model.pth",
+    # "/home/pml17/Machine-Learning-Project/runs/run_452/best_model.pth"
 
     # Auto-set by mode
     "freeze_encoder": _mode_settings["freeze_encoder"],
@@ -116,8 +117,8 @@ DOWNSTREAM_CONFIG = {
 # =============================================================================
 TRAINING_CONFIG = {
     "learning_rate": 5e-4,  # Reduced from 0.0015 for fine-tuning
-    "num_epochs": 2,
-    "warmup_epochs": 1,     # Increase slightly to stabilize early training
+    "num_epochs": 50,
+    "warmup_epochs": 5,     # Increase slightly to stabilize early training
     "warmup_start_factor": 1e-6, # Start very small
     "weight_decay": 0.1,        # Increased from 0.05
     "layer_decay": 0.65,        # Critical for preserving pre-trained features

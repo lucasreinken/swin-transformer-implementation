@@ -1,0 +1,61 @@
+{
+  "timestamp": "2026-02-13T21:38:45.171266",
+  "variant": "swin_simmim",
+  "config": {
+    "swin_config": {
+      "img_size": 224,
+      "variant": "tiny",
+      "patch_size": 4,
+      "embed_dim": 96,
+      "depths": [
+        2,
+        2,
+        6,
+        2
+      ],
+      "num_heads": [
+        3,
+        6,
+        12,
+        24
+      ],
+      "window_size": 7,
+      "mlp_ratio": 4.0,
+      "dropout": 0.0,
+      "attention_dropout": 0.0,
+      "projection_dropout": 0.0,
+      "drop_path_rate": 0.05,
+      "use_gradient_checkpointing": false
+    },
+    "simmim_config": {
+      "type": "simmim",
+      "mask_ratio": 0.9,
+      "mask_type": "random",
+      "norm_target": {
+        "enable": true,
+        "patch_size": 7
+      },
+      "loss": {
+        "type": "l1"
+      }
+    },
+    "training_config": {
+      "learning_rate": 0.0002,
+      "num_epochs": 100,
+      "warmup_epochs": 10,
+      "warmup_start_factor": 0.1,
+      "weight_decay": 0.05,
+      "mixed_precision": true,
+      "compile": false,
+      "checkpoint_frequency": 1,
+      "load_imagenet_pretrained": true,
+      "early_stopping": {
+        "enabled": false,
+        "patience": 20,
+        "min_delta": 0.0001,
+        "mode": "min"
+      },
+      "batch_size": 128
+    }
+  }
+}

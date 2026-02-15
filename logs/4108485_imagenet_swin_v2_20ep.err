@@ -1,0 +1,118 @@
+/var/spool/slurmd/spool/job4108485/slurm_script: line 19: python: command not found
+INFO:    gocryptfs not found, will not be able to use gocryptfs
+2026-02-15 11:25:28,697 - INFO - Logging initialized. Log file: runs/run_337/training.log
+2026-02-15 11:25:28,734 - INFO - Experiment directory: runs/run_337
+2026-02-15 11:25:28,736 - INFO - Setting random seeds for reproducibility (seed: 42)...
+2026-02-15 11:25:28,748 - INFO - ✅ All seeds set to 42 (deterministic=False)
+2026-02-15 11:25:29,125 - INFO - GPU memory cleared at startup. Available: 39.2GB
+2026-02-15 11:25:29,126 - INFO - Using device: cuda
+2026-02-15 11:25:29,127 - INFO - Training configuration: epochs=20, warmup=3, lr=0.0005
+2026-02-15 11:25:29,129 - INFO - SWIN_HYBRID configuration: {'type': 'swin_hybrid', 'variant': 'tiny', 'img_size': 224, 'patch_size': 4, 'embed_dim': 96, 'depths': [2, 2, 6, 2], 'num_heads': [3, 6, 12, 24], 'window_size': 7, 'mlp_ratio': 4.0, 'dropout': 0.0, 'attention_dropout': 0.0, 'projection_dropout': 0.0, 'drop_path_rate': 0.08, 'use_shifted_window': True, 'use_relative_bias': True, 'use_absolute_pos_embed': False, 'use_hierarchical_merge': False, 'use_gradient_checkpointing': False, 'use_cnn_stem': True, 'cnn_stem_config': {'channels': [32, 64], 'kernel_size': 3, 'stride': 2, 'padding': 1, 'activation': 'gelu', 'use_batch_norm': True}}
+2026-02-15 11:25:29,130 - INFO - Loading dataset...
+2026-02-15 11:25:29,132 - INFO - Starting ImageNet data loading from root: /
+2026-02-15 11:25:29,133 - INFO - Resolved root path: /
+2026-02-15 11:25:29,135 - INFO - Root path exists: True
+2026-02-15 11:25:29,136 - INFO - Root path is dir: True
+2026-02-15 11:25:29,141 - INFO - Contents of /: ['/.exec', '/.run', '/.shell', '/.singularity.d', '/.test', '/bin', '/boot', '/dev', '/environment', '/etc', '/home', '/lib', '/lib64', '/media', '/mnt', '/opt', '/proc', '/requirements.txt', '/root', '/run', '/sbin', '/singularity', '/srv', '/sys', '/tmp', '/usr', '/var', '/meta', '/train_set', '/train_set_small', '/val_set', '/val_set_unlabeled']
+2026-02-15 11:25:29,142 - INFO - Expected train_dir: /train_set, exists: True
+2026-02-15 11:25:29,143 - INFO - Expected val_dir: /val_set, exists: True
+2026-02-15 11:25:35,409 - INFO - Loaded ImageNet data from /: train=1281167, val=50000
+2026-02-15 11:25:36,157 - INFO - Dataset limits applied (stratified sampling enabled)
+2026-02-15 11:25:36,159 - INFO - Dataset loaded: train=100000 samples (782 batches), val=50000 samples (391 batches), test=50000 samples (391 batches)
+2026-02-15 11:25:38,005 - INFO - Using pretrained model: swin_tiny_patch4_window7_224
+2026-02-15 11:25:38,007 - INFO - Model architecture: Swin-Tiny
+2026-02-15 11:25:38,008 - INFO - Initializing reference model...
+2026-02-15 11:25:38,010 - INFO - Loading TIMM model: swin_tiny_patch4_window7_224 with pretrained weights
+2026-02-15 11:25:38,624 - INFO - Loading pretrained weights from Hugging Face hub (timm/swin_tiny_patch4_window7_224.ms_in1k)
+2026-02-15 11:25:38,883 - INFO - HTTP Request: HEAD https://huggingface.co/timm/swin_tiny_patch4_window7_224.ms_in1k/resolve/main/model.safetensors "HTTP/1.1 302 Found"
+2026-02-15 11:25:38,963 - INFO - [timm/swin_tiny_patch4_window7_224.ms_in1k] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+2026-02-15 11:25:40,002 - INFO - Successfully loaded swin_tiny_patch4_window7_224 from TIMM
+2026-02-15 11:25:40,004 - INFO - Encoder loaded: 768 output features
+2026-02-15 11:25:40,009 - INFO - Created classification head: 768 -> 1000 classes
+2026-02-15 11:25:40,012 - INFO - Reference model created. Trainable params (head only): 770,536
+2026-02-15 11:25:40,039 - INFO - Detected Swin Transformer architecture
+2026-02-15 11:25:40,040 - INFO - Detected model size: tiny
+2026-02-15 11:25:40,042 - INFO - Initializing custom Swin model (size: tiny)...
+2026-02-15 11:25:40,042 - INFO - Custom model will match architecture: embed_dim=96, depths=[2, 2, 6, 2], num_heads=[3, 6, 12, 24]
+2026-02-15 11:25:40,178 - INFO - Transferring weights from reference to custom encoder...
+2026-02-15 11:25:40,180 - INFO - Weight transfer: SwinTransformer -> SwinTransformerModel
+2026-02-15 11:25:40,199 - INFO - Weight transfer: 169 layers transferred.
+2026-02-15 11:25:40,201 - INFO - Weight transfer completed: {'transferred': 169, 'missing': 0, 'size_mismatches': 0}
+2026-02-15 11:25:40,202 - INFO - ✓ All expected weights transferred successfully
+2026-02-15 11:25:40,204 - INFO - Custom model created. Trainable params (head only): 770,536
+2026-02-15 11:25:40,225 - INFO - Starting reference model training...
+2026-02-15 11:25:40,227 - INFO - Optimizer: training head parameters only (encoder frozen)
+2026-02-15 11:25:40,228 - INFO - LR Scheduler: cosine with 3 warmup epochs
+2026-02-15 11:25:40,230 - INFO - Mixed precision enabled → CUDA bf16 selected (hardware supported)
+2026-02-15 11:25:40,231 - INFO - Starting training...
+2026-02-15 11:25:42,504 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-15 11:25:42,506 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-15 11:25:45,850 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-15 11:25:46,297 - INFO - First batch complete! Loss: 7.0017
+2026-02-15 11:46:15,184 - INFO - Epoch 1/20: LR: 0.000170
+2026-02-15 11:46:15,221 - INFO - Epoch 1/20: Train Loss: 6.9938, Val Loss: 6.9530, Val Acc: 0.16%
+2026-02-15 11:46:16,913 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-15 11:46:16,919 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-15 11:46:17,010 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-15 11:46:17,044 - INFO - First batch complete! Loss: 6.9351
+2026-02-15 12:05:57,491 - INFO - Epoch 2/20: LR: 0.000335
+2026-02-15 12:05:57,535 - INFO - Epoch 2/20: Train Loss: 5.8929, Val Loss: 4.4434, Val Acc: 74.51%
+2026-02-15 12:05:59,412 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-15 12:05:59,418 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-15 12:05:59,523 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-15 12:05:59,561 - INFO - First batch complete! Loss: 4.7195
+2026-02-15 12:26:45,029 - INFO - Epoch 3/20: LR: 0.000500
+2026-02-15 12:26:45,240 - INFO - Epoch 3/20: Train Loss: 2.6141, Val Loss: 1.0030, Val Acc: 78.65%
+2026-02-15 12:26:46,834 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-15 12:26:46,839 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-15 12:26:46,903 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-15 12:26:46,963 - INFO - First batch complete! Loss: 1.1164
+2026-02-15 12:47:36,441 - INFO - Epoch 4/20: LR: 0.000496
+2026-02-15 12:47:36,456 - INFO - Epoch 4/20: Train Loss: 1.1507, Val Loss: 0.8040, Val Acc: 79.58%
+2026-02-15 12:47:38,197 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-15 12:47:38,202 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-15 12:47:38,331 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-15 12:47:38,373 - INFO - First batch complete! Loss: 0.7451
+2026-02-15 13:08:46,179 - INFO - Epoch 5/20: LR: 0.000483
+2026-02-15 13:16:39,144 - INFO - Epoch 5/20: Train Loss: 0.9956, Val Loss: 0.7991, Val Acc: 79.84%, Test Loss: 0.7991, Test Acc: 79.84%
+2026-02-15 13:16:40,893 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-15 13:16:40,895 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-15 13:16:40,912 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-15 13:16:40,999 - INFO - First batch complete! Loss: 0.9800
+2026-02-15 13:36:00,790 - INFO - Epoch 6/20: LR: 0.000463
+2026-02-15 13:36:00,804 - INFO - Epoch 6/20: Train Loss: 0.9310, Val Loss: 0.8031, Val Acc: 79.76%
+2026-02-15 13:36:02,740 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-15 13:36:02,746 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-15 13:36:02,801 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-15 13:36:02,850 - INFO - First batch complete! Loss: 0.9624
+2026-02-15 13:56:17,159 - INFO - Epoch 7/20: LR: 0.000435
+2026-02-15 13:56:17,178 - INFO - Epoch 7/20: Train Loss: 0.9148, Val Loss: 0.8059, Val Acc: 79.86%
+2026-02-15 13:56:19,003 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-15 13:56:19,012 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-15 13:56:19,145 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-15 13:56:19,187 - INFO - First batch complete! Loss: 0.8721
+2026-02-15 14:17:04,912 - INFO - Epoch 8/20: LR: 0.000401
+2026-02-15 14:17:04,914 - INFO - Epoch 8/20: Train Loss: 0.8684, Val Loss: 0.8126, Val Acc: 79.78%
+2026-02-15 14:17:06,538 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-15 14:17:06,543 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-15 14:17:06,627 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-15 14:17:06,678 - INFO - First batch complete! Loss: 0.9657
+2026-02-15 14:36:41,281 - INFO - Epoch 9/20: LR: 0.000362
+2026-02-15 14:36:41,283 - INFO - Epoch 9/20: Train Loss: 0.8502, Val Loss: 0.8158, Val Acc: 79.83%
+2026-02-15 14:36:43,157 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-15 14:36:43,162 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-15 14:36:43,266 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-15 14:36:43,312 - INFO - First batch complete! Loss: 1.0924
+2026-02-15 14:56:54,053 - INFO - Epoch 10/20: LR: 0.000319
+2026-02-15 15:05:07,924 - INFO - Epoch 10/20: Train Loss: 0.8355, Val Loss: 0.8173, Val Acc: 79.94%, Test Loss: 0.8173, Test Acc: 79.94%
+2026-02-15 15:05:09,854 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-15 15:05:09,856 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-15 15:05:09,875 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-15 15:05:09,965 - INFO - First batch complete! Loss: 0.8714
+2026-02-15 15:25:51,364 - INFO - Epoch 11/20: LR: 0.000274
+2026-02-15 15:25:51,391 - INFO - Epoch 11/20: Train Loss: 0.8139, Val Loss: 0.8200, Val Acc: 79.87%
+2026-02-15 15:25:53,523 - INFO - Processing first batch (shape: torch.Size([128, 3, 224, 224]))
+2026-02-15 15:25:53,528 - INFO - Running first forward pass (torch.compile may take time)...
+2026-02-15 15:25:53,584 - INFO - First forward pass complete (output shape: torch.Size([128, 1000]))
+2026-02-15 15:25:53,635 - INFO - First batch complete! Loss: 0.7404
+[2026-02-15T15:40:57.080] error: *** JOB 4108485 ON head022 CANCELLED AT 2026-02-15T15:40:57 DUE to SIGNAL Terminated ***
